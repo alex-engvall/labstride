@@ -26,6 +26,7 @@ Specification version 0.1.0. All application features are planned, not implement
 - [Versioned schemas and broker API](22-api-and-schema-reference.md)
 
 - [Issues and contribution forms](23-issues-and-contribution-forms.md)
+- [Pull request templates](24-pull-request-templates.md)
 
 ## Machine-readable sources
 

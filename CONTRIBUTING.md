@@ -12,6 +12,8 @@ Use your actual contributor identity. For agent-assisted code, the submitting hu
 
 ## Pull requests
 
+Use the [default implementation template](.github/pull_request_template.md), or choose a [bug-fix, extension or documentation template](docs/24-pull-request-templates.md). The guide explains selection in GitHub and use by API/agent-created PRs.
+
 Include problem, resulting behavior, LS/AC IDs, tests run, unverified limits and recovery implications. Required changes include the relevant contract, docs and backlog. New runtime dependencies need a purpose, license and maintenance rationale. Avoid implementation-mirroring tests.
 
 Public connectors/actions live as separate packages in this repository initially. External authors may distribute separate compatible extensions. Installing an extension is an explicit operator action; publication is not an endorsement or security review.
