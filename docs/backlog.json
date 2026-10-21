@@ -262,7 +262,7 @@
       ],
       "implementation_pr": null,
       "verification_evidence": [
-        "[Verified capabilities and remaining W01/W02/W06 work](evidence/README.md)",
+        "[Completed W00.1 discovery (#11, merged PR #39); runtime handoff to W01/W02/W06](evidence/README.md)",
         "[Initial broad-credential probes](evidence/W00.1-github-access-2026-10-21.md)",
         "[Dedicated App repository reads/issue writes; Project write rejected](evidence/W00.1-dedicated-app-2026-10-21.md)",
         "[Project-only PAT draft/public-issue field writes and cleanup](evidence/W00.1-project-pat-2026-10-21.md)",

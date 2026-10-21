@@ -18,6 +18,8 @@ Tracker: [#3](https://github.com/alex-engvall/labstride/issues/3).
 
 **Requirements:** LS-GH-001, LS-EXT-001
 
+**Discovery closeout:** W00.1 / [#11](https://github.com/alex-engvall/labstride/issues/11) is completed; [PR #39](https://github.com/alex-engvall/labstride/pull/39) merged its scoped provider evidence. See the [capability and handoff matrix](evidence/README.md). W00 remains `in_progress` for its other gates. LS-GH-001 remains `in_progress` for cross-package acceptance; the unrun runtime cases do not keep discovery #11 open.
+
 ## W01 — Durable coordinator and operation model
 
 Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).
@@ -26,6 +28,7 @@ Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).
 
 - Implement migrations, typed states, intent/outbox and atomic claims.
 - Kill/restart a real process around each effect boundary.
+- Apply the completed W00.1 discovery to atomic observation/checkpoint and intent/outbox persistence; preserve original operation identities and uncertain outcomes across actual coordinator crashes.
 - Persist session observation and projection identity; prove missing/duplicate/late hook recovery and outbox retries without stale human-state overwrites.
 
 **First verifiable outcome:** A queued synthetic operation resumes with its original ID after restart.
@@ -41,6 +44,7 @@ Tracker: [#5](https://github.com/alex-engvall/labstride/issues/5).
 - Compile configurable fields/rules and operator permissions.
 - Implement current-state reconciliation and non-destructive projections.
 - Use bounded personal-Project polling and one managed projection writer; keep human task/decision authority separate from operational records.
+- Apply the completed W00.1 discovery to credential/container preflight, supported history reconciliation, actor/binding/generation authorization and safe cursor/error/budget/expiry handling; reject unsupported bindings and historical starts on initial import.
 
 **First verifiable outcome:** A test Project field transition creates exactly one queued run.
 
@@ -93,6 +97,7 @@ Tracker: [#9](https://github.com/alex-engvall/labstride/issues/9).
 
 - Implement operator diagnostics and pause/reconcile controls.
 - Exercise backup, upgrade and restore with unresolved external effects.
+- Complete W00.1's runtime handoff through Doctor diagnostics for missing capabilities, invalid cursors, expired credentials and unknown outcomes; verify AC29 using the owning GitHub/broker/host slices.
 - Package the CLI and single service together; diagnose optional hook/session compatibility without a hosting/control-panel dependency.
 
 **First verifiable outcome:** A fresh operator can diagnose and recover a run without editing database rows.
