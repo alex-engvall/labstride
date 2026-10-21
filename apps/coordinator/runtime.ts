@@ -15,14 +15,24 @@ export function startExecution(dataDir: string, options: {
     if (options.restore) runtime.store.enterRestore(options.restore);
     const actions = createWorker(runtime.store, options.actions);
     const observations = createObservationWorker(runtime.store, options.observations);
-    let running: Promise<void> | undefined;
+    let observationJob: Promise<void> | undefined;
+    let observationError: unknown;
+    let closed = false;
     return { ...runtime,
-      tick(): Promise<void> {
-        if (running) return running;
-        running = (async () => { await observations.tick(); await actions.tick(); })().finally(() => { running = undefined; });
-        return running;
+      async tick(): Promise<void> {
+        if (closed) return;
+        if (!observationJob) observationJob = observations.tick().catch(error => { observationError = error; })
+          .finally(() => { observationJob = undefined; });
+        await actions.tick();
       },
-      async close(): Promise<void> { await running; runtime.store.close(); },
+      async drain(): Promise<void> {
+        await observationJob; await actions.drain();
+        if (observationError) { const error = observationError; observationError = undefined; throw error; }
+      },
+      async close(): Promise<void> {
+        closed = true;
+        try { await this.drain(); await actions.close(); } finally { runtime.store.close(); }
+      },
     };
   } catch (error) { runtime.store.close(); throw error; }
 }

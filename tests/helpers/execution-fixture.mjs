@@ -21,6 +21,7 @@ export function schedule(store) { const receipt = store.receive(eventInput()); c
 export function nextGeneration(store, generation = 2) {
   const plan = startPlan(), suffix = `:g${generation}`;
   for (const key of ['request','run','workspace','operation','outbox']) plan[key].id += suffix;
+  plan.workspace.locator += suffix; plan.workspace.branch += suffix;
   plan.request.generation = generation;
   plan.run.requestId = plan.request.id;
   plan.workspace.runId = plan.run.id;
@@ -32,4 +33,25 @@ export function nextGeneration(store, generation = 2) {
   plan.projections = [];
   const input = eventInput(); input.checkpoint = null; input.event.eventId += suffix; input.event.externalId += suffix; input.event.facts.generation = generation;
   store.scheduleStart(store.receive(input).id, plan, context); return plan;
+}
+export function nextIssue(store, index = 2, capacityClass = 'development', resourceKey = null) {
+  const plan = startPlan(), suffix = `:issue${index}`;
+  for (const key of ['request','run','workspace','operation','outbox']) plan[key].id += suffix;
+  plan.request.issueId += suffix; plan.run.requestId = plan.request.id; plan.workspace.runId = plan.run.id;
+  plan.workspace.locator += suffix; plan.workspace.branch += suffix;
+  Object.assign(plan.operation,{runId:plan.run.id,workspaceId:plan.workspace.id});
+  Object.assign(plan.operation.request,{runId:plan.run.id,workspaceId:plan.workspace.id,operationId:plan.operation.id});
+  plan.operation.request.requestDigest=requestDigest(plan.operation.request);
+  Object.assign(plan.outbox,{runId:plan.run.id,operationId:plan.operation.id,intentKey:`intent${suffix}`});
+  plan.outbox.payload.operationId=plan.operation.id;plan.projections=[];plan.capacityClass=capacityClass;plan.resourceKey=resourceKey??plan.resourceKey+suffix;
+  const input=eventInput();input.checkpoint=null;input.event.eventId+=suffix;input.event.externalId+=suffix;input.event.subjectId=plan.request.issueId;
+  store.scheduleStart(store.receive(input).id,plan,context);return plan;
+}
+export function completeGeneration(store) {
+  const plan=startPlan(), claim=store.claim(plan.operation.id,'fixture','fixture');store.beginEffect(claim);
+  store.acceptResult({schemaVersion:'1.0',kind:'result',operationId:plan.operation.id,requestDigest:plan.operation.request.requestDigest,
+    result:{status:'succeeded',handle:null,resources:[],outputs:{},evidenceRefs:['test:completion'],error:null}},claim,1);
+  for(const state of ['preparing','ready','active','completed']) {
+    const run=store.get('run',plan.run.id);store.commit([{record:{...run,state,revision:run.revision+1},expectedRevision:run.revision}],context);
+  }
 }

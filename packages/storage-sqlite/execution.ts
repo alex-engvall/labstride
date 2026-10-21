@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { SqliteStore } from './store.ts';
+import { SchedulingStore } from './scheduling.ts';
 import { validated } from './validation.ts';
 import { LifecycleError } from '../core/lifecycle.ts';
 import type { AuditContext, RecordOf } from '../core/lifecycle.ts';
@@ -27,7 +27,7 @@ function bounded(value: string): void {
   if (typeof value !== 'string' || !value || value.length > 1024) throw new LifecycleError('invalid_payload');
 }
 
-export class ExecutionStore extends SqliteStore implements InboxStore {
+export class ExecutionStore extends SchedulingStore implements InboxStore {
   receive(input: InboxInput): { id: string; duplicate: boolean } {
     const safe = validated('execution-inbox', input);
     return this.transaction(() => this.receiveInside(safe));
@@ -72,6 +72,7 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
   scheduleStart(id: string, input: StartPlan, authorization: AuditContext): string {
     // The plan comes from authorized policy, never by spreading event.facts into a plan.
     bounded(input.resourceKey);
+    if (input.capacityClass !== undefined && !['development','ciReview'].includes(input.capacityClass)) throw new LifecycleError('invalid_payload');
     const plan = { ...input, request: validated('lifecycle-record', input.request), run: validated('lifecycle-record', input.run),
       workspace: validated('lifecycle-record', input.workspace), operation: validated('lifecycle-record', input.operation),
       outbox: validated('lifecycle-record', input.outbox), projections: input.projections.map(p => validated('lifecycle-record', p)) };
@@ -102,9 +103,19 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
       } else {
         const latest = this.db.prepare('SELECT max(generation) AS generation FROM requests WHERE installation_id=? AND provider_id=? AND issue_id=?').get(...key);
         if (Number(latest?.generation ?? 0) >= plan.request.generation) throw new LifecycleError('revision_conflict');
+        // Canonical issue identity is independent of installation configuration snapshots.
+        if (this.issuePeers(plan.run, plan.request).length) throw new LifecycleError('issue_busy');
         this.write([plan.request, plan.run, plan.workspace, plan.operation, plan.outbox, ...plan.projections]
           .map(record => ({ record, expectedRevision: null })), authorization);
         this.db.prepare('INSERT INTO execution_bindings VALUES (?,?,?,?)').run(plan.operation.id, plan.resourceKey, plan.operation.request.requestDigest, authorization.actorId);
+        const collision = this.db.prepare(`SELECT w.payload FROM workspaces w JOIN runs r ON r.id=w.run_id WHERE w.id!=? AND w.state!='deleted'
+          AND (json_extract(w.payload,'$.targetId')=? AND (json_extract(w.payload,'$.locator')=? OR
+          (? IS NOT NULL AND json_extract(w.payload,'$.localPath')=?)) OR
+          (json_extract(r.payload,'$.repositoryId')=? AND json_extract(w.payload,'$.branch')=?))`).get(plan.workspace.id,
+          plan.workspace.targetId, plan.workspace.locator, plan.workspace.localPath, plan.workspace.localPath, plan.run.repositoryId, plan.workspace.branch);
+        if (collision) throw new LifecycleError('identity_conflict');
+        this.db.prepare('INSERT INTO run_admissions VALUES (?,NULL)').run(plan.run.id);
+        this.db.prepare('INSERT INTO operation_scheduling VALUES (?,?)').run(plan.operation.id, input.capacityClass ?? 'development');
         this.enqueue('operation', plan.operation.id);
         for (const projection of plan.projections) this.enqueue('projection', projection.id);
       }
@@ -167,6 +178,7 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
         return claim;
       }
       this.assertRunnable(operationId);
+      this.reserve(operationId);
       const op = this.get('operation', operationId);
       const binding = this.db.prepare('SELECT * FROM execution_bindings WHERE operation_id=?').get(operationId);
       const delivery = this.delivery(`operation:${operationId}`);
@@ -196,6 +208,7 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
       const row = this.checkClaim(claim);
       if (!row.active || row.consumed) throw new LifecycleError('effect_consumed');
       this.assertRunnable(claim.operationId);
+      this.reserve(claim.operationId);
       if (this.get('operation', claim.operationId).state !== 'claimed') throw new LifecycleError('effect_blocked');
       this.db.prepare('UPDATE claims SET consumed=1 WHERE id=?').run(claim.id);
       this.changeOperation(claim.operationId, 'running', true, []);

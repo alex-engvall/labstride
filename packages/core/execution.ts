@@ -6,6 +6,7 @@ export interface StartPlan {
   request: RecordOf<'request'>; run: RecordOf<'run'>; workspace: RecordOf<'workspace'>;
   operation: RecordOf<'operation'>; outbox: RecordOf<'outbox'>; projections: RecordOf<'projection'>[];
   resourceKey: string;
+  capacityClass?: 'development' | 'ciReview';
 }
 // Only a trusted policy adapter constructs plans/context. These are not event payload fields.
 export interface InboxStore {

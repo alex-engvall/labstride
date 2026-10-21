@@ -86,6 +86,8 @@ export interface LabstrideInstallationConfigurationV1 {
     perIssue: 1;
     perDeploymentTarget: 1;
     metadataRetentionDays: number;
+    development?: number;
+    ciReview?: number;
   };
   /**
    * @minItems 1

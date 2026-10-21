@@ -8,7 +8,7 @@ import { once } from 'node:events';
 import { startCoordinator } from '../apps/coordinator/main.ts';
 import { createObservationWorker } from '../packages/core/observation-worker.ts';
 import { PreEffectTransient } from '../packages/core/worker.ts';
-import { seed, schedule, nextGeneration, context } from './helpers/execution-fixture.mjs';
+import { seed, schedule, nextGeneration, completeGeneration, context } from './helpers/execution-fixture.mjs';
 import { enroll, hook, observation, provider } from './helpers/observation-fixture.mjs';
 const fail = code => e => e.code === code;
 const message = async p => (await once(p, 'message', { signal: AbortSignal.timeout(10000) }))[0];
@@ -64,7 +64,7 @@ test('reordered hooks re-observe authoritative state and cannot regress a newer 
   f.store.receiveHook(f.session.id,newer); f.store.receiveHook(f.session.id,hook(f.session,'old'));
   await worker(f,{ sessions:new Map([[f.session.providerId,{ async observe() { return observation(f.session,{ lastTurnId:'current-turn',humanActivityRevision:8 }); } }]]) }).tick();
   assert.equal(f.store.get('session',f.session.id).lastTurnId,'current-turn');
-  nextGeneration(f.store);
+  completeGeneration(f.store); nextGeneration(f.store);
   assert.throws(() => f.store.receiveHook(f.session.id,hook(f.session,'late')),fail('identity_conflict'));
   assert.equal(f.store.snapshot().records.filter(r => r.kind==='session').length,1);
 });
@@ -99,7 +99,7 @@ test('read failure after a committed write cannot be misclassified as pre-effect
 test('unsupported atomic generation/version guards and superseded projections never write', async t => {
   const f = fixture(t); f.external.adapter.atomicPrecondition = false; await worker(f).tick();
   assert.equal(f.external.count(),0); assert.equal(f.store.delivery('projection:projection-test').lastError,'unsupported_capability');
-  f.store.resumeObservation('projection:projection-test',context); nextGeneration(f.store); f.external.adapter.atomicPrecondition = true;
+  f.store.resumeObservation('projection:projection-test',context); completeGeneration(f.store); nextGeneration(f.store); f.external.adapter.atomicPrecondition = true;
   await worker(f).tick(); assert.equal(f.external.count(),0); assert.equal(f.store.delivery('projection:projection-test').state,'superseded');
 });
 test('an in-flight uncertain write with unchanged provider state is never resent', async t => {

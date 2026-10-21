@@ -188,6 +188,16 @@
         "metadataRetentionDays": {
           "type": "integer",
           "minimum": 1
+        },
+        "development": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "ciReview": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
         }
       },
       "required": [
