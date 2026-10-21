@@ -54,6 +54,8 @@ The workflow then validates target/source/inputs, executes only the permitted op
 
 Preflight must establish a secure route from GitHub runner to broker. No insecure HTTP fallback, open agent API or generic remote shell endpoint. W00 must verify this route before workflow execution is enabled.
 
+The [isolated W00.2 probe](27-oidc-discovery-probe.md) implements a narrower push-only, single-run/attempt identity test at `/v1/discovery/oidc-probe`. Its local signed fixtures do not verify GitHub token issuance or runner connectivity. Health only means HTTP process availability. Keep its private policy/read credential and independently authorized HTTPS ingress separate from public source. It has no operation claim or effect endpoint; [the open discovery gates](evidence/W00.2-oidc-probe-2026-10-21.md) must not be reported as passed from local tests or directory access.
+
 ## Receipt and completion
 
 The receipt binds operation ID, attempt, input digest, source SHA, target, executor run ID/attempt, conclusion and resource observations. The coordinator verifies workflow identity and actual conclusion through GitHub. Success for deploy also requires the configured target health/revision evidence. A green workflow alone is insufficient where the health requirement exists.

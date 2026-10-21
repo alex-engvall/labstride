@@ -1,0 +1,29 @@
+# A recipe, deliberately outside .github/workflows: this file does not enable a job.
+# Copy the reviewed client into the selected test repository in a separate change.
+# Not a Contribution. Do not merge the disposable test branch.
+name: Isolated OIDC discovery
+on:
+  push:
+    branches: [oidc-discovery]
+permissions: {}
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # This bounded window lets the operator independently obtain run ID/attempt
+      # and exact commit, then start the separately authorized HTTPS probe with
+      # that pinned policy. It performs no deployment or remote command.
+      - name: Allow operator to bind this exact run
+        run: sleep 120
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Verify identity and HTTPS route
+        env:
+          LABSTRIDE_PROBE_ENDPOINT: ${{ vars.LABSTRIDE_PROBE_ENDPOINT }}
+          LABSTRIDE_PROBE_AUDIENCE: ${{ vars.LABSTRIDE_PROBE_AUDIENCE }}
+        run: node tools/oidc-probe/runner-client.mjs

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://labstride.dev/discovery/oidc-probe-response/1.0",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "result", "probeId", "repositoryId", "runId", "runAttempt", "workflowSha", "token", "claimNames", "verified"],
+      "properties": {
+        "schemaVersion": {"const": "1.0"},
+        "result": {"const": "verified_discovery_identity"},
+        "probeId": {"type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}$"},
+        "repositoryId": {"$ref": "#/$defs/id"},
+        "runId": {"$ref": "#/$defs/id"},
+        "runAttempt": {"$ref": "#/$defs/id"},
+        "workflowSha": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+        "token": {
+          "type": "object", "additionalProperties": false,
+          "required": ["issuedAt", "notBefore", "expiresAt"],
+          "properties": {
+            "issuedAt": {"type": "integer"}, "notBefore": {"type": "integer"}, "expiresAt": {"type": "integer"}
+          }
+        },
+        "claimNames": {"type": "array", "maxItems": 128, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 128}},
+        "verified": {
+          "type": "object", "additionalProperties": false,
+          "required": ["signature", "policy", "independentRunAttempt"],
+          "properties": {"signature": {"const": true}, "policy": {"const": true}, "independentRunAttempt": {"const": true}}
+        }
+      }
+    },
+    {
+      "type": "object", "additionalProperties": false, "required": ["schemaVersion", "error"],
+      "properties": {"schemaVersion": {"const": "1.0"}, "error": {"enum": ["identity_rejected", "identity_provider_unavailable", "run_metadata_unavailable", "invalid_payload", "payload_too_large", "not_found", "probe_unavailable"]}}
+    },
+    {
+      "type": "object", "additionalProperties": false, "required": ["schemaVersion", "service", "ready"],
+      "properties": {"schemaVersion": {"const": "1.0"}, "service": {"const": "labstride-oidc-discovery"}, "ready": {"const": true}}
+    }
+  ],
+  "$defs": {"id": {"type": "string", "pattern": "^[1-9][0-9]{0,15}$"}}
+}

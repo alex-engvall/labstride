@@ -1,0 +1,43 @@
+# 27 — Isolated OIDC discovery probe
+
+This executable W00.2 / [#12](https://github.com/alex-engvall/labstride/issues/12) probe tests the identity boundary proposed in [workflow execution](09-github-and-workflow-contract.md). It has no operation store, claims, receipts, dispatch, command runner, merge or deployment behavior. It is not a running Labstride coordinator. See the [evidence and remaining gates](evidence/W00.2-oidc-probe-2026-10-21.md).
+
+## Policy and endpoints
+
+The [policy schema](../tools/oidc-probe/config.schema.json) restricts a probe to one independently chosen repository/owner ID, workflow path, branch ref, exact commit, push run and attempt. Use an operator-owned copy of the [example](../tools/oidc-probe/policy.example.json); never take policy from a request or issue. All identifiers and the audience are installation settings. The narrow branch syntax and push-only profile are deliberate discovery limits; pull requests, reusable workflows, environments, self-hosted runners and differing source/workflow commits require separate profiles and evidence.
+
+The [verifier](../tools/oidc-probe/probe.mjs) accepts only RS256 tokens from GitHub's fixed HTTPS issuer/JWKS. It checks exact audience, validity, required identity claims, hosted-runner claim and every pinned policy value before reading GitHub. Tokens are at most 16 KiB; maximum token age is ten minutes, with no clock tolerance. Subject format is observed through claim availability, not guessed from repository names; the decision instead binds immutable repository/owner IDs and the explicit workflow/ref/run/attempt. Optional reusable-workflow claims are not required for an ordinary push job.
+
+Each accepted token requires a fresh independent read of `GET /repos/{owner}/{repo}/actions/runs/{run_id}/attempts/{attempt}` at the fixed GitHub API origin. The returned repository, owner, head repository, workflow path, branch, commit, event, run, attempt and in-progress status must match. Numeric IDs must be safe integers; there is no lossy coercion. The API read is limited to 256 KiB and five seconds, with redirects disabled. GitHub's maintained `jose` library performs signature and registered-claim checks; keys are fetched only from GitHub, never a JWT-supplied URL.
+
+| Endpoint | Behavior |
+| --- | --- |
+| `GET /healthz` | HTTP process health only; does not prove token validity, GitHub access or ingress readiness |
+| `POST /v1/discovery/oidc-probe` | Bearer OIDC token plus a [versioned request](../tools/oidc-probe/request.schema.json) containing only `schemaVersion` and `probeId` |
+| Other paths/methods | 404; operation/command endpoints do not exist |
+
+JSON bodies are limited to 4 KiB. Input and [response](../tools/oidc-probe/response.schema.json) schemas reject unknown core fields. HTTP timeouts and connection closure bound incomplete requests. Responses use `no-store` and include only run IDs, pinned commit, claim names, token timestamps and verification results. Neither tokens, subjects, JTI values, credentials nor arbitrary upstream diagnostics are printed. Metadata/key outages return 503; failed identity checks return 403; malformed input returns 400 or 413. No success is cached across provider failures. A repeated valid observation performs no operation effect and grants no execution authority.
+
+## Local preparation and explicit activation
+
+The supported development baseline is Node 24.22.0/npm 11.19.1 on Linux. Install the root lock with `npm ci --ignore-scripts --no-audit --no-fund`; these are discovery/development dependencies, so do not omit dev dependencies. `jose` 6.2.13 is MIT-licensed and pinned alongside Ajv. Preserve dependency notices when distributing a prepared bundle. This selection does not establish coordinator runtime dependency support.
+
+Run `node --test --test-isolation=none tests/oidc-probe.test.mjs tests/oidc-runner-client.test.mjs` for synthetic RSA verification, bounded HTTP behavior and runner-client fixtures. The HTTP tests bind ephemeral loopback ports and close them afterward. They use no live provider credentials. `npm test` includes these tests alongside the contract/generator suite.
+
+Do the following only when service activation and the synthetic workflow are authorized:
+
+1. Choose an isolated test branch and review both the [inactive workflow recipe](../tools/oidc-probe/workflow.example.yml) and [runner client](../tools/oidc-probe/runner-client.mjs). The recipe is outside `.github/workflows` and enables nothing in this repository. It has only `contents: read` and `id-token: write`, no deployment credentials or write access. Workflow creation uses a separately authorized maintainer credential; the discovery App does not need Workflows write or Actions write.
+2. Prepare trusted HTTPS ingress to the probe's loopback listener. Keep policy, read credentials and source outside the public document root. Forward only the two documented paths, preserve the Authorization header, disable body/header credential logging, impose request/rate limits and retain TLS verification. The Node process itself has no TLS termination. Do not expose its HTTP port directly or configure an HTTP fallback.
+3. Configure the workflow's `LABSTRIDE_PROBE_ENDPOINT` as the complete HTTPS discovery URL and `LABSTRIDE_PROBE_AUDIENCE` as the chosen audience. Push the disposable branch, independently read its run/attempt and exact commit, and fill the policy with those values. The recipe's bounded 120-second preparation window is not synchronization: if setup misses it, the run can fail and remains an unverified observation. Do not relax the policy to make a retry pass.
+4. Supply a short-lived selected-repository App installation token with only Actions read/Metadata read as the literal environment variable `LABSTRIDE_PROBE_GITHUB_TOKEN`. Obtain/revoke it in a separate trusted operator process; the probe neither mints nor renews it, reads PEM keys or executes dotenv files. Then start `node tools/oidc-probe/serve.mjs /operator-owned/policy.json`. It binds `127.0.0.1:8789` by default; `LABSTRIDE_PROBE_PORT` is optional. Policy changes require restart. A token-expired metadata read fails closed with 503 until the operator replaces the token and restarts.
+5. The client requests one audience-bound token, requires verified broker acceptance, requests a separate wrong-audience token and requires 403, waits 65 seconds, then requests another correct-audience token. It records only allowlisted evidence. `sameToken` and `issuedAtAdvanced` preserve what actually happened; a second request alone does not prove refresh past expiry. The client never retries an ambiguous response automatically. The chosen timing must fit the App token's remaining validity and the job timeout.
+6. Record runner label, commit, run/attempt, HTTPS route, verified claim names/TTL, negative outcomes and renewed-token observation. Wrong repository/workflow/run live tests require separately prepared mismatching server policies against a genuine token; local signed fixtures alone do not close those live gates. Long-running renewal beyond initial expiry, rerun attempts and provider outages remain separate checks.
+7. Stop the probe with SIGTERM/SIGINT, revoke its read token and remove only the explicitly owned ingress/workflow/fixture resources. Keep uncertain observations and audit evidence. Removing a disposable branch or ingress does not erase GitHub history. No application deployment or rollback is exercised.
+
+Current operator policy prohibits merge/deploy. Preparing source/tests or a private archive does not activate this service, change ingress, install a process manager or run the workflow. Permission to write a directory is not permission to publish it.
+
+## Handoff
+
+W00.2 remains open until real GitHub signatures, independent run/attempt metadata, runner HTTPS connectivity, negative cases and token behavior are observed together. This fixture supplies partial supporting evidence for **LS-DEP-002**, whose status remains `planned`: W04 must implement pending-operation authorization, atomic claims/fencing, privileged effect checks and receipts. W01 owns durable identity and unknown-outcome recovery; W06 owns installation, credential expiry, ingress and operator diagnostics. No acceptance case changes to passed and no ADR change is implied by implementing this bounded probe.
+
+Primary references: [GitHub OIDC](https://docs.github.com/en/actions/reference/security/oidc), [attempt-specific run API](https://docs.github.com/en/rest/actions/workflow-runs#get-a-workflow-run-attempt), [jose](https://github.com/panva/jose). Installed library APIs and local executions establish the implemented behavior; documentation alone does not verify the live route.

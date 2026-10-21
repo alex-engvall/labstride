@@ -22,6 +22,8 @@ Tracker: [#3](https://github.com/alex-engvall/labstride/issues/3).
 
 **Toolchain/contract closeout:** W00.3 / [#13](https://github.com/alex-engvall/labstride/issues/13) discovery is complete for the examined environment; #13 is closed as completed and [PR #41](https://github.com/alex-engvall/labstride/pull/41) merged the foundation. This documentation follow-up records the [capability matrix and handoff](evidence/W00.3-discovery-closeout-2026-10-21.md), distinguishing operator verification, backend reads, executable fixtures and the adopted initial hooks-disabled profile. LS-EXT-001 remains `in_progress`; AC22/AC31/AC35/AC36 stay `not_run`. Missing atomic guards block dependent effects and remain W01.4 work; they do not require reopening bounded discovery. W00 still owns its other OIDC/broker gates.
 
+**W00.2 preparation:** The [isolated OIDC probe](27-oidc-discovery-probe.md) has executable local fixtures and read-only preflight evidence. [#12](https://github.com/alex-engvall/labstride/issues/12) remains open for genuine job tokens, independent attempt identity, runner HTTPS connectivity, live negative cases and actual token behavior. No service was activated.
+
 ## W01 — Durable coordinator and operation model
 
 Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).

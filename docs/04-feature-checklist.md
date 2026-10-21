@@ -426,7 +426,7 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 
 - Wrong audience/repository/workflow/run identity is denied; only one claim may cross the effect boundary.
 
-Verification evidence: None; not implemented.
+Verification evidence: Partial W00.2 fixture/preflight evidence only: [OIDC probe preparation](evidence/W00.2-oidc-probe-2026-10-21.md); real GitHub tokens, runner HTTPS, live identity rejection, atomic claims and effect authorization remain unverified. Status remains planned.
 
 Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24).
 
