@@ -18,7 +18,8 @@ function fixture(t, dependencies = {}, scheduled = true) {
 }
 function child(t, file, args) {
   const p = fork(new URL(`./helpers/${file}`, import.meta.url), args, { stdio: ['ignore', 'pipe', 'pipe', 'ipc'] });
-  t.after(async () => { if (p.exitCode === null && p.signalCode === null) { const exit = once(p, 'exit'); p.kill('SIGKILL'); await exit; } }); return p;
+  p.exited = once(p, 'exit');
+  t.after(async () => { if (p.exitCode === null && p.signalCode === null) { const exit = p.exited; p.kill('SIGKILL'); await exit; } }); return p;
 }
 async function target(t, root) {
   const path = join(root, 'target.sqlite'); const p = child(t, 'effect-target.mjs', [path]); const { url } = await message(p);
@@ -39,32 +40,32 @@ test('AC01: committed intent executes once after a new coordinator process start
   const { root, state, store, plan } = fixture(t, {}, false);
   const preparer = child(t, 'inbox-process.mjs', ['after', state]); await message(preparer);
   const committed = message(preparer); preparer.send('go'); assert.equal((await committed).stage, 'after');
-  const killed = once(preparer, 'exit'); preparer.kill('SIGKILL'); await killed;
+  const killed = preparer.exited; preparer.kill('SIGKILL'); await killed;
   const receiver = await target(t, root);
-  const first = await run(t, 'normal', state, receiver.url); assert.deepEqual(await first.reply, { stage: 'done', state: 'succeeded' }); await once(first.p, 'exit');
-  const second = await run(t, 'normal', state, receiver.url); assert.equal((await second.reply).state, 'succeeded'); await once(second.p, 'exit');
+  const first = await run(t, 'normal', state, receiver.url); assert.deepEqual(await first.reply, { stage: 'done', state: 'succeeded' }); await first.p.exited;
+  const second = await run(t, 'normal', state, receiver.url); assert.equal((await second.reply).state, 'succeeded'); await second.p.exited;
   assert.equal(receiver.calls(), 1); assert.equal(store.get('operation', plan.operation.id).id, plan.operation.id);
   assert.equal(store.snapshot().records.filter(r => r.kind === 'resource').length, 1);
 });
 for (const mode of ['after-claim','after-boundary','after-effect']) test(`SIGKILL ${mode} never repeats an uncertain effect`, async t => {
   const { root, state, store, plan } = fixture(t); const receiver = await target(t, root);
   const first = await run(t, mode, state, receiver.url); assert.equal((await first.reply).stage, mode);
-  const exit = once(first.p, 'exit'); first.p.kill('SIGKILL'); await exit;
-  const reboot = await run(t, 'normal', state, receiver.url); const reply = await reboot.reply; await once(reboot.p, 'exit');
+  const exit = first.p.exited; first.p.kill('SIGKILL'); await exit;
+  const reboot = await run(t, 'normal', state, receiver.url); const reply = await reboot.reply; await reboot.p.exited;
   assert.equal(reply.state, mode === 'after-effect' ? 'succeeded' : 'outcome_unknown');
   assert.equal(receiver.calls(), mode === 'after-effect' ? 1 : 0);
   assert.equal(store.get('operation', plan.operation.id).id, plan.operation.id);
 });
 test('lost effect response is observed at the original target without a second invocation', async t => {
   const { root, state, store, plan } = fixture(t); const receiver = await target(t, root);
-  const first = await run(t, 'lost-reply', state, receiver.url); assert.equal((await first.reply).state, 'outcome_unknown'); await once(first.p, 'exit');
-  const next = await run(t, 'normal', state, receiver.url); assert.equal((await next.reply).state, 'succeeded'); await once(next.p, 'exit');
+  const first = await run(t, 'lost-reply', state, receiver.url); assert.equal((await first.reply).state, 'outcome_unknown'); await first.p.exited;
+  const next = await run(t, 'normal', state, receiver.url); assert.equal((await next.reply).state, 'succeeded'); await next.p.exited;
   assert.equal(receiver.calls(), 1); assert.equal(store.operationHandle(plan.operation.id), `handle:${plan.operation.id}`);
 });
 test('two coordinator processes authorize one effect and a terminal result survives further restart', async t => {
   const { root, state } = fixture(t); const receiver = await target(t, root);
   const runs = await Promise.all([run(t, 'normal', state, receiver.url), run(t, 'normal', state, receiver.url)]);
-  const exits = runs.map(r => once(r.p, 'exit')); await Promise.all(runs.map(r => r.reply)); await Promise.all(exits);
+  const exits = runs.map(r => r.p.exited); await Promise.all(runs.map(r => r.reply)); await Promise.all(exits);
   assert.equal(receiver.calls(), 1);
 });
 test('claims are idempotent; grants are consumed once, no time-based takeover and no stale fencing', t => {
@@ -98,12 +99,12 @@ test('restore of an older consistent database observes the external effect befor
   const { root, state, store, plan } = fixture(t); const receiver = await target(t, root);
   const backup = join(root, 'backup.sqlite'); const db = new DatabaseSync(join(state, 'state.sqlite'));
   db.prepare('VACUUM INTO ?').run(backup); db.close();
-  const first = await run(t, 'normal', state, receiver.url); await first.reply; await once(first.p, 'exit');
+  const first = await run(t, 'normal', state, receiver.url); await first.reply; await first.p.exited;
   const restored = join(root, 'restored'); const { mkdirSync } = await import('node:fs'); mkdirSync(restored); copyFileSync(backup, join(restored, 'state.sqlite'));
   const runtime = startCoordinator(restored); t.after(() => runtime.store.close()); runtime.store.enterRestore(context);
   assert.throws(() => runtime.store.claim(plan.operation.id, 'new','new'), fail('effect_blocked'));
   assert.throws(() => runtime.store.resumeAfterRestore(context), fail('recovery_required'));
-  const second = await run(t, 'normal', restored, receiver.url); assert.equal((await second.reply).state, 'succeeded'); await once(second.p, 'exit');
+  const second = await run(t, 'normal', restored, receiver.url); assert.equal((await second.reply).state, 'succeeded'); await second.p.exited;
   runtime.store.resumeAfterRestore(context); assert.equal(receiver.calls(), 1);
 });
 test('conflicting resource claims remain locked until evidence, with monotonically increasing fences', async t => {
@@ -140,4 +141,55 @@ test('malformed result and invalid follow-up projection roll back result and pre
   const good = { ...plan.projections[0], id: 'result-projection' };
   store.acceptResult(bound(plan), claim, 1, [good]);
   assert.equal(store.delivery(`projection:${good.id}`).state, 'pending');
+});
+test('reconciliation cannot apply a result for a different operation with the same revision', async t => {
+  const { nextGeneration } = await import('./helpers/execution-fixture.mjs');
+  const { store, plan } = fixture(t); store.markUnknown(plan.operation.id);
+  const next = nextGeneration(store); store.markUnknown(next.operation.id);
+  const wrong = bound(next);
+  const adapter = { async validate() {}, async start() { throw Error(); }, async reconcile(request) {
+    if (request.operationId === plan.operation.id) return wrong;
+    throw Error('No evidence for second operation');
+  } };
+  await worker(store,plan,adapter).tick();
+  assert.equal(store.get('operation',plan.operation.id).state,'outcome_unknown');
+  assert.equal(store.get('operation',next.operation.id).state,'outcome_unknown');
+});
+test('a concurrent worker cannot initiate any effect before the intent transaction commits', async t => {
+  const { root, state, store, plan } = fixture(t,{},false); const receiver = await target(t,root);
+  const preparer = child(t,'inbox-process.mjs',['before',state]); await message(preparer);
+  const waiting = message(preparer); preparer.send('go'); assert.equal((await waiting).stage,'before');
+  const adapter = { async validate() {}, async start(operation) { return (await fetch(receiver.url+'/start',{ method:'POST',body:JSON.stringify(operation) })).json(); }, async reconcile() { throw Error(); } };
+  const w = worker(store,plan,adapter); await w.tick(); assert.equal(receiver.calls(),0);
+  const exit = preparer.exited; preparer.kill('SIGKILL'); await exit;
+  assert.equal(store.snapshot().records.filter(r=>r.kind==='operation').length,0);
+  schedule(store); await w.tick(); assert.equal(receiver.calls(),1);
+});
+test('concurrent distinct executor processes receive one authorized claim', async t => {
+  const { state,store,plan } = fixture(t);
+  const processes = await Promise.all([run(t,'claim-race',state,'unused'),run(t,'claim-race',state,'unused')]);
+  const exits = processes.map(r=>r.p.exited); const results = await Promise.all(processes.map(r=>r.reply)); await Promise.all(exits);
+  assert.equal(results.filter(r=>r.stage==='claimed').length,1);
+  assert.equal(results.filter(r=>r.error==='resource_busy').length,1);
+  assert.equal(store.get('operation',plan.operation.id).state,'claimed');
+  assert.equal(store.executionHistory(plan.operation.id).filter(r=>r.kind==='claim').length,1);
+});
+test('restore requires a fresh observation epoch; delayed receipts cannot clear its gate', t => {
+  const { store,plan } = fixture(t); const claim=store.claim(plan.operation.id,'one','one');store.beginEffect(claim);
+  const result=bound(plan);store.acceptResult(result,claim,1);const priorEpoch=store.recoveryEpoch();
+  store.enterRestore(context);
+  store.acceptResult(result,claim,1);
+  assert.throws(()=>store.resumeAfterRestore(context),fail('recovery_required'));
+  assert.throws(()=>store.acceptResult(result,null,store.get('operation',plan.operation.id).revision,[],priorEpoch),fail('revision_conflict'));
+  store.acceptResult(result,null,store.get('operation',plan.operation.id).revision,[],store.recoveryEpoch());
+  store.resumeAfterRestore(context);
+});
+test('the full bounded resource result commits atomically across lifecycle write batches', t => {
+  const { store,plan } = fixture(t); const claim=store.claim(plan.operation.id,'one','one');store.beginEffect(claim);
+  const result=bound(plan);result.result.resources=Array.from({length:128},(_,i)=>({type:'synthetic',id:`resource:${i}`,state:'ready'}));
+  store.acceptResult(result,claim,1);
+  assert.equal(store.snapshot().records.filter(r=>r.kind==='resource').length,128);
+  assert.equal(store.get('operation',plan.operation.id).state,'succeeded');
+  assert.equal(store.acceptResult(result,claim,1),true);
+  assert.equal(store.snapshot().records.filter(r=>r.kind==='resource').length,128);
 });

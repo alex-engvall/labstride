@@ -21,7 +21,7 @@ const adapter = {
 const operation = startPlan().operation;
 const worker = createWorker(store, { executorId: 'test-executor', nextAttempt: () => 'test-attempt', adapters: new Map([[actionKey(operation.request.actionId, operation.request.actionVersion), adapter]]) });
 process.on('message', async () => {
-  try { await worker.tick(); process.send({ stage: 'done', state: store.get('operation', operation.id).state }); }
+  try { if (mode === 'claim-race') { const claim = store.claim(operation.id, `executor:${process.pid}`, 'attempt'); process.send({ stage:'claimed', claimId:claim.id }); store.close(); process.disconnect(); return; } await worker.tick(); process.send({ stage: 'done', state: store.get('operation', operation.id).state }); }
   catch (e) { process.send({ error: e.code ?? e.message }); }
   store.close(); process.disconnect();
 });

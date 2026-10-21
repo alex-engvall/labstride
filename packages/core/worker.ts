@@ -35,9 +35,11 @@ export function createWorker(store: ExecutionPort, options: WorkerOptions) {
           if (delivery.state === 'reconcile' || op.state !== 'prepared') {
             if (!['succeeded','failed','cancelled'].includes(op.state)) store.markUnknown(id);
             op = store.get('operation', id);
+            const epoch = store.recoveryEpoch();
             try {
               const result = await adapter.reconcile(structuredClone(op.request), store.operationHandle(id));
-              store.acceptResult(result, null, op.revision, options.projections?.(result));
+              if (result.operationId !== id || result.requestDigest !== op.request.requestDigest) throw new LifecycleError('identity_conflict');
+              store.acceptResult(result, null, op.revision, options.projections?.(result), epoch);
               if (store.delivery(delivery.id).state === 'reconcile') store.retryRead(delivery.id, retry(), (options.random ?? Math.random)());
             } catch { store.retryRead(delivery.id, retry(), (options.random ?? Math.random)()); }
             continue;

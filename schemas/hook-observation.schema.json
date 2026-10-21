@@ -25,12 +25,16 @@
       "$ref": "contract-common.schema.json#/$defs/id"
     },
     "sessionId": {
-      "$ref": "contract-common.schema.json#/$defs/id"
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
     },
     "turnId": {
       "anyOf": [
         {
-          "$ref": "contract-common.schema.json#/$defs/id"
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
         },
         {
           "type": "null"

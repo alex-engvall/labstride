@@ -27,7 +27,9 @@
       "action": "Deliver the same start transition repeatedly and concurrently.",
       "expected": "One request generation, run and workspace are created.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W01.2-observations-2026-10-21.md"
+      ]
     },
     {
       "id": "AC03",
@@ -423,7 +425,9 @@
       "action": "Drop/reorder/duplicate session reports, submit a foreign-session or fabricated completion/approval report, fail a progress write and restart the coordinator while a human edits a mapped field. Repeat with hooks disabled.",
       "expected": "The enrolled provider/target is re-observed; the original run/session is retained, pending projections recover without overwriting human decisions, and hook reports cannot authorize completion, approval or another privileged effect.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W01.2-observations-2026-10-21.md"
+      ]
     },
     {
       "id": "AC36",
@@ -445,7 +449,8 @@
       "evidence": [
         "evidence/W01.1-lifecycles-2026-10-21.md",
         "evidence/W01.1-retention-2026-10-21.md",
-        "evidence/W01.2-effects-2026-10-21.md"
+        "evidence/W01.2-effects-2026-10-21.md",
+        "evidence/W01.2-observations-2026-10-21.md"
       ]
     }
   ]
