@@ -252,6 +252,32 @@
             },
             "type": "object"
           }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "const": "outcome_unknown"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "const": "outcome_unknown"
+              }
+            }
+          }
         }
       ]
     },

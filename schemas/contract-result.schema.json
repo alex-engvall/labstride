@@ -263,7 +263,24 @@
           "type": "null"
         },
         "error": {
-          "$ref": "contract-common.schema.json#/$defs/error"
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "not": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "const": "outcome_unknown"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          ]
         }
       },
       "required": [
@@ -648,7 +665,24 @@
           "type": "null"
         },
         "error": {
-          "$ref": "contract-common.schema.json#/$defs/error"
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "not": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "const": "outcome_unknown"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          ]
         }
       },
       "required": [
@@ -1034,7 +1068,24 @@
           "type": "null"
         },
         "error": {
-          "$ref": "contract-common.schema.json#/$defs/error"
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "not": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "const": "outcome_unknown"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          ]
         }
       },
       "required": [
@@ -1466,7 +1517,24 @@
           "type": "null"
         },
         "error": {
-          "$ref": "contract-common.schema.json#/$defs/error"
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "not": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "const": "outcome_unknown"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          ]
         }
       },
       "required": [

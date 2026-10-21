@@ -7,7 +7,7 @@
   "scripts": {
     "generate:types": "node scripts/generate_types.mjs",
     "check:types": "node scripts/generate_types.mjs --check && tsc --noEmit",
-    "test": "node --test --test-isolation=none tests/contracts.test.mjs"
+    "test": "node --test --test-isolation=none tests/*.test.mjs"
   },
   "devDependencies": {
     "ajv": "8.20.0",

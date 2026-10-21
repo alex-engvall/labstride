@@ -5,6 +5,13 @@ import { validate } from './schema.mjs';
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 
 export async function loadFixture(bytes, pin, host) {
+  const strings = value => Array.isArray(value) && value.every(x => typeof x === 'string' && x.length > 0);
+  if (!host || !Number.isInteger(host.protocol?.major) || host.protocol.major < 1 ||
+      !Number.isInteger(host.protocol?.minor) || host.protocol.minor < 0 || host.protocol.minor > 65535 ||
+      !['capabilities', 'extensionCapabilities', 'permissions'].every(key => strings(host[key])) ||
+      (host.requiredExtensionCapabilities !== undefined && !strings(host.requiredExtensionCapabilities))) {
+    throw new Error('invalid_host_profile');
+  }
   if (!Buffer.isBuffer(bytes) || bytes.length > 256 * 1024) throw new Error('invalid_artifact');
   // Hash the exact bytes that will be parsed/imported, including the manifest.
   if (!/^[a-f0-9]{64}$/.test(pin.integrity) || sha256(bytes) !== pin.integrity) throw new Error('integrity_mismatch');

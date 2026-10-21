@@ -59,6 +59,21 @@ test('optional minor/capabilities negotiate; original verified bytes are importe
   delete globalThis[key];
 });
 
+test('malformed host profiles fail before import and cannot negotiate NaN or invalid minors', async () => {
+  for (const change of [
+    h => { delete h.protocol.minor; }, h => { h.protocol.minor = NaN; },
+    h => { h.protocol.minor = -1; }, h => { h.protocol.minor = 0.5; },
+    h => { h.protocol.minor = 65536; }, h => { h.protocol.major = '1'; },
+    h => { h.capabilities = 'github.workflow.v1'; }, h => { h.permissions = [null]; },
+    h => { h.requiredExtensionCapabilities = null; },
+  ]) {
+    const invalid = structuredClone(host); change(invalid);
+    const { bytes, key, pin } = artifact();
+    await assert.rejects(loadFixture(bytes, pin, invalid), /invalid_host_profile/);
+    assert.equal(globalThis[key], undefined);
+  }
+});
+
 const direct = () => ({ status: 'accepted', handle: 'handle-test', resources: [], evidenceRefs: [], outputs: {}, error: null });
 const handle = { handle: 'handle-test' };
 const operation = { operation: read('operation') };
@@ -158,11 +173,38 @@ test('unknown outcome requires reconciliation rather than a retryable effect', (
   assert.throws(() => validateResponse(request, response), /validation_failed/);
 });
 
+test('unknown outcomes cannot masquerade as definite transport or operation failures', () => {
+  const error = { code: 'outcome_unknown', message: 'Synthetic lost reply', evidenceId: null, retryClass: 'reconcile' };
+  for (const [family, method] of [['provider', 'project'], ['connector', 'execute'],
+    ['action', 'start'], ['session-provider', 'send']]) {
+    const [request, response] = pair(family, method);
+    Object.assign(response, { outcome: 'outcome_unknown', result: null, error });
+    validateResponse(request, response);
+    response.outcome = 'error';
+    assert.throws(() => validateResponse(request, response), /validation_failed/);
+  }
+  for (const [family, method] of [['connector', 'execute'], ['action', 'start']]) {
+    const [request, response] = pair(family, method);
+    Object.assign(response.result, { status: 'outcome_unknown', error });
+    validateResponse(request, response);
+    for (const status of ['failed', 'cancelled', 'accepted', 'succeeded']) {
+      response.result.status = status;
+      assert.throws(() => validateResponse(request, response), /validation_failed/);
+    }
+    Object.assign(response.result, { status: 'failed', error: { ...error, code: 'operation_failed', retryClass: 'none' } });
+    validateResponse(request, response);
+  }
+});
+
 test('format checks reject malformed timestamps and URI in actual schemas', () => {
-  const op = read('operation'); op.deadline = 'not-a-date';
-  assert.throws(() => validate('operation', op), /validation_failed/);
-  const config = read('installation.template'); config.broker.url = 'not a uri';
-  assert.throws(() => validate('config', config), /validation_failed/);
+  for (const date of ['not-a-date', '2026-02-30T00:00:00Z', '2026-10-21T25:00:00Z', '2026-10-21T00:00:00']) {
+    const op = read('operation'); op.deadline = date;
+    assert.throws(() => validate('operation', op), /validation_failed/);
+  }
+  for (const uri of ['not a uri', 'https://example.invalid/bad path', '/relative/path']) {
+    const config = read('installation.template'); config.broker.url = uri;
+    assert.throws(() => validate('config', config), /validation_failed/);
+  }
 });
 
 test('transfer paths reject absolute and parent traversal forms', () => {
