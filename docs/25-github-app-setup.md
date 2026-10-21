@@ -83,7 +83,7 @@ The classic `project` scope covers accessible user/organization Projects; it doe
 5. When a safe workflow fixture exists, grant Actions write if required, obtain a fresh token and verify dispatch/downstream CI against the exact source revision. This does not grant Workflows write or protection bypass.
 6. On a lost mutation response, reconcile the fixture before further action. Cleanup targets only newly created test resources. Revocation is available by suspending/uninstalling the dedicated App and revoking the dedicated key; do not remove other integrations or assume remote effects were undone.
 
-Record commands, API/client versions, token capability metadata, readback, cleanup and unsupported combinations in the [W00.1 evidence report](evidence/W00.1-github-access-2026-10-21.md). Retain `in_progress` until all LS-GH-001 criteria have actual evidence; this setup does not pass AC29.
+Record commands, API/client versions, token capability metadata, readback, cleanup and unsupported combinations in the [evidence index](evidence/README.md) and its probe reports. Discovery #11 is completed for the recorded installation, with evidence merged in PR #39. LS-GH-001 remains `in_progress` for cross-package acceptance; the setup guide does not implement Doctor or pass AC29. Continue durable recovery in W01, adapter capability enforcement in W02 and operator diagnostics/recovery in W06.
 
 ## Primary references
 

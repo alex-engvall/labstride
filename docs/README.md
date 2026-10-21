@@ -1,6 +1,6 @@
 # Labstride documentation
 
-Specification version 0.1.0. Application runtime is not implemented. Integration discovery has begun; partial evidence is distinguished from completed requirements.
+Specification version 0.1.0. Application runtime is not implemented. W00.1 GitHub access discovery (#11) is complete; its provider evidence is distinguished from remaining runtime acceptance in W01/W02/W06 and other open W00 gates.
 
 - [Product and boundaries](01-product-and-scope.md)
 - [Existing-system lessons and evidence limits](02-design-context.md)
@@ -29,7 +29,7 @@ Specification version 0.1.0. Application runtime is not implemented. Integration
 - [Issues and contribution forms](23-issues-and-contribution-forms.md)
 - [Pull request templates](24-pull-request-templates.md)
 - [Dedicated GitHub App setup](25-github-app-setup.md)
-- [W00.1 verified capabilities and W01/W02/W06 handoff](evidence/README.md)
+- [Completed W00.1 discovery and W01/W02/W06 handoff](evidence/README.md)
 - [W00.1 GitHub access discovery evidence](evidence/W00.1-github-access-2026-10-21.md)
 - [W00.1 dedicated App verification](evidence/W00.1-dedicated-app-2026-10-21.md)
 - [W00.1 Project-only PAT verification](evidence/W00.1-project-pat-2026-10-21.md)

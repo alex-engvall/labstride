@@ -22,6 +22,7 @@
     "scope": [
       "Implement migrations, typed states, intent/outbox and atomic claims.",
       "Kill/restart a real process around each effect boundary.",
+      "Apply the completed W00.1 discovery to atomic observation/checkpoint and intent/outbox persistence; preserve original operation identities and uncertain outcomes across actual coordinator crashes.",
       "Persist session observation and projection identity; prove missing/duplicate/late hook recovery and outbox retries without stale human-state overwrites."
     ],
     "first_verifiable_outcome": "A queued synthetic operation resumes with its original ID after restart.",
@@ -38,7 +39,8 @@
     "scope": [
       "Compile configurable fields/rules and operator permissions.",
       "Implement current-state reconciliation and non-destructive projections.",
-      "Use bounded personal-Project polling and one managed projection writer; keep human task/decision authority separate from operational records."
+      "Use bounded personal-Project polling and one managed projection writer; keep human task/decision authority separate from operational records.",
+      "Apply the completed W00.1 discovery to credential/container preflight, supported history reconciliation, actor/binding/generation authorization and safe cursor/error/budget/expiry handling; reject unsupported bindings and historical starts on initial import."
     ],
     "first_verifiable_outcome": "A test Project field transition creates exactly one queued run.",
     "status": "planned",
@@ -103,6 +105,7 @@
     "scope": [
       "Implement operator diagnostics and pause/reconcile controls.",
       "Exercise backup, upgrade and restore with unresolved external effects.",
+      "Complete W00.1's runtime handoff through Doctor diagnostics for missing capabilities, invalid cursors, expired credentials and unknown outcomes; verify AC29 using the owning GitHub/broker/host slices.",
       "Package the CLI and single service together; diagnose optional hook/session compatibility without a hosting/control-panel dependency."
     ],
     "first_verifiable_outcome": "A fresh operator can diagnose and recover a run without editing database rows.",

@@ -1,6 +1,8 @@
 # W00.1 — GitHub capability evidence and implementation handoff
 
-Recorded 2026-10-21 for [issue #11](https://github.com/alex-engvall/labstride/issues/11), **LS-GH-001** and **W00**. This index separates live provider observations, adopted implementation constraints and remaining acceptance work. The application runtime is not implemented; LS-GH-001 and W00 remain `in_progress`.
+Recorded 2026-10-21 for [issue #11](https://github.com/alex-engvall/labstride/issues/11), **LS-GH-001** and **W00**. **W00.1 discovery is complete:** the evidence was merged in [PR #39](https://github.com/alex-engvall/labstride/pull/39), and the operator closed #11 as completed on 2026-10-21. The tested capabilities, unsupported combinations and reproduction contracts satisfy this bounded discovery task.
+
+Issue completion and runtime acceptance are separate tracking levels. LS-GH-001 remains `in_progress` while its cross-package acceptance coverage is outstanding; W00 remains `in_progress` because other integration/toolchain gates remain. The application runtime is not implemented. The historical probe reports retain their observed results and limits; their requirement-level status does not require reopening #11.
 
 ## Verified provider capabilities and limits
 
@@ -36,4 +38,4 @@ For CI evidence, W01 must retain validated identities/receipts, W02 must reconci
 
 Other W00/W04 gates also remain: runtime/dependency inventory, actual client/session compatibility, workflow OIDC/broker reachability and later authorized dispatch/delivery behavior. The three green fortnox-mcp workflows verify the App PR trigger path only. They do not verify these Labstride features.
 
-**Acceptance status:** AC02, AC05, AC29, AC35 and AC36 remain `not_run`. No real Labstride run, enrolled workspace/session, Doctor or integrated recovery scenario was exercised. See [open gates](../21-readiness-and-open-gates.md) and the canonical [backlog](../backlog.json); this evidence does not close issue #11.
+**Acceptance status:** AC02, AC05, AC29, AC35 and AC36 remain `not_run`. No real Labstride run, enrolled workspace/session, Doctor or integrated recovery scenario was exercised. See [open gates](../21-readiness-and-open-gates.md) and the canonical [backlog](../backlog.json). These implementation/integration gates continue in their owning packages and do not block completion of discovery #11. AC29 remains to be exercised through W06 using W01/W02 capabilities and the required broker/host slices; AC35/AC36 require the integrated coordinator, GitHub, workspace and session-provider behavior.
