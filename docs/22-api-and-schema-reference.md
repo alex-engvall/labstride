@@ -42,6 +42,8 @@ requestDigest is SHA-256 of the canonical operation JSON with requestDigest omit
 
 Control endpoints are local and operator-authenticated in the MVP. Authorization failure is 403; invalid payload 400; missing authorized resource 404; conflicting revision/claim 409; temporary backend unavailable 503. A lost network reply is not evidence that a POST failed.
 
+The separate [W00.2 discovery endpoint](27-oidc-discovery-probe.md) has its own versioned policy/request/response schemas and supplies no operation authority. It is outside the proposed operation API above. Its local fixture coverage does not establish an installed broker or pass the workflow/receipt acceptance cases.
+
 ## Limits
 
 Design defaults: 256 KiB broker bodies, 1 MiB webhook bodies, bounded provider pagination and sanitized error messages. Reject unsupported protocol majors. API version, extension protocol version and package version are independent.

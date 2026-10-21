@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "audience": "urn:labstride:discovery:example",
+  "repository": "example-owner/example-repository",
+  "repositoryId": "123456",
+  "ownerId": "12345",
+  "workflowPath": ".github/workflows/oidc-discovery.yml",
+  "ref": "refs/heads/oidc-discovery",
+  "workflowSha": "1111111111111111111111111111111111111111",
+  "runId": "123456789",
+  "runAttempt": "1",
+  "eventName": "push"
+}

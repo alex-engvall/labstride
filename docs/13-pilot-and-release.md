@@ -19,7 +19,7 @@ An initial private adoption does not make the public core incomplete: the core m
 | G06: owner pilot | One complete real issue and two concurrent issues pass with retained evidence and a recovery exercise |
 | G07: public prerelease | Clean installation, license/DCO, reporting route, docs, examples and versioned artifacts pass |
 
-No gate is currently passed for Labstride. Discovery work can start now; deployment activation waits for relevant evidence.
+W00.1/W00.3 and the [live W00.2 OIDC/HTTPS matrix](evidence/W00.2-live-oidc-2026-10-21.md) provide G00's bounded feasibility evidence for the examined profile and report unsupported capabilities. No integrated application/delivery gate is passed: installed capability enforcement, durable effects, workspace/session continuity and production broker behavior remain with their implementation packages. Activation of the isolated discovery probe was not an application deployment.
 
 ## Public release
 

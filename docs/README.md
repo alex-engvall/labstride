@@ -41,6 +41,8 @@ W00.3 toolchain/contract and client-capability discovery (#13) is complete for t
 - [Contract fixtures and selected tooling](26-contract-fixtures-and-toolchain.md)
 - [W00.3 implemented fixture/type/format evidence](evidence/W00.3-contract-fixtures-2026-10-21.md)
 - [W00.3 capability matrix, discovery closeout and runtime handoff](evidence/W00.3-discovery-closeout-2026-10-21.md)
+- [Isolated OIDC/HTTPS discovery probe](27-oidc-discovery-probe.md)
+- [W00.2 live identity matrix and evidence](evidence/W00.2-live-oidc-2026-10-21.md)
 
 ## Machine-readable sources
 

@@ -1,0 +1,297 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "W00.2-live-discovery-evidence",
+  "status": "completed",
+  "runtimeSourceSha256": {
+    "response.schema.json": "b34e93163dafb66b48271cd688cf6897585382aec388c60dc22e81dd8bbd2d13",
+    "request.schema.json": "1cda696832714ff17e3c9fb70825f76b574ff1f4b5b4112ad805bf24ee42b781",
+    "runner-client.mjs": "b24138d0e48e50b0eddaed2a0bf498d1ee09884c3fa23d0a0cc07cfc1372338d",
+    "config.schema.json": "e85dc24e5d04ac7bb6f72b61d46fb5fbcc38cfba99cb33a0436edc622cba5064",
+    "probe.mjs": "4eff12bc3fb74196c4c0341ae135f985012b41324ca027ca1a94fad3114d8b76",
+    "serve.mjs": "5d90f3faf1ef8047298862ba9e4c90489c3392553b7989ad97dca9c31dc3a379"
+  },
+  "workflowFixtureSourceSha256": {
+    ".github/workflows/labstride-oidc-discovery.yml": "5d9160f231af84a78f8f3f6f30da70775752b230f69c5a94ff08d6cc58e8be87",
+    "tools/oidc-probe/runner-client.mjs": "e6db8bba8f6a9e99522b5cad497f86cdd88ae6d7aeaf96387a6fe030ed094d9f"
+  },
+  "runs": [
+    {
+      "schemaVersion": "1.0",
+      "probe": "W00.2-runner-oidc",
+      "runId": "39557688103",
+      "runAttempt": "1",
+      "first": {
+        "status": 200,
+        "token": {
+          "issuedAt": 1792565414,
+          "notBefore": 1792565114,
+          "expiresAt": 1792565714
+        },
+        "claimNames": [
+          "actor",
+          "actor_id",
+          "aud",
+          "base_ref",
+          "check_run_id",
+          "event_name",
+          "exp",
+          "head_ref",
+          "iat",
+          "iss",
+          "job_workflow_ref",
+          "job_workflow_sha",
+          "jti",
+          "nbf",
+          "ref",
+          "ref_protected",
+          "ref_type",
+          "repository",
+          "repository_id",
+          "repository_owner",
+          "repository_owner_id",
+          "repository_visibility",
+          "run_attempt",
+          "run_id",
+          "run_number",
+          "runner_environment",
+          "sha",
+          "sub",
+          "workflow",
+          "workflow_ref",
+          "workflow_sha"
+        ]
+      },
+      "negativeCases": {
+        "wrong-repository": {
+          "status": 403,
+          "error": "identity_rejected"
+        },
+        "wrong-workflow": {
+          "status": 403,
+          "error": "identity_rejected"
+        },
+        "wrong-run": {
+          "status": 403,
+          "error": "identity_rejected"
+        },
+        "wrong-attempt": {
+          "status": 403,
+          "error": "identity_rejected"
+        }
+      },
+      "wrongAudience": {
+        "status": 403,
+        "error": "identity_rejected"
+      },
+      "expiredToken": {
+        "status": 403,
+        "error": "identity_rejected"
+      },
+      "second": {
+        "status": 200,
+        "token": {
+          "issuedAt": 1792565717,
+          "notBefore": 1792565417,
+          "expiresAt": 1792566017
+        },
+        "claimNames": [
+          "actor",
+          "actor_id",
+          "aud",
+          "base_ref",
+          "check_run_id",
+          "event_name",
+          "exp",
+          "head_ref",
+          "iat",
+          "iss",
+          "job_workflow_ref",
+          "job_workflow_sha",
+          "jti",
+          "nbf",
+          "ref",
+          "ref_protected",
+          "ref_type",
+          "repository",
+          "repository_id",
+          "repository_owner",
+          "repository_owner_id",
+          "repository_visibility",
+          "run_attempt",
+          "run_id",
+          "run_number",
+          "runner_environment",
+          "sha",
+          "sub",
+          "workflow",
+          "workflow_ref",
+          "workflow_sha"
+        ]
+      },
+      "renewal": {
+        "delayMs": 295000,
+        "sameToken": false,
+        "issuedAtAdvanced": true
+      },
+      "workflowSha": "94eee600ad74e7a7b69ad485f93630714ec5226a",
+      "workflowPath": ".github/workflows/labstride-oidc-discovery.yml",
+      "repositoryId": "1423904962",
+      "actor": "alex-engvall",
+      "triggeringActor": "alex-engvall",
+      "job": {
+        "id": 119081211267,
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "conclusion": "success"
+      },
+      "conclusion": "success",
+      "runUrl": "https://github.com/alex-engvall/fortnox-mcp/actions/runs/39557688103",
+      "observedAt": "2026-10-21T06:55:59Z"
+    },
+    {
+      "schemaVersion": "1.0",
+      "probe": "W00.2-runner-oidc",
+      "runId": "39557688103",
+      "runAttempt": "2",
+      "first": {
+        "status": 200,
+        "token": {
+          "issuedAt": 1792565915,
+          "notBefore": 1792565615,
+          "expiresAt": 1792566215
+        },
+        "claimNames": [
+          "actor",
+          "actor_id",
+          "aud",
+          "base_ref",
+          "check_run_id",
+          "event_name",
+          "exp",
+          "head_ref",
+          "iat",
+          "iss",
+          "job_workflow_ref",
+          "job_workflow_sha",
+          "jti",
+          "nbf",
+          "ref",
+          "ref_protected",
+          "ref_type",
+          "repository",
+          "repository_id",
+          "repository_owner",
+          "repository_owner_id",
+          "repository_visibility",
+          "run_attempt",
+          "run_id",
+          "run_number",
+          "runner_environment",
+          "sha",
+          "sub",
+          "workflow",
+          "workflow_ref",
+          "workflow_sha"
+        ]
+      },
+      "negativeCases": {
+        "wrong-repository": {
+          "status": 403,
+          "error": "identity_rejected"
+        },
+        "wrong-workflow": {
+          "status": 403,
+          "error": "identity_rejected"
+        },
+        "wrong-run": {
+          "status": 403,
+          "error": "identity_rejected"
+        },
+        "wrong-attempt": {
+          "status": 403,
+          "error": "identity_rejected"
+        }
+      },
+      "wrongAudience": {
+        "status": 403,
+        "error": "identity_rejected"
+      },
+      "expiredToken": {
+        "status": 403,
+        "error": "identity_rejected"
+      },
+      "second": {
+        "status": 200,
+        "token": {
+          "issuedAt": 1792566218,
+          "notBefore": 1792565918,
+          "expiresAt": 1792566518
+        },
+        "claimNames": [
+          "actor",
+          "actor_id",
+          "aud",
+          "base_ref",
+          "check_run_id",
+          "event_name",
+          "exp",
+          "head_ref",
+          "iat",
+          "iss",
+          "job_workflow_ref",
+          "job_workflow_sha",
+          "jti",
+          "nbf",
+          "ref",
+          "ref_protected",
+          "ref_type",
+          "repository",
+          "repository_id",
+          "repository_owner",
+          "repository_owner_id",
+          "repository_visibility",
+          "run_attempt",
+          "run_id",
+          "run_number",
+          "runner_environment",
+          "sha",
+          "sub",
+          "workflow",
+          "workflow_ref",
+          "workflow_sha"
+        ]
+      },
+      "renewal": {
+        "delayMs": 296000,
+        "sameToken": false,
+        "issuedAtAdvanced": true
+      },
+      "workflowSha": "94eee600ad74e7a7b69ad485f93630714ec5226a",
+      "workflowPath": ".github/workflows/labstride-oidc-discovery.yml",
+      "repositoryId": "1423904962",
+      "actor": "alex-engvall",
+      "triggeringActor": "alex-engvall",
+      "job": {
+        "id": 119084137011,
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "conclusion": "success"
+      },
+      "conclusion": "success",
+      "runUrl": "https://github.com/alex-engvall/fortnox-mcp/actions/runs/39557688103",
+      "observedAt": "2026-10-21T07:04:23Z"
+    }
+  ],
+  "cleanup": {
+    "testBranchRemoved": true,
+    "testVariablesRemoved": 2,
+    "targetMainUnchanged": true,
+    "targetMainSha": "d9fab0fcbc669fd5d27c22bba258d8961a2b141d",
+    "appReadTokenRevocationHttpStatus": 204,
+    "probeStoppedAt": "2026-10-21T07:04:38Z",
+    "sourceAndAuditEvidenceRetained": true,
+    "httpsIngressRetainedForReuse": true
+  }
+}

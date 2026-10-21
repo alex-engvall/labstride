@@ -12,6 +12,7 @@
   "devDependencies": {
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
+    "jose": "6.2.13",
     "json-schema-to-typescript": "16.0.0",
     "typescript": "7.0.2"
   }
