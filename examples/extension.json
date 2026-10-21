@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0",
+  "id": "example.workflow-action",
+  "version": "0.1.0",
+  "kind": "action",
+  "protocol": {
+    "major": 1,
+    "minor": 0
+  },
+  "entrypoint": "dist/index.js",
+  "capabilities": [
+    "example.workflow-dispatch.v1"
+  ],
+  "requiredCapabilities": [
+    "github.workflow.v1"
+  ],
+  "permissions": [
+    "network.github",
+    "network.broker",
+    "workflow.dispatch"
+  ],
+  "inputSchema": "../schemas/operation.schema.json",
+  "outputSchema": "../schemas/receipt.schema.json"
+}

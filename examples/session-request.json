@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-session-001",
+  "workspaceId": "ws-example-001",
+  "providerId": "example.session-provider",
+  "command": "start",
+  "sessionId": null,
+  "expectedLastTurnId": null,
+  "expectedHumanActivityRevision": 0,
+  "input": {
+    "interaction": "existing-client"
+  }
+}

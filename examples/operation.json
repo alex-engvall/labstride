@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-example-001",
+  "runId": "run-example-001",
+  "workspaceId": "ws-example-001",
+  "actionId": "labstride.github-workflow",
+  "actionVersion": "0.1.0",
+  "configDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+  "source": {
+    "repositoryId": "1001",
+    "repository": "example-owner/example-app",
+    "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "targetId": "application-test",
+  "deadline": "2026-10-21T14:00:00Z",
+  "inputs": {
+    "workflow": "deploy",
+    "environment": "test"
+  },
+  "requestDigest": "efe91cc1901aa249421b4d9c78217fe677b44f4d6e30d752f9dabb0b08bcc22f"
+}

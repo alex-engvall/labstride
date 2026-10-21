@@ -1,0 +1,401 @@
+{
+  "schema_version": "1.0",
+  "cases": [
+    {
+      "id": "AC01",
+      "requirements": [
+        "LS-CORE-001",
+        "LS-CORE-002"
+      ],
+      "precondition": "Committed intent before crash",
+      "action": "Kill the real coordinator after intent commit and before dispatch.",
+      "expected": "After restart exactly the same operation is scheduled once.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC02",
+      "requirements": [
+        "LS-CORE-003",
+        "LS-GH-003"
+      ],
+      "precondition": "Repeated or concurrent event",
+      "action": "Deliver the same start transition repeatedly and concurrently.",
+      "expected": "One request generation, run and workspace are created.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC03",
+      "requirements": [
+        "LS-GH-002"
+      ],
+      "precondition": "Unapproved actor",
+      "action": "Change a trigger field as an actor outside the allowlist.",
+      "expected": "Request is rejected with no execution intent.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC04",
+      "requirements": [
+        "LS-CFG-002",
+        "LS-GH-005"
+      ],
+      "precondition": "Renamed arbitrary fields",
+      "action": "Rename mapped fields/options while retaining IDs, then change to the configured start value.",
+      "expected": "Resolved binding remains valid; own status writes never start work.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC05",
+      "requirements": [
+        "LS-GH-004"
+      ],
+      "precondition": "Human status override",
+      "action": "Change status between observation and projection.",
+      "expected": "Human change is preserved or race detected and reconciled; conflict is visible.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC06",
+      "requirements": [
+        "LS-CFG-003",
+        "LS-SSH-002"
+      ],
+      "precondition": "Hostile field content",
+      "action": "Supply shell metacharacters, traversal and extension URL text.",
+      "expected": "No command injection, new extension or out-of-root access occurs.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC07",
+      "requirements": [
+        "LS-SSH-001"
+      ],
+      "precondition": "Different SSH host key",
+      "action": "Connect to an endpoint presenting a different enrolled key.",
+      "expected": "Fail before command execution.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC08",
+      "requirements": [
+        "LS-CORE-005",
+        "LS-SSH-003"
+      ],
+      "precondition": "Two independent issues",
+      "action": "Start two different issues on the same host.",
+      "expected": "Distinct checkouts/branches and optional runtime namespaces; no shared worktree.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC09",
+      "requirements": [
+        "LS-SSH-004",
+        "LS-CORE-004"
+      ],
+      "precondition": "Workspace exists but reply lost",
+      "action": "Drop the SSH connection after creation before receipt.",
+      "expected": "Reconciliation adopts the exact registered directory, not a second one.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC10",
+      "requirements": [
+        "LS-DEP-002"
+      ],
+      "precondition": "Duplicate executor claims",
+      "action": "Have two workflow runs claim one operation.",
+      "expected": "One receives execution authority; the other exits before effects.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC11",
+      "requirements": [
+        "LS-DEP-002",
+        "LS-DEP-003"
+      ],
+      "precondition": "Forged workflow receipt",
+      "action": "Change repo, workflow, run attempt, operation digest or source SHA.",
+      "expected": "Result is rejected and no verified deployment is recorded.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC12",
+      "requirements": [
+        "LS-DEP-004"
+      ],
+      "precondition": "Lost dispatch acknowledgement",
+      "action": "Lose the dispatch HTTP response while the workflow starts.",
+      "expected": "Observe existing run/claim; no blind redispatch.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC13",
+      "requirements": [
+        "LS-GH-006",
+        "LS-GH-007"
+      ],
+      "precondition": "New commit after green CI",
+      "action": "Push a commit after earlier checks pass and before merge.",
+      "expected": "Merge is blocked until current evidence and protections pass.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC14",
+      "requirements": [
+        "LS-GH-006"
+      ],
+      "precondition": "Absent required check",
+      "action": "Omit one configured required check, with others green.",
+      "expected": "Delivery remains waiting/blocked, not successful.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC15",
+      "requirements": [
+        "LS-DEP-005"
+      ],
+      "precondition": "Newer deployment wins",
+      "action": "Queue revision A then B and complete B before A is dispatched.",
+      "expected": "A is superseded or blocked; it cannot overwrite B.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC16",
+      "requirements": [
+        "LS-DEP-003",
+        "LS-DEP-006"
+      ],
+      "precondition": "Health failure after deploy",
+      "action": "Let workflow deployment finish but health/revision probe fail.",
+      "expected": "Deployment fails/unknown; tested recovery follows recipe; no cleanup.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC17",
+      "requirements": [
+        "LS-CLN-002"
+      ],
+      "precondition": "Keep or active session",
+      "action": "Set keep or maintain active tracked session before cleanup.",
+      "expected": "Directory remains and blocker is reported.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC18",
+      "requirements": [
+        "LS-CLN-003"
+      ],
+      "precondition": "Unsaved/unpushed/ignored work",
+      "action": "Create each category of protected local change.",
+      "expected": "Each case blocks removal without modifying the source.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC19",
+      "requirements": [
+        "LS-CLN-004",
+        "LS-SEC-001"
+      ],
+      "precondition": "Path substitution",
+      "action": "Replace directory with symlink/mount/foreign owner during cleanup.",
+      "expected": "Trusted helper refuses deletion and unrelated paths survive.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC20",
+      "requirements": [
+        "LS-CLN-005",
+        "LS-CORE-006"
+      ],
+      "precondition": "Deletion acknowledgement lost",
+      "action": "Kill the workflow after deletion but before reporting.",
+      "expected": "Tombstone proves deletion; history survives; a second path is never touched.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC21",
+      "requirements": [
+        "LS-OPS-002",
+        "LS-CORE-004"
+      ],
+      "precondition": "Restore an older backup",
+      "action": "Restore before a known external deployment while effects are paused.",
+      "expected": "Reconcile actual state before any pending effects resume.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC22",
+      "requirements": [
+        "LS-EXT-001",
+        "LS-EXT-003",
+        "LS-EXT-004"
+      ],
+      "precondition": "Wrong contract or package digest",
+      "action": "Load incompatible protocol version or altered pinned package.",
+      "expected": "Loading fails before extension code runs.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC23",
+      "requirements": [
+        "LS-CFG-004",
+        "LS-SEC-002"
+      ],
+      "precondition": "Policy revocation mid-run",
+      "action": "Revoke deploy permission before executor effect.",
+      "expected": "Deploy is denied while observation and audit continue.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC24",
+      "requirements": [
+        "LS-CORE-007",
+        "LS-OPS-005"
+      ],
+      "precondition": "Repeated failures and cancel",
+      "action": "Exhaust repair budget and cancel an in-flight effect.",
+      "expected": "No new repairs start; actual or unknown result is retained.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC25",
+      "requirements": [
+        "LS-OSS-001",
+        "LS-EXT-002"
+      ],
+      "precondition": "External/public-only consumer",
+      "action": "Install public packages with a fixture external extension and no private dependencies.",
+      "expected": "Workspace/deploy/cleanup succeeds through published contracts.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC26",
+      "requirements": [
+        "LS-CFG-005",
+        "LS-CFG-001"
+      ],
+      "precondition": "Historical match and rule conflict",
+      "action": "Sync old matching issues and define conflicting start rules.",
+      "expected": "No unsolicited run; clear preflight/conflict result.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC27",
+      "requirements": [
+        "LS-OPS-003"
+      ],
+      "precondition": "Interrupted upgrade",
+      "action": "Fail a schema migration with active operation handles.",
+      "expected": "Recoverable DB/version state and handles remain available.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC28",
+      "requirements": [
+        "LS-OPS-004"
+      ],
+      "precondition": "Secret redaction",
+      "action": "Inject fixture secrets into provider/SSH errors.",
+      "expected": "Logs and receipts omit secret values.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC29",
+      "requirements": [
+        "LS-OPS-001",
+        "LS-GH-001"
+      ],
+      "precondition": "Fresh installation with missing capabilities",
+      "action": "Use incomplete personal Project/broker/host settings.",
+      "expected": "Doctor identifies each missing capability and prevents enablement.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC30",
+      "requirements": [
+        "LS-CLN-001",
+        "LS-SSH-005"
+      ],
+      "precondition": "Alternative lifecycle recipe",
+      "action": "Use source-only workspace then an optional app with a different cleanup trigger.",
+      "expected": "Behavior is configured through actions, without core forks.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC31",
+      "requirements": [
+        "LS-EXT-005"
+      ],
+      "precondition": "Human session changes before continuation",
+      "action": "Advance the human activity revision after queuing an automated send.",
+      "expected": "Stale send is blocked; unsupported atomic backend protection is reported without claiming a guarantee.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC32",
+      "requirements": [
+        "LS-SEC-003",
+        "LS-OSS-002"
+      ],
+      "precondition": "Prerelease provenance and reporting",
+      "action": "Verify the private reporting route and contribution sign-off/license checks.",
+      "expected": "A real private report can reach the maintainer; missing sign-off/provenance blocks release contribution checks.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC33",
+      "requirements": [
+        "LS-OSS-003",
+        "LS-OSS-004"
+      ],
+      "precondition": "Prerelease documentation and examples",
+      "action": "Run the declared example on the supported target and inspect all completed requirements.",
+      "expected": "Supported claims match recorded evidence, illustrative examples remain labeled and generated status matches canonical backlog.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC34",
+      "requirements": [
+        "LS-DEP-001"
+      ],
+      "precondition": "Replace the repository-owned deploy workflow",
+      "action": "Select another enrolled workflow/target without changing core; dispatch distinct workflow and application SHAs.",
+      "expected": "The replacement executes the application SHA and records both identities accurately.",
+      "status": "not_run",
+      "evidence": []
+    }
+  ]
+}

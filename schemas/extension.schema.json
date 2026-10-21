@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Labstride extension manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "enum": [
+        "provider",
+        "connector",
+        "action",
+        "session-provider"
+      ]
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "major": {
+          "const": 1
+        },
+        "minor": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "major",
+        "minor"
+      ]
+    },
+    "entrypoint": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "requiredCapabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "network.github",
+          "network.ssh",
+          "network.broker",
+          "filesystem.workspace",
+          "session.manage",
+          "workflow.dispatch"
+        ]
+      },
+      "minItems": 0
+    },
+    "inputSchema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outputSchema": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "kind",
+    "protocol",
+    "entrypoint",
+    "capabilities",
+    "requiredCapabilities",
+    "permissions",
+    "inputSchema",
+    "outputSchema"
+  ]
+}

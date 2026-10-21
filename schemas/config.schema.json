@@ -1,0 +1,447 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Labstride installation configuration v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "installationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "broker": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "oidcAudience": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "url",
+        "oidcAudience"
+      ]
+    },
+    "github": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repositories": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "actorIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "credentialRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "projectCredentialRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pollIntervalSeconds": {
+          "type": "integer",
+          "minimum": 15
+        }
+      },
+      "required": [
+        "repositories",
+        "actorIds",
+        "credentialRef",
+        "projectCredentialRef",
+        "pollIntervalSeconds"
+      ]
+    },
+    "fields": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "enum": [
+              "project_v2",
+              "organization_issue_field",
+              "native_issue",
+              "label",
+              "issue_form"
+            ]
+          },
+          "scopeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fieldId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": [
+              "string",
+              "boolean",
+              "number",
+              "date",
+              "single-select",
+              "multi-select"
+            ]
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "source",
+          "scopeId",
+          "fieldId",
+          "type"
+        ]
+      }
+    },
+    "targets": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connector": {
+            "type": "string",
+            "minLength": 1
+          },
+          "configuration": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "connector",
+          "configuration"
+        ]
+      }
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "integrity": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "integrity"
+        ]
+      },
+      "minItems": 1
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "activeRuns": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "perIssue": {
+          "const": 1
+        },
+        "perDeploymentTarget": {
+          "const": 1
+        },
+        "metadataRetentionDays": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "activeRuns",
+        "perIssue",
+        "perDeploymentTarget",
+        "metadataRetentionDays"
+      ]
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          },
+          "event": {
+            "type": "string",
+            "minLength": 1
+          },
+          "condition": {
+            "$ref": "#/$defs/condition"
+          },
+          "workflow": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          }
+        },
+        "required": [
+          "id",
+          "event",
+          "condition",
+          "workflow"
+        ]
+      },
+      "minItems": 1
+    },
+    "workflows": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "action": {
+              "type": "string",
+              "minLength": 1
+            },
+            "inputs": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "inputs"
+          ]
+        },
+        "minItems": 1
+      }
+    },
+    "projections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fact": {
+            "type": "string",
+            "minLength": 1
+          },
+          "field": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "fact",
+          "field",
+          "value"
+        ]
+      },
+      "minItems": 0
+    },
+    "extensionConfiguration": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "controls": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "field": {
+            "type": "string",
+            "minLength": 1
+          },
+          "enabledValues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "disabledValues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "field",
+          "enabledValues",
+          "disabledValues"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "installationId",
+    "enabled",
+    "broker",
+    "github",
+    "fields",
+    "targets",
+    "extensions",
+    "limits",
+    "rules",
+    "workflows",
+    "projections",
+    "extensionConfiguration",
+    "controls"
+  ],
+  "$defs": {
+    "condition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "field": {
+              "type": "string",
+              "minLength": 1
+            },
+            "op": {
+              "enum": [
+                "equals",
+                "notEquals",
+                "contains",
+                "changedTo"
+              ]
+            },
+            "value": {
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "field",
+            "op",
+            "value"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "field": {
+              "type": "string",
+              "minLength": 1
+            },
+            "op": {
+              "const": "exists"
+            }
+          },
+          "required": [
+            "field",
+            "op"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "all": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/condition"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "all"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "any": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/condition"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "any"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "not": {
+              "$ref": "#/$defs/condition"
+            }
+          },
+          "required": [
+            "not"
+          ]
+        }
+      ]
+    }
+  }
+}
