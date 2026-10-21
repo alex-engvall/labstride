@@ -110,7 +110,7 @@ export function checkChange(previous: LifecycleRecord | undefined, change: Chang
         (newState !== oldState && !graph[oldState].includes(newState)))
         throw new LifecycleError('invalid_transition');
     }
-  } else if (['request', 'outbox', 'projection'].includes(next.kind)) {
+  } else if (['request', 'outbox', 'projection', 'resource', 'evidence'].includes(next.kind)) {
     // Immutable descriptors. Dispatch/projection workers are introduced by W01.2/W02.
     throw new LifecycleError('invalid_transition');
   }

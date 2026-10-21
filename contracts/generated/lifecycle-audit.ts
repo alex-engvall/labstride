@@ -147,6 +147,41 @@ export type LabstrideLifecycleRecord =
         expectedFingerprint: string;
         value: string | null;
       };
+    }
+  | {
+      schemaVersion: "1.0";
+      id: string;
+      revision: number;
+      createdAt: string;
+      updatedAt: string;
+      kind: "resource";
+      runId: string;
+      workspaceId: string;
+      createdByOperation: string;
+      resourceType: string;
+      providerId: string;
+      locator: string;
+      ownershipRef: string;
+      cleanupPolicy: string;
+    }
+  | {
+      schemaVersion: "1.0";
+      id: string;
+      revision: number;
+      createdAt: string;
+      updatedAt: string;
+      kind: "evidence";
+      runId: string;
+      workspaceId: string;
+      operationId: string;
+      category: "pr" | "merge" | "deployment" | "cleanup" | "correction";
+      subjectId: string;
+      sourceSha: string | null;
+      targetId: string | null;
+      outcome: "observed" | "verified" | "failed" | "outcome_unknown";
+      reference: string;
+      tombstoneRef: string | null;
+      correctsId: string | null;
     };
 
 export interface LabstrideLifecycleAudit {

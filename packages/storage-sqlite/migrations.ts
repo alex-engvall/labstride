@@ -52,6 +52,21 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
     entity_id TEXT GENERATED ALWAYS AS (json_extract(payload, '$.record.id')) STORED NOT NULL);
   CREATE TRIGGER audit_no_update BEFORE UPDATE ON audit BEGIN SELECT RAISE(ABORT, 'immutable_audit'); END;
   CREATE TRIGGER audit_no_delete BEFORE DELETE ON audit BEGIN SELECT RAISE(ABORT, 'immutable_audit'); END;
+` }, { version: 2, sql: `
+  CREATE UNIQUE INDEX operation_workspace_owner ON operations(id, workspace_id, run_id);
+  CREATE TABLE resources (${common}, ${ref('run_id', 'runId')}, ${ref('workspace_id', 'workspaceId')},
+    ${ref('created_by_operation', 'createdByOperation')},
+    FOREIGN KEY(created_by_operation, workspace_id, run_id) REFERENCES operations(id, workspace_id, run_id) ON DELETE RESTRICT);
+  CREATE TABLE evidence (${common}, ${ref('run_id', 'runId')}, ${ref('workspace_id', 'workspaceId')},
+    ${ref('operation_id', 'operationId')},
+    corrects_id TEXT GENERATED ALWAYS AS (json_extract(payload, '$.correctsId')) STORED,
+    FOREIGN KEY(operation_id, workspace_id, run_id) REFERENCES operations(id, workspace_id, run_id) ON DELETE RESTRICT,
+    FOREIGN KEY(corrects_id, run_id, workspace_id) REFERENCES evidence(id, run_id, workspace_id) ON DELETE RESTRICT,
+    UNIQUE(id, run_id, workspace_id), CHECK(corrects_id IS NULL OR corrects_id != id));
+  CREATE TRIGGER resources_no_update BEFORE UPDATE ON resources BEGIN SELECT RAISE(ABORT, 'immutable_resource'); END;
+  CREATE TRIGGER resources_no_delete BEFORE DELETE ON resources BEGIN SELECT RAISE(ABORT, 'immutable_resource'); END;
+  CREATE TRIGGER evidence_no_update BEFORE UPDATE ON evidence BEGIN SELECT RAISE(ABORT, 'immutable_evidence'); END;
+  CREATE TRIGGER evidence_no_delete BEFORE DELETE ON evidence BEGIN SELECT RAISE(ABORT, 'immutable_evidence'); END;
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

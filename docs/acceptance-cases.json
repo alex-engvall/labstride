@@ -12,7 +12,8 @@
       "expected": "After restart exactly the same operation is scheduled once.",
       "status": "not_run",
       "evidence": [
-        "evidence/W01.1-lifecycles-2026-10-21.md"
+        "evidence/W01.1-lifecycles-2026-10-21.md",
+        "evidence/W01.1-retention-2026-10-21.md"
       ]
     },
     {
@@ -232,7 +233,9 @@
       "action": "Kill the workflow after deletion but before reporting.",
       "expected": "Tombstone proves deletion; history survives; a second path is never touched.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W01.1-retention-2026-10-21.md"
+      ]
     },
     {
       "id": "AC21",
@@ -435,7 +438,8 @@
       "expected": "The same recorded operation/workspace/session is adopted without duplicate effects; the existing client can resume it, stale automated continuation is rejected and unsupported atomic guards are reported without inventing a guarantee.",
       "status": "not_run",
       "evidence": [
-        "evidence/W01.1-lifecycles-2026-10-21.md"
+        "evidence/W01.1-lifecycles-2026-10-21.md",
+        "evidence/W01.1-retention-2026-10-21.md"
       ]
     }
   ]

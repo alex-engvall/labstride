@@ -8,7 +8,7 @@ W01.1 / [#14](https://github.com/alex-engvall/labstride/issues/14) introduces th
 
 Run the bounded bootstrap inspector with `node apps/coordinator/main.ts /srv/labstride-state`. Supply an installation-owned absolute local path. The process prints a versioned JSON snapshot and exits without executing effects. This is not `labstride serve`, the authenticated operator CLI or an installed background service. Errors print a stable redacted code and return exit status 1. Snapshots contain operational metadata; callers must protect access.
 
-The public core works without an agent, hooks, deployment credentials or a private package. It stores opaque session handles; it neither creates a session backend nor substitutes another client. Input adapters must authenticate and authorize requests before invoking the store. Persisting an evidence reference records the trusted caller's observation, not independent proof of its truth.
+The public core works without an agent, hooks, deployment credentials or a private package. It stores opaque session handles; it neither creates a session backend nor substitutes another client. Input adapters must authenticate and authorize requests before invoking the store and must supply credential references rather than secrets. Persisting an evidence reference records the trusted caller's observation, not independent proof of its truth.
 
 ## Persistence API
 
@@ -28,10 +28,20 @@ Failed runs, errored workspaces and unknown outcomes require an explicit recover
 
 Recovery distinguishes `pendingIntents` for prepared, not-crossed operations from `reconciliationRequired` operations that are claimed, running or uncertain. All original descriptors remain in `records`, including those for terminal operations. Neither recovery list authorizes dispatch, proves a remote process stopped or supplies exactly-once execution. W01.2 owns claims, dispatch/retry timing and actual reconciliation.
 
+## Resource retention and local path boundaries
+
+Schema v2 adds an immutable resource inventory and evidence records for PR, merge, deployment, cleanup and corrections. Resources bind their creating operation, workspace, run and ownership reference. Evidence binds an operation/workspace/run, source and target identity, observed outcome and external reference. A verified cleanup record requires a tombstone reference. A correction appends another record referencing existing same-workspace evidence; it never rewrites the original. SQLite foreign keys and immutable-record triggers preserve those links after a workspace is marked deleted. There is no store method that deletes workspace metadata or resource history.
+
+`startCoordinator(dataDir, { localWorkspaceRoots })` checks configured local roots before creating the state directory. The store resolves existing parents of paths that do not yet exist. At registration, update and every restart, recorded local workspace paths must remain disjoint from the state directory in both directions. Canonical aliases are resolved; dangling links and overlapping paths are rejected. Existing database, WAL, SHM and rollback-journal entries must be ordinary single-link files. Linked/unmanaged entries are preserved and rejected before SQLite opens them.
+
+These checks assume an installation-owned local filesystem without an adversary replacing paths concurrently. They do not provide the target-side, race-resistant deletion/ownership/quiescence helper required in W03/W05. Opaque remote locators are metadata, not permission to resolve or delete a local path. The core performs no workspace deletion, hidden cleanup timer or metadata purge.
+
+The [retention evidence](evidence/W01.1-retention-2026-10-21.md) exercises real removal of a test-created directory, retaining the run/resource/merge/deployment/cleanup graph and a separate directory. It does not pass the full target tombstone/lost-workflow-acknowledgement case AC20.
+
 ## SQLite and upgrade limits
 
 The store enables foreign keys, WAL and `synchronous=FULL`, with a 5-second lock wait. Writes use `BEGIN IMMEDIATE`, bound values and atomic audit insertion. No network work is performed in transactions. A conflicting revision, reference or uniqueness constraint rolls the whole batch back. Audit update/delete triggers reject mutation. This is append-only application history, not tamper-proof storage against a database administrator.
 
-Schema migrations have ordered versions and SHA-256 checksums. Migration DDL and version updates commit together. An unknown newer version, missing migration ledger or changed applied migration is rejected. A failed migration leaves previous schema/data intact. There are no automatic down migrations, database resets or retention deletions. Before an operator-led upgrade, pause effects and take a consistent SQLite backup; WAL-aware backup/restore qualification belongs to W06. Restoring an older file cannot authorize replay of external effects.
+Schema migrations have ordered versions and SHA-256 checksums. Migration DDL and version updates commit together. Schema v1 upgrades to v2 without changing existing identifiers or audit records. An unknown newer version, missing migration ledger or changed applied migration is rejected. A failed migration leaves previous schema/data intact. There are no automatic down migrations, database resets or retention deletions. The v1 executable rejects a v2 store: downgrade requires a forward fix or a deliberately restored compatible backup, followed by reconciliation before effects. Before an operator-led upgrade, pause effects and take a consistent SQLite backup; WAL-aware backup/restore qualification belongs to W06. Restoring an older file cannot authorize replay of external effects.
 
 Tested runtime: Linux x86_64, Node `24.22.0`, linked SQLite `3.53.4`. Tests prove process-crash recovery, not power-loss durability, network filesystem support or multi-coordinator operation. See the [evidence and remaining acceptance boundaries](evidence/W01.1-lifecycles-2026-10-21.md).

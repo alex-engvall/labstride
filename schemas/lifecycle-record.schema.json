@@ -695,6 +695,258 @@
         "generation",
         "payload"
       ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "maxLength": 256
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "kind": {
+          "const": "resource"
+        },
+        "runId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "maxLength": 256
+        },
+        "workspaceId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "maxLength": 256
+        },
+        "createdByOperation": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "maxLength": 256
+        },
+        "resourceType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "providerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "ownershipRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "cleanupPolicy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "id",
+        "revision",
+        "createdAt",
+        "updatedAt",
+        "kind",
+        "runId",
+        "workspaceId",
+        "createdByOperation",
+        "resourceType",
+        "providerId",
+        "locator",
+        "ownershipRef",
+        "cleanupPolicy"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "maxLength": 256
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "kind": {
+          "const": "evidence"
+        },
+        "runId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "maxLength": 256
+        },
+        "workspaceId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "maxLength": 256
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "maxLength": 256
+        },
+        "category": {
+          "enum": [
+            "pr",
+            "merge",
+            "deployment",
+            "cleanup",
+            "correction"
+          ]
+        },
+        "subjectId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "sourceSha": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "targetId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "outcome": {
+          "enum": [
+            "observed",
+            "verified",
+            "failed",
+            "outcome_unknown"
+          ]
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "tombstoneRef": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "correctsId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "id",
+        "revision",
+        "createdAt",
+        "updatedAt",
+        "kind",
+        "runId",
+        "workspaceId",
+        "operationId",
+        "category",
+        "subjectId",
+        "sourceSha",
+        "targetId",
+        "outcome",
+        "reference",
+        "tombstoneRef",
+        "correctsId"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "category": {
+                "const": "correction"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "correctsId": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "correctsId": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "category": {
+                "const": "cleanup"
+              },
+              "outcome": {
+                "const": "verified"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "tombstoneRef": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }

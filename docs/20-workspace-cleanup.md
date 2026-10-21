@@ -25,3 +25,7 @@ Use a trusted target helper that verifies ownership and quiescence, resolves the
 If safe quiescence cannot be established, report cleanup_blocked and preserve the directory. Once moved/deleting, new sessions must be denied. Keep a durable tombstone outside the removed directory. Repeated requests for the same proven-deleted workspace return the original success; an unrecognized missing path is not automatically a verified deletion.
 
 Preserve run/PR/deploy evidence in the coordinator after deletion. Report blockers with safe filenames/counts, not file contents. Never resolve a blocker by silently discarding changes or force-pushing.
+
+## Implemented metadata boundary
+
+W01.1 implements [independent durable history](28-durable-coordinator-store.md), immutable cleanup/tombstone references and local path separation. Its [retention tests](evidence/W01.1-retention-2026-10-21.md) remove only test-created directories and retain the full metadata graph. The production eligibility checks, trusted target helper and lost-workflow-acknowledgement recovery above remain W05 work; AC20 stays `not_run`.
