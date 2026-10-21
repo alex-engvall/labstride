@@ -1,0 +1,53 @@
+name: Bug report
+description: Report behavior that differs from the documented or expected result.
+title: '[Bug]: '
+body:
+- type: markdown
+  attributes:
+    value: Search existing issues first. For vulnerabilities, follow the [security policy](https://github.com/alex-engvall/labstride/blob/main/SECURITY.md)
+      instead of posting exploit details publicly.
+- type: textarea
+  id: behavior
+  attributes:
+    label: Expected and actual behavior
+    description: Explain the expected result, what happened and how it affects your work.
+  validations:
+    required: true
+- type: textarea
+  id: reproduction
+  attributes:
+    label: Steps to reproduce
+    description: Provide a minimal example with synthetic data.
+  validations:
+    required: true
+- type: input
+  id: version
+  attributes:
+    label: Version or commit
+    description: Give the exact Labstride version/commit; use “specification only” for a documentation
+      inconsistency.
+  validations:
+    required: true
+- type: textarea
+  id: environment
+  attributes:
+    label: Environment and extensions
+    description: Include coordinator/target OS, runtime and relevant extension versions. Omit private
+      hostnames and credentials.
+  validations:
+    required: true
+- type: textarea
+  id: evidence
+  attributes:
+    label: Logs or evidence
+    description: Include redacted errors and operation IDs when available. Describe any interrupted operation
+      or retry.
+  validations:
+    required: false
+- type: input
+  id: related
+  attributes:
+    label: Related requirements or issues
+    description: Add LS/AC IDs or issue links if known.
+  validations:
+    required: false

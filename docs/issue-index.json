@@ -1,0 +1,484 @@
+{
+  "schema_version": "1.0",
+  "repository": "alex-engvall/labstride",
+  "source_spec_commit": "ac44f40c7809372fab133fff1642c37078a0efd3",
+  "roadmap": {
+    "number": 2,
+    "url": "https://github.com/alex-engvall/labstride/issues/2"
+  },
+  "work_packages": [
+    {
+      "id": "W00",
+      "issue_number": 3,
+      "url": "https://github.com/alex-engvall/labstride/issues/3",
+      "depends_on": []
+    },
+    {
+      "id": "W01",
+      "issue_number": 4,
+      "url": "https://github.com/alex-engvall/labstride/issues/4",
+      "depends_on": [
+        "W00"
+      ]
+    },
+    {
+      "id": "W02",
+      "issue_number": 5,
+      "url": "https://github.com/alex-engvall/labstride/issues/5",
+      "depends_on": [
+        "W01"
+      ]
+    },
+    {
+      "id": "W03",
+      "issue_number": 6,
+      "url": "https://github.com/alex-engvall/labstride/issues/6",
+      "depends_on": [
+        "W01"
+      ]
+    },
+    {
+      "id": "W04",
+      "issue_number": 7,
+      "url": "https://github.com/alex-engvall/labstride/issues/7",
+      "depends_on": [
+        "W02",
+        "W03"
+      ]
+    },
+    {
+      "id": "W05",
+      "issue_number": 8,
+      "url": "https://github.com/alex-engvall/labstride/issues/8",
+      "depends_on": [
+        "W03",
+        "W04"
+      ]
+    },
+    {
+      "id": "W06",
+      "issue_number": 9,
+      "url": "https://github.com/alex-engvall/labstride/issues/9",
+      "depends_on": [
+        "W02",
+        "W03",
+        "W04"
+      ]
+    },
+    {
+      "id": "W07",
+      "issue_number": 10,
+      "url": "https://github.com/alex-engvall/labstride/issues/10",
+      "depends_on": [
+        "W05",
+        "W06"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "W00.1",
+      "work_package": "W00",
+      "issue_number": 11,
+      "url": "https://github.com/alex-engvall/labstride/issues/11",
+      "requirements": [
+        "LS-GH-001"
+      ],
+      "acceptance_cases": [
+        "AC29"
+      ],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W00.2",
+      "work_package": "W00",
+      "issue_number": 12,
+      "url": "https://github.com/alex-engvall/labstride/issues/12",
+      "requirements": [],
+      "acceptance_cases": [],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W00.3",
+      "work_package": "W00",
+      "issue_number": 13,
+      "url": "https://github.com/alex-engvall/labstride/issues/13",
+      "requirements": [
+        "LS-EXT-001"
+      ],
+      "acceptance_cases": [
+        "AC22"
+      ],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W01.1",
+      "work_package": "W01",
+      "issue_number": 14,
+      "url": "https://github.com/alex-engvall/labstride/issues/14",
+      "requirements": [
+        "LS-CORE-001",
+        "LS-CORE-006"
+      ],
+      "acceptance_cases": [
+        "AC01",
+        "AC20"
+      ],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W01.2",
+      "work_package": "W01",
+      "issue_number": 15,
+      "url": "https://github.com/alex-engvall/labstride/issues/15",
+      "requirements": [
+        "LS-CORE-002",
+        "LS-CORE-003",
+        "LS-CORE-004"
+      ],
+      "acceptance_cases": [
+        "AC01",
+        "AC02",
+        "AC09",
+        "AC21"
+      ],
+      "depends_on_tasks": [
+        "W01.1"
+      ]
+    },
+    {
+      "id": "W01.3",
+      "work_package": "W01",
+      "issue_number": 16,
+      "url": "https://github.com/alex-engvall/labstride/issues/16",
+      "requirements": [
+        "LS-CORE-005",
+        "LS-CORE-007"
+      ],
+      "acceptance_cases": [
+        "AC08",
+        "AC24"
+      ],
+      "depends_on_tasks": [
+        "W01.2"
+      ]
+    },
+    {
+      "id": "W01.4",
+      "work_package": "W01",
+      "issue_number": 17,
+      "url": "https://github.com/alex-engvall/labstride/issues/17",
+      "requirements": [
+        "LS-EXT-003",
+        "LS-EXT-005"
+      ],
+      "acceptance_cases": [
+        "AC22",
+        "AC31"
+      ],
+      "depends_on_tasks": [
+        "W01.2"
+      ]
+    },
+    {
+      "id": "W02.1",
+      "work_package": "W02",
+      "issue_number": 18,
+      "url": "https://github.com/alex-engvall/labstride/issues/18",
+      "requirements": [
+        "LS-CFG-001",
+        "LS-CFG-002",
+        "LS-CFG-003",
+        "LS-CFG-005"
+      ],
+      "acceptance_cases": [
+        "AC04",
+        "AC06",
+        "AC26"
+      ],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W02.2",
+      "work_package": "W02",
+      "issue_number": 19,
+      "url": "https://github.com/alex-engvall/labstride/issues/19",
+      "requirements": [
+        "LS-CFG-004",
+        "LS-GH-002"
+      ],
+      "acceptance_cases": [
+        "AC03",
+        "AC23"
+      ],
+      "depends_on_tasks": [
+        "W02.1"
+      ]
+    },
+    {
+      "id": "W02.3",
+      "work_package": "W02",
+      "issue_number": 20,
+      "url": "https://github.com/alex-engvall/labstride/issues/20",
+      "requirements": [
+        "LS-GH-003",
+        "LS-GH-004",
+        "LS-GH-005"
+      ],
+      "acceptance_cases": [
+        "AC02",
+        "AC04",
+        "AC05"
+      ],
+      "depends_on_tasks": [
+        "W02.1",
+        "W02.2"
+      ]
+    },
+    {
+      "id": "W03.1",
+      "work_package": "W03",
+      "issue_number": 21,
+      "url": "https://github.com/alex-engvall/labstride/issues/21",
+      "requirements": [
+        "LS-SSH-001",
+        "LS-SSH-002",
+        "LS-SEC-001"
+      ],
+      "acceptance_cases": [
+        "AC06",
+        "AC07",
+        "AC19"
+      ],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W03.2",
+      "work_package": "W03",
+      "issue_number": 22,
+      "url": "https://github.com/alex-engvall/labstride/issues/22",
+      "requirements": [
+        "LS-SSH-003",
+        "LS-SSH-004"
+      ],
+      "acceptance_cases": [
+        "AC08",
+        "AC09"
+      ],
+      "depends_on_tasks": [
+        "W03.1"
+      ]
+    },
+    {
+      "id": "W03.3",
+      "work_package": "W03",
+      "issue_number": 23,
+      "url": "https://github.com/alex-engvall/labstride/issues/23",
+      "requirements": [
+        "LS-SSH-005"
+      ],
+      "acceptance_cases": [
+        "AC30"
+      ],
+      "depends_on_tasks": [
+        "W03.2"
+      ]
+    },
+    {
+      "id": "W04.1",
+      "work_package": "W04",
+      "issue_number": 24,
+      "url": "https://github.com/alex-engvall/labstride/issues/24",
+      "requirements": [
+        "LS-DEP-001",
+        "LS-DEP-002",
+        "LS-DEP-004",
+        "LS-SEC-002"
+      ],
+      "acceptance_cases": [
+        "AC10",
+        "AC11",
+        "AC12",
+        "AC23",
+        "AC34"
+      ],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W04.2",
+      "work_package": "W04",
+      "issue_number": 25,
+      "url": "https://github.com/alex-engvall/labstride/issues/25",
+      "requirements": [
+        "LS-DEP-003",
+        "LS-DEP-006"
+      ],
+      "acceptance_cases": [
+        "AC11",
+        "AC16"
+      ],
+      "depends_on_tasks": [
+        "W04.1"
+      ]
+    },
+    {
+      "id": "W04.3",
+      "work_package": "W04",
+      "issue_number": 26,
+      "url": "https://github.com/alex-engvall/labstride/issues/26",
+      "requirements": [
+        "LS-GH-006",
+        "LS-GH-007"
+      ],
+      "acceptance_cases": [
+        "AC13",
+        "AC14"
+      ],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W04.4",
+      "work_package": "W04",
+      "issue_number": 27,
+      "url": "https://github.com/alex-engvall/labstride/issues/27",
+      "requirements": [
+        "LS-DEP-005"
+      ],
+      "acceptance_cases": [
+        "AC15"
+      ],
+      "depends_on_tasks": [
+        "W04.1",
+        "W04.2",
+        "W04.3"
+      ]
+    },
+    {
+      "id": "W05.1",
+      "work_package": "W05",
+      "issue_number": 28,
+      "url": "https://github.com/alex-engvall/labstride/issues/28",
+      "requirements": [
+        "LS-CLN-001",
+        "LS-CLN-002",
+        "LS-CLN-003"
+      ],
+      "acceptance_cases": [
+        "AC17",
+        "AC18",
+        "AC30"
+      ],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W05.2",
+      "work_package": "W05",
+      "issue_number": 29,
+      "url": "https://github.com/alex-engvall/labstride/issues/29",
+      "requirements": [
+        "LS-CLN-004",
+        "LS-CLN-005"
+      ],
+      "acceptance_cases": [
+        "AC19",
+        "AC20"
+      ],
+      "depends_on_tasks": [
+        "W05.1"
+      ]
+    },
+    {
+      "id": "W06.1",
+      "work_package": "W06",
+      "issue_number": 30,
+      "url": "https://github.com/alex-engvall/labstride/issues/30",
+      "requirements": [
+        "LS-OPS-001"
+      ],
+      "acceptance_cases": [
+        "AC29"
+      ],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W06.2",
+      "work_package": "W06",
+      "issue_number": 31,
+      "url": "https://github.com/alex-engvall/labstride/issues/31",
+      "requirements": [
+        "LS-OPS-002",
+        "LS-OPS-003"
+      ],
+      "acceptance_cases": [
+        "AC21",
+        "AC27"
+      ],
+      "depends_on_tasks": [
+        "W06.1"
+      ]
+    },
+    {
+      "id": "W06.3",
+      "work_package": "W06",
+      "issue_number": 32,
+      "url": "https://github.com/alex-engvall/labstride/issues/32",
+      "requirements": [
+        "LS-OPS-004",
+        "LS-OPS-005"
+      ],
+      "acceptance_cases": [
+        "AC24",
+        "AC28"
+      ],
+      "depends_on_tasks": [
+        "W06.1"
+      ]
+    },
+    {
+      "id": "W07.1",
+      "work_package": "W07",
+      "issue_number": 33,
+      "url": "https://github.com/alex-engvall/labstride/issues/33",
+      "requirements": [
+        "LS-EXT-002",
+        "LS-EXT-004",
+        "LS-OSS-001"
+      ],
+      "acceptance_cases": [
+        "AC22",
+        "AC25"
+      ],
+      "depends_on_tasks": []
+    },
+    {
+      "id": "W07.2",
+      "work_package": "W07",
+      "issue_number": 34,
+      "url": "https://github.com/alex-engvall/labstride/issues/34",
+      "requirements": [
+        "LS-OSS-003",
+        "LS-OSS-004"
+      ],
+      "acceptance_cases": [
+        "AC33"
+      ],
+      "depends_on_tasks": [
+        "W07.1"
+      ]
+    },
+    {
+      "id": "W07.3",
+      "work_package": "W07",
+      "issue_number": 35,
+      "url": "https://github.com/alex-engvall/labstride/issues/35",
+      "requirements": [
+        "LS-SEC-003",
+        "LS-OSS-002"
+      ],
+      "acceptance_cases": [
+        "AC32"
+      ],
+      "depends_on_tasks": []
+    }
+  ]
+}

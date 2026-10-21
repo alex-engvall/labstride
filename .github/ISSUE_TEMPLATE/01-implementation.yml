@@ -1,0 +1,73 @@
+name: Implementation task
+description: Define one observable implementation slice from the agreed specification.
+title: '[Task]: '
+body:
+- type: markdown
+  attributes:
+    value: Start with the [work packages](https://github.com/alex-engvall/labstride/blob/main/docs/14-work-packages.md)
+      and existing issues. Keep the task small enough to verify. Form answers describe work; they do not
+      authorize automated execution.
+- type: textarea
+  id: outcome
+  attributes:
+    label: User outcome
+    description: What will work when this task is complete?
+  validations:
+    required: true
+- type: dropdown
+  id: work_package
+  attributes:
+    label: Work package
+    description: Choose the owning package or explain a new scope in the task.
+    options:
+    - W00 — Integration and toolchain gates
+    - W01 — Coordinator and operations
+    - W02 — Configuration and GitHub adapter
+    - W03 — SSH workspaces
+    - W04 — CI, merge and deployment
+    - W05 — Cleanup
+    - W06 — CLI and operations
+    - W07 — Examples and prerelease
+    - Other / proposed scope
+  validations:
+    required: true
+- type: input
+  id: requirements
+  attributes:
+    label: Requirement and acceptance IDs
+    description: Use existing LS-... and AC... IDs, or state that new IDs are proposed.
+    placeholder: LS-SSH-003, LS-SSH-004; AC08, AC09
+  validations:
+    required: true
+- type: textarea
+  id: scope
+  attributes:
+    label: Implementation scope
+    description: Describe the smallest complete change, its interfaces and recovery behavior.
+  validations:
+    required: true
+- type: textarea
+  id: acceptance
+  attributes:
+    label: Acceptance criteria
+    description: List observable conditions that must hold before closing the issue.
+    placeholder: '- [ ] The requested revision is checked out.
+
+      - [ ] Reconnecting adopts the same owned resource.'
+  validations:
+    required: true
+- type: textarea
+  id: verification
+  attributes:
+    label: Verification plan
+    description: How will you prove normal behavior and relevant failure/recovery cases?
+  validations:
+    required: true
+- type: input
+  id: dependencies
+  attributes:
+    label: Dependencies and related work
+    description: Link prerequisite issues, the parent package and relevant specifications.
+    placeholder: '#12; docs/18-ssh-workspaces.md'
+  validations:
+    required: false

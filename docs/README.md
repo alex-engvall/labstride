@@ -25,10 +25,13 @@ Specification version 0.1.0. All application features are planned, not implement
 - [Remaining implementation probes](21-readiness-and-open-gates.md)
 - [Versioned schemas and broker API](22-api-and-schema-reference.md)
 
+- [Issues and contribution forms](23-issues-and-contribution-forms.md)
+
 ## Machine-readable sources
 
 - [Requirements](backlog.json)
 - [Work packages](work-packages.json)
+- [Issue mapping](issue-index.json)
 - [Acceptance cases](acceptance-cases.json)
 - [Agent guide](AGENT-GUIDE.md)
 

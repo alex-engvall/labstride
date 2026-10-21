@@ -8,7 +8,9 @@
       "Prove personal Project access, workflow OIDC identity and broker reachability with synthetic fixtures."
     ],
     "first_verifiable_outcome": "A recorded capability matrix and reproducible discovery commands; no real deploy.",
-    "status": "planned"
+    "status": "planned",
+    "github_issue": 3,
+    "github_issue_url": "https://github.com/alex-engvall/labstride/issues/3"
   },
   {
     "id": "W01",
@@ -21,7 +23,9 @@
       "Kill/restart a real process around each effect boundary."
     ],
     "first_verifiable_outcome": "A queued synthetic operation resumes with its original ID after restart.",
-    "status": "planned"
+    "status": "planned",
+    "github_issue": 4,
+    "github_issue_url": "https://github.com/alex-engvall/labstride/issues/4"
   },
   {
     "id": "W02",
@@ -34,7 +38,9 @@
       "Implement current-state reconciliation and non-destructive projections."
     ],
     "first_verifiable_outcome": "A test Project field transition creates exactly one queued run.",
-    "status": "planned"
+    "status": "planned",
+    "github_issue": 5,
+    "github_issue_url": "https://github.com/alex-engvall/labstride/issues/5"
   },
   {
     "id": "W03",
@@ -47,7 +53,9 @@
       "Create and reconcile independent source workspaces."
     ],
     "first_verifiable_outcome": "Two issues have separate branches/directories and recover after connection loss.",
-    "status": "planned"
+    "status": "planned",
+    "github_issue": 6,
+    "github_issue_url": "https://github.com/alex-engvall/labstride/issues/6"
   },
   {
     "id": "W04",
@@ -61,7 +69,9 @@
       "Recheck exact-revision CI/merge permissions; invoke own test deploy workflow."
     ],
     "first_verifiable_outcome": "A test deployment is tied to the correct source and workflow revisions and verified target.",
-    "status": "planned"
+    "status": "planned",
+    "github_issue": 7,
+    "github_issue_url": "https://github.com/alex-engvall/labstride/issues/7"
   },
   {
     "id": "W05",
@@ -75,7 +85,9 @@
       "Implement safe target deletion with durable tombstones."
     ],
     "first_verifiable_outcome": "One eligible directory is removed; blocked and unrelated paths remain intact.",
-    "status": "planned"
+    "status": "planned",
+    "github_issue": 8,
+    "github_issue_url": "https://github.com/alex-engvall/labstride/issues/8"
   },
   {
     "id": "W06",
@@ -90,7 +102,9 @@
       "Exercise backup, upgrade and restore with unresolved external effects."
     ],
     "first_verifiable_outcome": "A fresh operator can diagnose and recover a run without editing database rows.",
-    "status": "planned"
+    "status": "planned",
+    "github_issue": 9,
+    "github_issue_url": "https://github.com/alex-engvall/labstride/issues/9"
   },
   {
     "id": "W07",
@@ -104,6 +118,8 @@
       "Finish DCO, reporting route, contract SDK, examples and release evidence."
     ],
     "first_verifiable_outcome": "A versioned prerelease with all P0 acceptance evidence and explicit platform limits.",
-    "status": "planned"
+    "status": "planned",
+    "github_issue": 10,
+    "github_issue_url": "https://github.com/alex-engvall/labstride/issues/10"
   }
 ]

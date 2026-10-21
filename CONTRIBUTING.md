@@ -2,6 +2,8 @@
 
 Start with an issue describing the user outcome, affected requirement IDs and proposed scope. Small fixes may go directly to a PR. New extension capabilities require a contract example, a failure case and a compatibility test.
 
+Use the [issue chooser](https://github.com/alex-engvall/labstride/issues/new/choose) for implementation tasks, bugs, feature proposals, extensions and documentation. The [issue guide](docs/23-issues-and-contribution-forms.md) links the MVP roadmap and explains requirement tracking.
+
 ## Developer Certificate of Origin
 
 Contributions use Apache-2.0 and the unmodified [Developer Certificate of Origin 1.1](DCO). Sign off each contribution you are entitled to submit, using git commit -s. A sign-off is an attestation about provenance and permission, not a transfer of copyright.
