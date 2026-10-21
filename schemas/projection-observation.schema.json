@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ProjectionObservation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "subjectId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "fieldId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "value": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 4096
+    },
+    "appliedToken": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "providerId",
+    "subjectId",
+    "fieldId",
+    "generation",
+    "version",
+    "value",
+    "appliedToken"
+  ]
+}

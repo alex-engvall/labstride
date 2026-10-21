@@ -141,3 +141,45 @@ test('malformed result and invalid follow-up projection roll back result and pre
   store.acceptResult(bound(plan), claim, 1, [good]);
   assert.equal(store.delivery(`projection:${good.id}`).state, 'pending');
 });
+test('reconciliation cannot apply a result for a different operation with the same revision', async t => {
+  const { nextGeneration } = await import('./helpers/execution-fixture.mjs');
+  const { store, plan } = fixture(t); store.markUnknown(plan.operation.id);
+  const next = nextGeneration(store); store.markUnknown(next.operation.id);
+  const wrong = bound(next);
+  const adapter = { async validate() {}, async start() { throw Error(); }, async reconcile(request) {
+    if (request.operationId === plan.operation.id) return wrong;
+    throw Error('No evidence for second operation');
+  } };
+  await worker(store,plan,adapter).tick();
+  assert.equal(store.get('operation',plan.operation.id).state,'outcome_unknown');
+  assert.equal(store.get('operation',next.operation.id).state,'outcome_unknown');
+});
+test('a concurrent worker cannot initiate any effect before the intent transaction commits', async t => {
+  const { root, state, store, plan } = fixture(t,{},false); const receiver = await target(t,root);
+  const preparer = child(t,'inbox-process.mjs',['before',state]); await message(preparer);
+  const waiting = message(preparer); preparer.send('go'); assert.equal((await waiting).stage,'before');
+  const adapter = { async validate() {}, async start(operation) { return (await fetch(receiver.url+'/start',{ method:'POST',body:JSON.stringify(operation) })).json(); }, async reconcile() { throw Error(); } };
+  const w = worker(store,plan,adapter); await w.tick(); assert.equal(receiver.calls(),0);
+  const exit = once(preparer,'exit'); preparer.kill('SIGKILL'); await exit;
+  assert.equal(store.snapshot().records.filter(r=>r.kind==='operation').length,0);
+  schedule(store); await w.tick(); assert.equal(receiver.calls(),1);
+});
+test('concurrent distinct executor processes receive one authorized claim', async t => {
+  const { state,store,plan } = fixture(t);
+  const processes = await Promise.all([run(t,'claim-race',state,'unused'),run(t,'claim-race',state,'unused')]);
+  const exits = processes.map(r=>once(r.p,'exit')); const results = await Promise.all(processes.map(r=>r.reply)); await Promise.all(exits);
+  assert.equal(results.filter(r=>r.stage==='claimed').length,1);
+  assert.equal(results.filter(r=>r.error==='resource_busy').length,1);
+  assert.equal(store.get('operation',plan.operation.id).state,'claimed');
+  assert.equal(store.executionHistory(plan.operation.id).filter(r=>r.kind==='claim').length,1);
+});
+test('restore requires a fresh observation epoch; delayed receipts cannot clear its gate', t => {
+  const { store,plan } = fixture(t); const claim=store.claim(plan.operation.id,'one','one');store.beginEffect(claim);
+  const result=bound(plan);store.acceptResult(result,claim,1);const priorEpoch=store.recoveryEpoch();
+  store.enterRestore(context);
+  store.acceptResult(result,claim,1);
+  assert.throws(()=>store.resumeAfterRestore(context),fail('recovery_required'));
+  assert.throws(()=>store.acceptResult(result,null,store.get('operation',plan.operation.id).revision,[],priorEpoch),fail('revision_conflict'));
+  store.acceptResult(result,null,store.get('operation',plan.operation.id).revision,[],store.recoveryEpoch());
+  store.resumeAfterRestore(context);
+});

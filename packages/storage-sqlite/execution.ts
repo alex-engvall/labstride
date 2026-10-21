@@ -15,6 +15,14 @@ export const digest = (value: unknown): string => createHash('sha256').update(ca
 export function requestDigest(request: StartPlan['operation']['request']): string {
   const { requestDigest: _digest, ...contents } = request; return digest(contents);
 }
+export function recoveryContext(context: AuditContext): AuditContext {
+  if (!context || typeof context !== 'object' || Object.keys(context).some(k => !['actorId','reason','evidenceRefs'].includes(k)) ||
+    typeof context.actorId !== 'string' || !context.actorId || context.actorId.length > 1024 ||
+    typeof context.reason !== 'string' || !context.reason || context.reason.length > 1024 ||
+    !Array.isArray(context.evidenceRefs) || !context.evidenceRefs.length || context.evidenceRefs.length > 128 ||
+    context.evidenceRefs.some(ref => typeof ref !== 'string' || !ref || ref.length > 4096)) throw new LifecycleError('recovery_required');
+  return structuredClone(context);
+}
 function bounded(value: string): void {
   if (typeof value !== 'string' || !value || value.length > 1024) throw new LifecycleError('invalid_payload');
 }
@@ -28,8 +36,9 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
   protected receiveInside(input: InboxInput): { id: string; duplicate: boolean } {
     const { event, stream, checkpoint } = input;
     const identity = [event.installationId, event.provider, stream, event.externalId];
-    const hash = digest(event);
-    const existing = this.db.prepare('SELECT id,digest FROM inbox WHERE installation_id=? AND provider_id=? AND stream=? AND external_id=?').get(...identity);
+    const existing = this.db.prepare('SELECT id,digest,payload FROM inbox WHERE installation_id=? AND provider_id=? AND stream=? AND external_id=?').get(...identity);
+    // Acquisition time is local metadata. Preserve the first timestamp and v3 digest on replay.
+    const hash = digest({ ...event, observedAt: existing ? JSON.parse(String(existing.payload)).event.observedAt : event.observedAt });
     if (existing && existing.digest !== hash) throw new LifecycleError('identity_conflict');
     const id = existing ? String(existing.id) : this.identities.next();
     if (!existing) this.db.prepare('INSERT INTO inbox(id,installation_id,provider_id,stream,external_id,digest,payload) VALUES (?,?,?,?,?,?,?)')
@@ -206,10 +215,17 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
     const row = this.db.prepare("SELECT payload FROM execution_log WHERE operation_id=? AND kind='observation' AND json_extract(payload,'$.result.handle') IS NOT NULL ORDER BY sequence DESC LIMIT 1").get(operationId);
     return row ? (JSON.parse(String(row.payload)) as BoundResult).result.handle : null;
   }
-  acceptResult(input: BoundResult, claim: Claim | null, expectedRevision: number, projections: RecordOf<'projection'>[] = []): boolean {
+  recoveryEpoch(): number { return Number(this.db.prepare('SELECT epoch FROM recovery_control WHERE id=1').get()!.epoch); }
+  private finishDelivery(operationId: string, observed: boolean): void {
+    if (observed) this.db.prepare('UPDATE restore_checks SET resolved=1 WHERE operation_id=?').run(operationId);
+    this.db.prepare(`UPDATE deliveries SET state=CASE WHEN EXISTS(SELECT 1 FROM restore_checks WHERE operation_id=? AND resolved=0)
+      THEN 'reconcile' ELSE 'done' END,last_error=NULL,revision=revision+1 WHERE operation_id=? AND state!='conflict'`).run(operationId,operationId);
+  }
+  acceptResult(input: BoundResult, claim: Claim | null, expectedRevision: number, projections: RecordOf<'projection'>[] = [], observedEpoch = 0): boolean {
     const bound = validated('execution-record', input);
     if (bound.kind !== 'result') throw new LifecycleError('invalid_payload');
     return this.transaction(() => {
+      if (!claim && observedEpoch !== this.recoveryEpoch()) throw new LifecycleError('revision_conflict');
       const op = this.get('operation', bound.operationId);
       if (bound.requestDigest !== op.request.requestDigest || (claim && claim.operationId !== op.id)) throw new LifecycleError('identity_conflict');
       if (claim && !this.checkClaim(claim).consumed) throw new LifecycleError('effect_blocked');
@@ -218,8 +234,7 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
       const existing = this.db.prepare('SELECT payload FROM execution_results WHERE operation_id=?').get(op.id);
       if (existing) {
         if (canonical(JSON.parse(String(existing.payload))) === canonical(bound)) {
-          this.db.prepare('UPDATE restore_checks SET resolved=1 WHERE operation_id=?').run(op.id);
-          this.db.prepare("UPDATE deliveries SET state='done',revision=revision+1 WHERE operation_id=? AND state='reconcile'").run(op.id);
+          this.finishDelivery(op.id, !claim);
           return true;
         }
         this.log(op.id, 'result_conflict', bound);
@@ -244,8 +259,7 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
         } })), { actorId: 'coordinator', reason: 'Observed action resources; providerId identifies the action producer', evidenceRefs: bound.result.evidenceRefs });
         this.db.prepare('INSERT INTO execution_results VALUES (?,?)').run(op.id, JSON.stringify(bound));
         this.db.prepare('UPDATE claims SET active=0 WHERE operation_id=?').run(op.id);
-        this.db.prepare("UPDATE deliveries SET state='done',last_error=NULL,revision=revision+1 WHERE operation_id=?").run(op.id);
-        this.db.prepare('UPDATE restore_checks SET resolved=1 WHERE operation_id=?').run(op.id);
+        this.finishDelivery(op.id, !claim);
         if (projections.length) {
           if (projections.some(p => p.runId !== op.runId || p.kind !== 'projection')) throw new LifecycleError('identity_conflict');
           this.write(projections.map(record => ({ record, expectedRevision: null })), { actorId: 'coordinator', reason: 'Observed operation result projection', evidenceRefs: bound.result.evidenceRefs });
@@ -281,7 +295,7 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
     });
   }
   resumeObservation(id: string, context: AuditContext): void {
-    if (!context.evidenceRefs.length) throw new LifecycleError('recovery_required');
+    context = recoveryContext(context);
     this.transaction(() => {
       const d = this.delivery(id);
       if (d.state !== 'blocked') throw new LifecycleError('invalid_transition');
@@ -291,17 +305,17 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
     });
   }
   enterRestore(context: AuditContext): void {
-    if (!context.evidenceRefs.length) throw new LifecycleError('recovery_required');
+    context = recoveryContext(context);
     this.transaction(() => {
       this.db.exec('UPDATE recovery_control SET paused=1,epoch=epoch+1 WHERE id=1');
       this.db.exec(`INSERT INTO restore_checks SELECT id,(SELECT epoch FROM recovery_control WHERE id=1),0 FROM operations WHERE true
         ON CONFLICT(operation_id) DO UPDATE SET epoch=excluded.epoch,resolved=0`);
-      this.db.exec("UPDATE deliveries SET state='reconcile',attempts=0,revision=revision+1 WHERE operation_id IS NOT NULL");
+      this.db.prepare("UPDATE deliveries SET state='reconcile',attempts=0,next_at=?,revision=revision+1 WHERE operation_id IS NOT NULL").run(this.clock.now());
       this.log(null, 'restore_paused', context);
     });
   }
   resumeAfterRestore(context: AuditContext): void {
-    if (!context.evidenceRefs.length) throw new LifecycleError('recovery_required');
+    context = recoveryContext(context);
     this.transaction(() => {
       if (this.db.prepare('SELECT 1 FROM restore_checks WHERE resolved=0').get()) throw new LifecycleError('recovery_required');
       this.db.exec('UPDATE recovery_control SET paused=0 WHERE id=1'); this.log(null, 'restore_resumed', context);

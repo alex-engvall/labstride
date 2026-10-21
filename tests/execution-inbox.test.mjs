@@ -60,3 +60,9 @@ for (const mode of ['before', 'after', 'ack']) test(`real process loss at ${mode
   assert.equal(reboot.store.scheduleStart(receipt.id, startPlan(), context), startPlan().run.id);
   assert.equal(store.snapshot().records.filter(r => r.kind === 'operation').length, 1);
 });
+test('a later acquisition timestamp preserves the originally persisted event and digest', t => {
+  const { store } = fixture(t); const input = eventInput(); const first = store.receive(input);
+  input.event.observedAt = '2026-10-22T12:00:00.000Z';
+  assert.deepEqual(store.receive(input),{ id:first.id,duplicate:true });
+  assert.equal(store.event(first.id).input.event.observedAt,'2026-10-21T12:00:00.000Z');
+});

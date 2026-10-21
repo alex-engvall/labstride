@@ -37,7 +37,8 @@ export interface ExecutionPort extends InboxStore {
   delivery(id: string): Delivery;
   claim(operationId: string, executorId: string, attemptId: string): Claim;
   beginEffect(claim: Claim): void;
-  acceptResult(result: BoundResult, claim: Claim | null, expectedRevision: number, projections?: RecordOf<'projection'>[]): boolean;
+  acceptResult(result: BoundResult, claim: Claim | null, expectedRevision: number, projections?: RecordOf<'projection'>[], observedEpoch?: number): boolean;
+  recoveryEpoch(): number;
   markUnknown(operationId: string): void;
   retryRead(id: string, policy: RetryPolicy, random: number): void;
   block(id: string, code: string): void;

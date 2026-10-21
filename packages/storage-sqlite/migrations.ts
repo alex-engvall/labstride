@@ -105,6 +105,13 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   CREATE TABLE recovery_control (id INTEGER PRIMARY KEY CHECK(id=1), paused INTEGER NOT NULL CHECK(paused IN (0,1)), epoch INTEGER NOT NULL);
   INSERT INTO recovery_control VALUES (1,0,0);
   CREATE TABLE restore_checks (operation_id TEXT PRIMARY KEY REFERENCES operations(id), epoch INTEGER NOT NULL, resolved INTEGER NOT NULL CHECK(resolved IN (0,1)));
+` }, { version: 5, sql: `
+  ALTER TABLE inbox ADD COLUMN session_record_id TEXT REFERENCES sessions(id);
+  CREATE TABLE session_polls (session_record_id TEXT PRIMARY KEY REFERENCES sessions(id),
+    revision INTEGER NOT NULL DEFAULT 1, next_at TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0,
+    blocked INTEGER NOT NULL DEFAULT 0 CHECK(blocked IN (0,1)));
+  CREATE TABLE projection_attempts (projection_id TEXT PRIMARY KEY REFERENCES projections(id),
+    token TEXT NOT NULL UNIQUE, state TEXT NOT NULL CHECK(state IN ('started','not_applied','applied')));
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {
