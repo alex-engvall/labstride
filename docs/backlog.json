@@ -123,7 +123,7 @@
       "acceptance_criteria": [
         "Deleting a workspace leaves run, merge, deployment and cleanup evidence available."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/45",
       "verification_evidence": [
         "evidence/W01.1-retention-2026-10-21.md"
       ],
