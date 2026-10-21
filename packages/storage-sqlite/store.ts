@@ -24,13 +24,13 @@ function classify(error: unknown): LifecycleError {
 
 export class SqliteStore implements StateStore {
   readonly dataDir: string;
-  #db: DatabaseSync;
-  #clock: Clock;
-  #identities: IdentityProvider;
+  protected db: DatabaseSync;
+  protected clock: Clock;
+  protected identities: IdentityProvider;
 
   constructor(dataDir: string, dependencies: StoreDependencies = {}) {
-    this.#clock = dependencies.clock ?? { now: () => new Date().toISOString() };
-    this.#identities = dependencies.identities ?? { next: randomUUID };
+    this.clock = dependencies.clock ?? { now: () => new Date().toISOString() };
+    this.identities = dependencies.identities ?? { next: randomUUID };
     const canonical = canonicalPath(dataDir);
     for (const root of dependencies.localWorkspaceRoots ?? []) assertSeparate(canonical, root);
     try {
@@ -38,25 +38,25 @@ export class SqliteStore implements StateStore {
       this.dataDir = realpathSync(dataDir);
       assertDatabaseFiles(this.dataDir);
     } catch { throw new LifecycleError('unsafe_state_path'); }
-    try { this.#db = new DatabaseSync(join(this.dataDir, 'state.sqlite'), { timeout: 5000 }); }
+    try { this.db = new DatabaseSync(join(this.dataDir, 'state.sqlite'), { timeout: 5000 }); }
     catch (error) { throw classify(error); }
     try {
-      this.#db.exec('PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL');
-      migrate(this.#db);
-      const mode = this.#db.prepare('PRAGMA journal_mode=WAL').get();
+      this.db.exec('PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL');
+      migrate(this.db);
+      const mode = this.db.prepare('PRAGMA journal_mode=WAL').get();
       if (mode!.journal_mode !== 'wal') throw new LifecycleError('storage_failure');
       // Recheck recorded local paths on every boot, including changed symlink aliases.
-      for (const { payload } of this.#db.prepare('SELECT payload FROM workspaces').all()) {
+      for (const { payload } of this.db.prepare('SELECT payload FROM workspaces').all()) {
         const record = validated('lifecycle-record', JSON.parse(String(payload)));
         if (record.kind !== 'workspace') throw new LifecycleError('storage_failure');
         if (record.localPath !== null) assertSeparate(this.dataDir, record.localPath);
       }
-    } catch (error) { this.#db.close(); throw classify(error); }
+    } catch (error) { this.db.close(); throw classify(error); }
   }
 
   #read<K extends Kind>(kind: K, id: string): RecordOf<K> | undefined {
     if (!Object.hasOwn(tables, kind)) throw new LifecycleError('invalid_payload');
-    const row = this.#db.prepare(`SELECT payload FROM ${tables[kind]} WHERE id=?`).get(id);
+    const row = this.db.prepare(`SELECT payload FROM ${tables[kind]} WHERE id=?`).get(id);
     if (!row) return undefined;
     const record = validated('lifecycle-record', JSON.parse(String(row.payload)));
     if (record.kind !== kind || record.id !== id) throw new LifecycleError('storage_failure');
@@ -70,44 +70,57 @@ export class SqliteStore implements StateStore {
     } catch (error) { throw classify(error); }
   }
 
+  protected transaction<T>(work: () => T): T {
+    try {
+      this.db.exec('BEGIN IMMEDIATE');
+      try { const result = work(); this.db.exec('COMMIT'); return result; }
+      catch (error) { this.db.exec('ROLLBACK'); throw error; }
+    } catch (error) { throw classify(error); }
+  }
+
   commit(input: Change[], context: AuditContext): void {
+    this.transaction(() => {
+      if (!Array.isArray(input)) throw new LifecycleError('invalid_payload');
+      for (const change of input) {
+        if (change?.record?.kind === 'operation' && this.db.prepare('SELECT 1 FROM execution_bindings WHERE operation_id=?').get(change.record.id))
+          throw new LifecycleError('recovery_required');
+      }
+      this.write(input, context);
+    });
+  }
+
+  protected write(input: Change[], context: AuditContext): void {
     if (!Array.isArray(input) || input.length < 1 || input.length > 64) throw new LifecycleError('invalid_payload');
     if (!context || Object.keys(context).some(key => !['actorId', 'reason', 'evidenceRefs'].includes(key)))
       throw new LifecycleError('invalid_payload');
     // Snapshot/validate every payload before beginning any writes.
     const changes = input.map(change => ({ ...change, record: validated('lifecycle-record', change.record) }));
     const audits = changes.map(change => validated('lifecycle-audit', {
-      schemaVersion: '1.0', id: 'pending-audit', at: this.#clock.now(),
+      schemaVersion: '1.0', id: 'pending-audit', at: this.clock.now(),
       actorId: context.actorId, reason: context.reason, evidenceRefs: context.evidenceRefs,
       previousRevision: change.expectedRevision, recovery: change.recovery ?? false, record: change.record,
     } as AuditRecord));
-    try {
-      this.#db.exec('BEGIN IMMEDIATE');
-      try {
-        for (const [index, change] of changes.entries()) {
-          const record = change.record;
-          const previous = this.#read(record.kind, record.id);
-          checkChange(previous, change);
-          if (change.recovery && audits[index].evidenceRefs.length === 0) throw new LifecycleError('recovery_required');
-          if ('state' in record && ['completed', 'succeeded', 'verified', 'deleted'].includes(record.state) &&
-            audits[index].evidenceRefs.length === 0) throw new LifecycleError('invalid_payload');
-          this.#checkReferences(record);
-          const table = tables[record.kind];
-          if (previous) {
-            const result = this.#db.prepare(`UPDATE ${table} SET payload=? WHERE id=? AND revision=?`)
-              .run(JSON.stringify(record), record.id, change.expectedRevision);
-            if (Number(result.changes) !== 1) throw new LifecycleError('revision_conflict');
-          } else this.#db.prepare(`INSERT INTO ${table}(id,payload) VALUES (?,?)`).run(record.id, JSON.stringify(record));
-          const audit = validated('lifecycle-audit', { ...audits[index], id: this.#identities.next() });
-          this.#db.prepare('INSERT INTO audit VALUES (?,?)').run(audit.id, JSON.stringify(audit));
-        }
-        for (const { record } of changes) {
-          if (record.kind === 'operation' && !this.#db.prepare('SELECT id FROM outbox WHERE operation_id=?').get(record.id))
-            throw new LifecycleError('identity_conflict');
-        }
-        this.#db.exec('COMMIT');
-      } catch (error) { this.#db.exec('ROLLBACK'); throw error; }
-    } catch (error) { throw classify(error); }
+    for (const [index, change] of changes.entries()) {
+      const record = change.record;
+      const previous = this.#read(record.kind, record.id);
+      checkChange(previous, change);
+      if (change.recovery && audits[index].evidenceRefs.length === 0) throw new LifecycleError('recovery_required');
+      if ('state' in record && ['completed', 'succeeded', 'verified', 'deleted'].includes(record.state) &&
+        audits[index].evidenceRefs.length === 0) throw new LifecycleError('invalid_payload');
+      this.#checkReferences(record);
+      const table = tables[record.kind];
+      if (previous) {
+        const result = this.db.prepare(`UPDATE ${table} SET payload=? WHERE id=? AND revision=?`)
+          .run(JSON.stringify(record), record.id, change.expectedRevision);
+        if (Number(result.changes) !== 1) throw new LifecycleError('revision_conflict');
+      } else this.db.prepare(`INSERT INTO ${table}(id,payload) VALUES (?,?)`).run(record.id, JSON.stringify(record));
+      const audit = validated('lifecycle-audit', { ...audits[index], id: this.identities.next() });
+      this.db.prepare('INSERT INTO audit VALUES (?,?)').run(audit.id, JSON.stringify(audit));
+    }
+    for (const { record } of changes) {
+      if (record.kind === 'operation' && !this.db.prepare('SELECT id FROM outbox WHERE operation_id=?').get(record.id))
+        throw new LifecycleError('identity_conflict');
+    }
   }
 
   #checkReferences(record: LifecycleRecord): void {
@@ -154,24 +167,24 @@ export class SqliteStore implements StateStore {
   }
 
   #records(): LifecycleRecord[] {
-    return Object.entries(tables).flatMap(([kind, table]) => this.#db.prepare(`SELECT id FROM ${table} ORDER BY id`).all()
+    return Object.entries(tables).flatMap(([kind, table]) => this.db.prepare(`SELECT id FROM ${table} ORDER BY id`).all()
       .map(row => this.get(kind as Kind, String(row.id))));
   }
   snapshot(): RecoverySnapshot {
-    this.#db.exec('BEGIN');
+    this.db.exec('BEGIN');
     try {
       const records = this.#records();
       const operations = records.filter((record): record is RecordOf<'operation'> => record.kind === 'operation');
       const prepared = new Set(operations.filter(op => op.state === 'prepared' && op.effectBoundary === 'not_crossed').map(op => op.id));
       const pendingIntents = records.filter((record): record is RecordOf<'outbox'> => record.kind === 'outbox' && prepared.has(record.operationId));
       const reconciliationRequired = operations.filter(op => ['claimed', 'running', 'outcome_unknown'].includes(op.state));
-      this.#db.exec('COMMIT');
+      this.db.exec('COMMIT');
       return { schemaVersion: '1.0', records, pendingIntents, reconciliationRequired };
-    } catch (error) { this.#db.exec('ROLLBACK'); throw classify(error); }
+    } catch (error) { this.db.exec('ROLLBACK'); throw classify(error); }
   }
 
   history(runId: string): { records: LifecycleRecord[]; audit: AuditRecord[] } {
-    this.#db.exec('BEGIN');
+    this.db.exec('BEGIN');
     try {
       this.get('run', runId);
       const snapshot = { records: this.#records() };
@@ -181,12 +194,12 @@ export class SqliteStore implements StateStore {
         (record.kind === 'run' && record.id === runId) || (record.kind === 'request' && record.id === request.id) ||
         (record.kind === 'installation' && record.id === request.installationId));
       const identities = new Set(records.map(record => `${record.kind}:${record.id}`));
-      const audit = this.#db.prepare('SELECT payload FROM audit ORDER BY rowid').all()
+      const audit = this.db.prepare('SELECT payload FROM audit ORDER BY rowid').all()
         .map(row => validated('lifecycle-audit', JSON.parse(String(row.payload))))
         .filter(item => identities.has(`${item.record.kind}:${item.record.id}`));
-      this.#db.exec('COMMIT');
+      this.db.exec('COMMIT');
       return { records, audit };
-    } catch (error) { this.#db.exec('ROLLBACK'); throw classify(error); }
+    } catch (error) { this.db.exec('ROLLBACK'); throw classify(error); }
   }
-  close(): void { this.#db.close(); }
+  close(): void { this.db.close(); }
 }

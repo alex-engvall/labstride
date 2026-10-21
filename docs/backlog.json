@@ -32,7 +32,7 @@
       "title": "Commit intent before side effects",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W01",
       "depends_on_work_packages": [
@@ -43,7 +43,9 @@
         "Crash tests prove effects are never initiated before their intent is durable."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W01.2-inbox-2026-10-21.md"
+      ],
       "github_issue": 15,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/15"
     },
@@ -52,7 +54,7 @@
       "title": "Deduplicate events and operation claims",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W01",
       "depends_on_work_packages": [
@@ -64,7 +66,9 @@
         "Duplicate or late session/hook observations cannot create another run, cross a privileged effect boundary or regress a newer generation."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W01.2-inbox-2026-10-21.md"
+      ],
       "github_issue": 15,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/15"
     },
@@ -73,7 +77,7 @@
       "title": "Preserve unknown outcomes",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W01",
       "depends_on_work_packages": [
@@ -84,7 +88,9 @@
         "A lost effect response blocks blind repetition and retains enough identity for reconciliation."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W01.2-inbox-2026-10-21.md"
+      ],
       "github_issue": 15,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/15"
     },

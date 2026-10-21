@@ -131,7 +131,7 @@ test('linked database and journal files are preserved and rejected before SQLite
   assert.equal(readFileSync(unmanaged, 'utf8'), 'PRESERVE');
 });
 
-test('schema v1 upgrades to v2 preserving all original records and audit; failed next migration preserves history', t => {
+test('schema v1 upgrades to current preserving all original records and audit; failed next migration preserves history', t => {
   const root = directory(t), state = join(root, 'state'); mkdirSync(state);
   const db = new DatabaseSync(join(state, 'state.sqlite'));
   db.exec('PRAGMA foreign_keys=ON');
@@ -148,8 +148,8 @@ test('schema v1 upgrades to v2 preserving all original records and audit; failed
   assert.equal(runtime.store.get('session', 'session-enrollment-test').sessionId, 'opaque/session/1');
   const before = runtime.store.history(runId);
   const upgraded = new DatabaseSync(join(state, 'state.sqlite')); t.after(() => upgraded.close());
-  assert.equal(upgraded.prepare('PRAGMA user_version').get().user_version, 2);
-  assert.throws(() => migrate(upgraded, [...migrations, { version: 3, sql: 'CREATE TABLE partial_upgrade (id TEXT); INVALID SQL;' }]), fail('migration_failed'));
+  assert.equal(upgraded.prepare('PRAGMA user_version').get().user_version, migrations.length);
+  assert.throws(() => migrate(upgraded, [...migrations, { version: migrations.length + 1, sql: 'CREATE TABLE partial_upgrade (id TEXT); INVALID SQL;' }]), fail('migration_failed'));
   assert.deepEqual(runtime.store.history(runId), before);
   assert.equal(upgraded.prepare("SELECT name FROM sqlite_master WHERE name='partial_upgrade'").get(), undefined);
 });

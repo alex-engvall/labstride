@@ -67,6 +67,26 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   CREATE TRIGGER resources_no_delete BEFORE DELETE ON resources BEGIN SELECT RAISE(ABORT, 'immutable_resource'); END;
   CREATE TRIGGER evidence_no_update BEFORE UPDATE ON evidence BEGIN SELECT RAISE(ABORT, 'immutable_evidence'); END;
   CREATE TRIGGER evidence_no_delete BEFORE DELETE ON evidence BEGIN SELECT RAISE(ABORT, 'immutable_evidence'); END;
+` }, { version: 3, sql: `
+  CREATE TABLE inbox (
+    id TEXT PRIMARY KEY, installation_id TEXT NOT NULL REFERENCES installations(id),
+    provider_id TEXT NOT NULL, stream TEXT NOT NULL, external_id TEXT NOT NULL,
+    digest TEXT NOT NULL, payload TEXT NOT NULL CHECK(json_valid(payload) AND length(CAST(payload AS BLOB)) <= 262144),
+    run_id TEXT REFERENCES runs(id), processed INTEGER NOT NULL DEFAULT 0 CHECK(processed IN (0,1)),
+    UNIQUE(installation_id, provider_id, stream, external_id));
+  CREATE TABLE checkpoints (
+    installation_id TEXT NOT NULL REFERENCES installations(id), provider_id TEXT NOT NULL, stream TEXT NOT NULL,
+    revision INTEGER NOT NULL CHECK(revision > 0), cursor TEXT NOT NULL,
+    PRIMARY KEY(installation_id, provider_id, stream));
+  CREATE TABLE execution_bindings (
+    operation_id TEXT PRIMARY KEY REFERENCES operations(id), resource_key TEXT NOT NULL,
+    request_digest TEXT NOT NULL, authorized_by TEXT NOT NULL);
+  CREATE TABLE deliveries (
+    id TEXT PRIMARY KEY, operation_id TEXT UNIQUE REFERENCES operations(id), projection_id TEXT UNIQUE REFERENCES projections(id),
+    state TEXT NOT NULL CHECK(state IN ('pending','reconcile','blocked','done','superseded','conflict')),
+    attempts INTEGER NOT NULL DEFAULT 0 CHECK(attempts >= 0), next_at TEXT NOT NULL,
+    last_error TEXT, revision INTEGER NOT NULL DEFAULT 1 CHECK(revision > 0),
+    CHECK((operation_id IS NULL) != (projection_id IS NULL)));
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

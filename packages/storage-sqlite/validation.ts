@@ -3,7 +3,6 @@ import type { FormatsPlugin } from 'ajv-formats';
 import { createRequire } from 'node:module';
 import { readdirSync, readFileSync } from 'node:fs';
 import { LifecycleError } from '../core/lifecycle.ts';
-import type { LifecycleRecord, AuditRecord } from '../core/lifecycle.ts';
 
 const directory = new URL('../../schemas/', import.meta.url);
 const ajv = new Ajv2020({ strict: true, strictRequired: false, allowUnionTypes: true });
@@ -12,7 +11,7 @@ addFormats(ajv, { mode: 'full' });
 for (const name of readdirSync(directory).filter(name => name.endsWith('.schema.json')))
   ajv.addSchema(JSON.parse(readFileSync(new URL(name, directory), 'utf8')), new URL(name, directory).href);
 
-export function validated<T extends LifecycleRecord | AuditRecord>(name: 'lifecycle-record' | 'lifecycle-audit', value: T): T {
+export function validated<T>(name: string, value: T): T {
   try {
     const serialized = JSON.stringify(value, (_key, item: unknown) => {
       if (item === undefined || ['function', 'symbol', 'bigint'].includes(typeof item) ||

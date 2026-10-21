@@ -138,8 +138,8 @@ test('migration failure rolls back DDL and version; unknown or altered schemas a
   const dataDir = directory(t);
   const db = new DatabaseSync(join(dataDir, 'state.sqlite')); t.after(() => db.close());
   migrate(db);
-  assert.throws(() => migrate(db, [...migrations, { version: 3, sql: 'CREATE TABLE partial_upgrade (id TEXT); INVALID SQL;' }]), fail('migration_failed'));
-  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 2);
+  assert.throws(() => migrate(db, [...migrations, { version: migrations.length + 1, sql: 'CREATE TABLE partial_upgrade (id TEXT); INVALID SQL;' }]), fail('migration_failed'));
+  assert.equal(db.prepare('PRAGMA user_version').get().user_version, migrations.length);
   assert.equal(db.prepare("SELECT name FROM sqlite_master WHERE name='partial_upgrade'").get(), undefined);
   assert.throws(() => migrate(db, [{ version: 1, sql: migrations[0].sql + '-- modified' }, ...migrations.slice(1)]), fail('unsupported_schema'));
   db.exec('PRAGMA user_version=99');
