@@ -266,7 +266,7 @@
         "[Initial broad-credential probes](evidence/W00.1-github-access-2026-10-21.md)",
         "[Dedicated App repository reads/issue writes; Project write rejected](evidence/W00.1-dedicated-app-2026-10-21.md)",
         "[Project-only PAT draft/public-issue field writes and cleanup](evidence/W00.1-project-pat-2026-10-21.md)",
-        "[App file/PR writes, three successful downstream CI runs and cleanup](evidence/W00.1-app-file-pr-ci-2026-10-21.md)",
+        "[App file/PR writes, CI receipts, cleanup and later association limits](evidence/W00.1-app-file-pr-ci-2026-10-21.md)",
         "[PAT Status/membership actors; disposable cursor/crash/overlap probes and explicit limits](evidence/W00.1-actor-observation-2026-10-21.md)"
       ],
       "github_issue": 11,

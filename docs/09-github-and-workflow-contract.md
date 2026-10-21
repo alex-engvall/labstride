@@ -40,6 +40,8 @@ Reuse Actions for builds, tests, packaging and delivery rather than reproducing 
 
 The observed App-originated PR event triggered CI while the App retained Actions read-only. This does not establish dispatch permission or the behavior of another credential/event combination. Bind observed runs and checks to actor, workflow identity, run attempt, PR head and base context; distinguish a PR's synthetic test-merge commit from an actual merge into the target branch.
 
+Persist validated run-to-PR/base associations with their observation provenance. In the [later read-only review](evidence/W00.1-app-file-pr-ci-2026-10-21.md), all three run APIs returned empty PR lists despite their original associations being recorded. Reconcile missing/conflicting context against durable receipts and independent provider facts; do not infer it from a matching head alone. Historical success never replaces the current-context checks in the merge gate.
+
 Dispatch inputs are bounded structured strings containing operation ID, request digest and protocol version. The workflow obtains the authoritative execution request from the coordinator after authentication. A run name may carry the operation ID for discovery but is not authentication.
 
 ## Authenticated claim protocol — adopted design
