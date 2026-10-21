@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LabstrideHookObservation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "eventId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "providerId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "runId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "requestGeneration": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "workspaceId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "sessionId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "turnId": {
+      "anyOf": [
+        {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "origin": {
+      "const": "extension"
+    },
+    "kind": {
+      "enum": [
+        "session.ready",
+        "turn.started",
+        "turn.stopped",
+        "turn.interrupted",
+        "question.pending",
+        "session.closed"
+      ]
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sourceVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+      },
+      "maxItems": 128,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "providerId",
+    "runId",
+    "requestGeneration",
+    "workspaceId",
+    "sessionId",
+    "turnId",
+    "origin",
+    "kind",
+    "occurredAt",
+    "sourceVersion",
+    "evidenceRefs"
+  ]
+}

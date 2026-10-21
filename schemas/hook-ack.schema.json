@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LabstrideHookAcknowledgement",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "eventId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "outcome": {
+          "const": "accepted"
+        },
+        "persistence": {
+          "const": "durable"
+        },
+        "observationId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "eventId",
+        "outcome",
+        "persistence",
+        "observationId",
+        "error"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "eventId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "outcome": {
+          "const": "duplicate"
+        },
+        "persistence": {
+          "const": "durable"
+        },
+        "observationId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "eventId",
+        "outcome",
+        "persistence",
+        "observationId",
+        "error"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "eventId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "outcome": {
+          "const": "rejected"
+        },
+        "persistence": {
+          "const": "not_stored"
+        },
+        "observationId": {
+          "type": "null"
+        },
+        "error": {
+          "$ref": "contract-common.schema.json#/$defs/error"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "eventId",
+        "outcome",
+        "persistence",
+        "observationId",
+        "error"
+      ]
+    }
+  ]
+}

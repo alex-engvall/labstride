@@ -1,0 +1,874 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Labstride shared contract definitions v1",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "validation_failed",
+            "forbidden",
+            "unsupported_capability",
+            "authentication_failed",
+            "identity_mismatch",
+            "stale_revision",
+            "policy_changed",
+            "resource_busy",
+            "rate_limited",
+            "transient_unavailable",
+            "configuration_invalid",
+            "projection_conflict",
+            "operation_failed",
+            "cancelled",
+            "outcome_unknown"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "evidenceId": {
+          "anyOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retryClass": {
+          "enum": [
+            "none",
+            "read_only",
+            "pre_effect_transient",
+            "reconcile"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "evidenceId",
+        "retryClass"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "outcome_unknown"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "retryClass": {
+                "const": "reconcile"
+              }
+            },
+            "type": "object"
+          }
+        }
+      ]
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "major": {
+          "const": 1
+        },
+        "minor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      },
+      "required": [
+        "major",
+        "minor"
+      ]
+    },
+    "operationResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "accepted",
+            "succeeded",
+            "failed",
+            "cancelled",
+            "outcome_unknown"
+          ]
+        },
+        "handle": {
+          "anyOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "contract-common.schema.json#/$defs/resource"
+          },
+          "maxItems": 128
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "maxItems": 128,
+          "uniqueItems": true
+        },
+        "outputs": {
+          "type": "object"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "handle",
+        "resources",
+        "evidenceRefs",
+        "outputs",
+        "error"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "accepted"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "handle": {
+                "$ref": "contract-common.schema.json#/$defs/id"
+              },
+              "error": {
+                "type": "null"
+              }
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "failed",
+                  "outcome_unknown"
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "error": {
+                "$ref": "contract-common.schema.json#/$defs/error"
+              }
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "outcome_unknown"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "error": {
+                "allOf": [
+                  {
+                    "$ref": "contract-common.schema.json#/$defs/error"
+                  },
+                  {
+                    "properties": {
+                      "code": {
+                        "const": "outcome_unknown"
+                      }
+                    },
+                    "type": "object"
+                  }
+                ]
+              }
+            },
+            "type": "object"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "succeeded"
+              }
+            },
+            "type": "object"
+          },
+          "then": {
+            "properties": {
+              "error": {
+                "type": "null"
+              }
+            },
+            "type": "object"
+          }
+        }
+      ]
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "maxItems": 128,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "protocol",
+        "capabilities"
+      ]
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subjectId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "sourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "actorId": {
+          "anyOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "fields": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "subjectId",
+        "sourceVersion",
+        "actorId",
+        "observedAt",
+        "fields"
+      ]
+    },
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [
+        "type",
+        "id",
+        "state"
+      ]
+    },
+    "handle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "handle": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "handle"
+      ]
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "$ref": "operation.schema.json"
+        }
+      },
+      "required": [
+        "operation"
+      ]
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "sha256",
+        "size"
+      ]
+    },
+    "provider_capabilitiesInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {},
+      "required": []
+    },
+    "provider_capabilitiesOutput": {
+      "$ref": "contract-common.schema.json#/$defs/capabilities"
+    },
+    "provider_readSnapshotInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subjectId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "subjectId"
+      ]
+    },
+    "provider_readSnapshotOutput": {
+      "$ref": "contract-common.schema.json#/$defs/snapshot"
+    },
+    "provider_subscribeInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "cursor"
+      ]
+    },
+    "provider_subscribeOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "event.schema.json"
+          },
+          "maxItems": 100
+        },
+        "nextCursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "events",
+        "nextCursor"
+      ]
+    },
+    "provider_reconcileInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subjectId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "subjectId",
+        "cursor"
+      ]
+    },
+    "provider_reconcileOutput": {
+      "$ref": "contract-common.schema.json#/$defs/snapshot"
+    },
+    "provider_projectInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subjectId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "expectedVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "fields": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "subjectId",
+        "expectedVersion",
+        "fields"
+      ]
+    },
+    "provider_projectOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subjectId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "sourceVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [
+        "subjectId",
+        "sourceVersion"
+      ]
+    },
+    "connector_probeInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "targetId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "targetId"
+      ]
+    },
+    "connector_probeOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "targetId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "maxItems": 128,
+          "uniqueItems": true
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "maxItems": 128,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "targetId",
+        "capabilities",
+        "evidenceRefs"
+      ]
+    },
+    "connector_executeInput": {
+      "$ref": "contract-common.schema.json#/$defs/operation"
+    },
+    "connector_executeOutput": {
+      "$ref": "contract-common.schema.json#/$defs/operationResult"
+    },
+    "connector_uploadInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operationId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "targetId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "artifact": {
+          "$ref": "contract-common.schema.json#/$defs/artifact"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))[^\\u0000]+$"
+        }
+      },
+      "required": [
+        "operationId",
+        "targetId",
+        "artifact",
+        "path"
+      ]
+    },
+    "connector_uploadOutput": {
+      "$ref": "contract-common.schema.json#/$defs/operationResult"
+    },
+    "connector_downloadInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operationId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "targetId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))[^\\u0000]+$"
+        }
+      },
+      "required": [
+        "operationId",
+        "targetId",
+        "path"
+      ]
+    },
+    "connector_downloadOutput": {
+      "$ref": "contract-common.schema.json#/$defs/operationResult"
+    },
+    "connector_inspectInput": {
+      "$ref": "contract-common.schema.json#/$defs/handle"
+    },
+    "connector_inspectOutput": {
+      "$ref": "contract-common.schema.json#/$defs/operationResult"
+    },
+    "connector_cancelInput": {
+      "$ref": "contract-common.schema.json#/$defs/handle"
+    },
+    "connector_cancelOutput": {
+      "$ref": "contract-common.schema.json#/$defs/operationResult"
+    },
+    "action_describeInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {},
+      "required": []
+    },
+    "action_describeOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "inputSchema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "outputSchema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "maxItems": 128,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "inputSchema",
+        "outputSchema",
+        "capabilities"
+      ]
+    },
+    "action_validateInput": {
+      "$ref": "contract-common.schema.json#/$defs/operation"
+    },
+    "action_validateOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "normalizedInputs": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "normalizedInputs"
+      ]
+    },
+    "action_startInput": {
+      "$ref": "contract-common.schema.json#/$defs/operation"
+    },
+    "action_startOutput": {
+      "$ref": "contract-common.schema.json#/$defs/operationResult"
+    },
+    "action_observeInput": {
+      "$ref": "contract-common.schema.json#/$defs/handle"
+    },
+    "action_observeOutput": {
+      "$ref": "contract-common.schema.json#/$defs/operationResult"
+    },
+    "action_cancelInput": {
+      "$ref": "contract-common.schema.json#/$defs/handle"
+    },
+    "action_cancelOutput": {
+      "$ref": "contract-common.schema.json#/$defs/operationResult"
+    },
+    "action_reconcileInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operation": {
+          "$ref": "operation.schema.json"
+        },
+        "handle": {
+          "anyOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "operation",
+        "handle"
+      ]
+    },
+    "action_reconcileOutput": {
+      "$ref": "contract-common.schema.json#/$defs/operationResult"
+    },
+    "session_provider_capabilitiesInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {},
+      "required": []
+    },
+    "session_provider_capabilitiesOutput": {
+      "$ref": "contract-common.schema.json#/$defs/capabilities"
+    },
+    "session_provider_startInput": {
+      "allOf": [
+        {
+          "$ref": "session-request.schema.json"
+        },
+        {
+          "properties": {
+            "command": {
+              "const": "start"
+            }
+          },
+          "type": "object"
+        }
+      ]
+    },
+    "session_provider_startOutput": {
+      "$ref": "session-observation.schema.json"
+    },
+    "session_provider_resumeInput": {
+      "allOf": [
+        {
+          "$ref": "session-request.schema.json"
+        },
+        {
+          "properties": {
+            "command": {
+              "const": "resume"
+            }
+          },
+          "type": "object"
+        }
+      ]
+    },
+    "session_provider_resumeOutput": {
+      "$ref": "session-observation.schema.json"
+    },
+    "session_provider_observeInput": {
+      "allOf": [
+        {
+          "$ref": "session-request.schema.json"
+        },
+        {
+          "properties": {
+            "command": {
+              "const": "observe"
+            }
+          },
+          "type": "object"
+        }
+      ]
+    },
+    "session_provider_observeOutput": {
+      "$ref": "session-observation.schema.json"
+    },
+    "session_provider_sendInput": {
+      "allOf": [
+        {
+          "$ref": "session-request.schema.json"
+        },
+        {
+          "properties": {
+            "command": {
+              "const": "send"
+            }
+          },
+          "type": "object"
+        }
+      ]
+    },
+    "session_provider_sendOutput": {
+      "$ref": "session-observation.schema.json"
+    },
+    "session_provider_interruptInput": {
+      "allOf": [
+        {
+          "$ref": "session-request.schema.json"
+        },
+        {
+          "properties": {
+            "command": {
+              "const": "interrupt"
+            }
+          },
+          "type": "object"
+        }
+      ]
+    },
+    "session_provider_interruptOutput": {
+      "$ref": "session-observation.schema.json"
+    },
+    "session_provider_closeInput": {
+      "allOf": [
+        {
+          "$ref": "session-request.schema.json"
+        },
+        {
+          "properties": {
+            "command": {
+              "const": "close"
+            }
+          },
+          "type": "object"
+        }
+      ]
+    },
+    "session_provider_closeOutput": {
+      "$ref": "session-observation.schema.json"
+    }
+  }
+}

@@ -19,3 +19,5 @@ Include problem, resulting behavior, LS/AC IDs, tests run, unverified limits and
 Public connectors/actions live as separate packages in this repository initially. External authors may distribute separate compatible extensions. Installing an extension is an explicit operator action; publication is not an endorsement or security review.
 
 Project installation commands will be documented after W00 establishes the toolchain. For this documentation foundation, install python3 -m pip install -r requirements-docs.txt, then run python3 scripts/validate_docs.py. After editing backlog.json, run python3 scripts/render_docs.py. These commands validate documentation only.
+
+For the executable contract fixtures, use the Node 24 tooling baseline and a fresh Python virtualenv described in [the contract guide](docs/26-contract-fixtures-and-toolchain.md). Run `npm ci --ignore-scripts`, `npm run check:types` and `npm test`. Regenerate types after schema changes using `npm run generate:types`; generated declarations never replace runtime validation. Keep fixture evidence separate from live integrations and application acceptance.

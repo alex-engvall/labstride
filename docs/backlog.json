@@ -402,7 +402,7 @@
       "title": "Version manifests and shared schemas",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W00",
       "depends_on_work_packages": [],
@@ -412,7 +412,10 @@
         "Define and validate any provider hook normalization/acknowledgement envelope before enabling it; raw hook payloads are not implicitly trusted Labstride events."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "[Partial W00.3 toolchain/session discovery; contract and format-validation gaps](evidence/W00.3-toolchain-session-discovery-2026-10-21.md)",
+        "[Executable method/hook fixtures, generated types, before-import gates and enforced formats](evidence/W00.3-contract-fixtures-2026-10-21.md)"
+      ],
       "github_issue": 13,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/13"
     },

@@ -35,4 +35,6 @@ Run python3 scripts/validate_docs.py. It validates local Markdown file links, JS
 
 ## Release quality gates
 
+The W00.3 [contract fixtures](26-contract-fixtures-and-toolchain.md) run with `npm ci --ignore-scripts`, `npm run check:types` and `npm test`. They exercise synthetic import gates and a disposable SQLite acknowledgement boundary. Documentation validation additionally requires every declared format checker and negative timestamp/URI cases. Neither fixture success nor generated types pass AC22/AC35/AC36 in the installed application.
+
 All P0 MVP criteria have evidence; no unresolved unsafe effect-replay or resource-ownership defect; installation/upgrade/backup recovery are exercised; public examples can be followed without private dependencies; package/license provenance is recorded; known limitations are explicit.

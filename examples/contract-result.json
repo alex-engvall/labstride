@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0",
+  "requestId": "request-provider",
+  "extensionId": "example.provider",
+  "protocol": {
+    "major": 1,
+    "minor": 0
+  },
+  "family": "provider",
+  "method": "readSnapshot",
+  "outcome": "ok",
+  "result": {
+    "subjectId": "issue-example",
+    "sourceVersion": "revision-1",
+    "actorId": null,
+    "observedAt": "2026-10-21T00:00:00Z",
+    "fields": {}
+  },
+  "error": null
+}

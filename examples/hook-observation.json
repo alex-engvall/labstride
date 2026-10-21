@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0",
+  "eventId": "event-example",
+  "providerId": "example.session-provider",
+  "runId": "run-example",
+  "requestGeneration": 1,
+  "workspaceId": "workspace-example",
+  "sessionId": "session-example",
+  "turnId": "turn-example",
+  "origin": "extension",
+  "kind": "turn.stopped",
+  "occurredAt": "2026-10-21T00:00:00Z",
+  "sourceVersion": "fixture-1",
+  "evidenceRefs": []
+}

@@ -3,16 +3,27 @@
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 from urllib.parse import unquote, urlsplit
 
 try:
-    from jsonschema import Draft202012Validator, FormatChecker
+    from jsonschema import Draft202012Validator
 except ImportError:
     raise SystemExit('Install the documentation dependency: python3 -m pip install -r requirements-docs.txt')
 
 from render_docs import ROOT, checklist
+from schema_validation import validators_for
+
+
+def repository_files():
+    for directory, dirs, files in os.walk(ROOT):
+        dirs[:] = sorted(d for d in dirs if d not in ('.git', 'node_modules', '.venv', '__pycache__'))
+        for name in sorted(files):
+            path = Path(directory) / name
+            require(path.resolve().is_relative_to(ROOT), f'File escapes repository: {path}')
+            yield path
 
 
 def require(condition, message):
@@ -32,10 +43,11 @@ def unique(rows, label):
 
 def main():
     # Parse every JSON file, including files not otherwise referenced below.
-    for path in ROOT.rglob('*.json'):
+    files = list(repository_files())
+    for path in (p for p in files if p.suffix == '.json'):
         json.loads(path.read_text(encoding='utf-8'))
     links = 0
-    for path in ROOT.rglob('*.md'):
+    for path in (p for p in files if p.suffix == '.md'):
         for target in re.findall(r'\[[^\]]+\]\(([^)\s]+)\)', path.read_text(encoding='utf-8')):
             parsed = urlsplit(target)
             if parsed.scheme or target.startswith(('#', '//')):
@@ -49,12 +61,14 @@ def main():
         'config': 'installation.template', 'extension': 'extension',
         'operation': 'operation', 'receipt': 'receipt', 'event': 'event',
         'session-request': 'session-request', 'session-observation': 'session-observation',
+        'contract-request': 'contract-request', 'contract-result': 'contract-result',
+        'hook-observation': 'hook-observation', 'hook-ack': 'hook-ack',
     }
-    validators, examples = {}, {}
+    validators, examples = validators_for(ROOT / 'schemas'), {}
     for name, example in pairs.items():
         shape = read(f'schemas/{name}.schema.json')
         Draft202012Validator.check_schema(shape)
-        validator = Draft202012Validator(shape, format_checker=FormatChecker())
+        validator = validators[name]
         value = read(f'examples/{example}.json')
         validator.validate(value)
         validators[name], examples[name] = validator, value
@@ -74,6 +88,22 @@ def main():
     malformed = copy.deepcopy(examples['session-request'])
     malformed['command'] = 'resume'
     require(not validators['session-request'].is_valid(malformed), 'Resume accepts missing session')
+
+    for name, field in [('operation', 'deadline'), ('receipt', 'observedAt'),
+                        ('event', 'occurredAt'), ('event', 'observedAt'),
+                        ('hook-observation', 'occurredAt')]:
+        malformed = copy.deepcopy(examples[name])
+        malformed[field] = 'not-a-date'
+        require(not validators[name].is_valid(malformed), f'{name} accepts invalid {field}')
+    malformed = copy.deepcopy(examples['config'])
+    malformed['broker']['url'] = 'not a uri'
+    require(not validators['config'].is_valid(malformed), 'Config accepts invalid broker URI')
+    families = read('examples/contract-families.json')
+    for request, result in zip(families['requests'], families['results'], strict=True):
+        validators['contract-request'].validate(request)
+        validators['contract-result'].validate(result)
+        for key in ('requestId', 'extensionId', 'protocol', 'family', 'method'):
+            require(request[key] == result[key], f'Contract fixture correlation mismatch: {key}')
 
     operation = copy.deepcopy(examples['operation'])
     digest = operation.pop('requestDigest')
