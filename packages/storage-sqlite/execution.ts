@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto';
-import { SchedulingStore, controlContext } from './scheduling.ts';
+import { AutomationStore } from './automation.ts';
+import { controlContext } from './scheduling.ts';
 import { validated } from './validation.ts';
 import { LifecycleError } from '../core/lifecycle.ts';
+import type { AutomationContext } from '../../contracts/generated/automation-context.ts';
 import type { RunControl } from '../../contracts/generated/run-control.ts';
 import type { AuditContext, RecordOf } from '../core/lifecycle.ts';
 import type { InboxEntry, InboxInput, InboxStore, StartPlan, Claim, BoundResult, Delivery, RetryPolicy } from '../core/execution.ts';
@@ -28,7 +30,7 @@ function bounded(value: string): void {
   if (typeof value !== 'string' || !value || value.length > 1024) throw new LifecycleError('invalid_payload');
 }
 
-export class ExecutionStore extends SchedulingStore implements InboxStore {
+export class ExecutionStore extends AutomationStore implements InboxStore {
   receive(input: InboxInput): { id: string; duplicate: boolean } {
     const safe = validated('execution-inbox', input);
     return this.transaction(() => this.receiveInside(safe));
@@ -73,6 +75,7 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
   scheduleStart(id: string, input: StartPlan, authorization: AuditContext): string {
     // The plan comes from authorized policy, never by spreading event.facts into a plan.
     bounded(input.resourceKey);
+    const automation = validated<AutomationContext>('automation-context', input.automation ?? { schemaVersion: '1.0' });
     if (input.capacityClass !== undefined && !['development','ciReview'].includes(input.capacityClass)) throw new LifecycleError('invalid_payload');
     const plan = { ...input, request: validated('lifecycle-record', input.request), run: validated('lifecycle-record', input.run),
       workspace: validated('lifecycle-record', input.workspace), operation: validated('lifecycle-record', input.operation),
@@ -109,15 +112,10 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
         this.write([plan.request, plan.run, plan.workspace, plan.operation, plan.outbox, ...plan.projections]
           .map(record => ({ record, expectedRevision: null })), authorization);
         this.db.prepare('INSERT INTO execution_bindings VALUES (?,?,?,?)').run(plan.operation.id, plan.resourceKey, plan.operation.request.requestDigest, authorization.actorId);
-        const collision = this.db.prepare(`SELECT w.payload FROM workspaces w JOIN runs r ON r.id=w.run_id WHERE w.id!=? AND w.state!='deleted'
-          AND (json_extract(w.payload,'$.targetId')=? AND (json_extract(w.payload,'$.locator')=? OR
-          (? IS NOT NULL AND json_extract(w.payload,'$.localPath')=?)) OR
-          (json_extract(r.payload,'$.repositoryId')=? AND json_extract(w.payload,'$.branch')=?))`).get(plan.workspace.id,
-          plan.workspace.targetId, plan.workspace.locator, plan.workspace.localPath, plan.workspace.localPath, plan.run.repositoryId, plan.workspace.branch);
-        if (collision) throw new LifecycleError('identity_conflict');
-        this.db.prepare('INSERT INTO run_controls(run_id) VALUES (?)').run(plan.run.id);
+        this.assertWorkspaceExclusive(plan.workspace.id);
+        this.db.prepare('INSERT INTO run_controls(run_id,max_repairs,unattended_ms) VALUES (?,?,?)').run(plan.run.id, this.schedulingPolicy().maxRepairs ?? 3, this.schedulingPolicy().unattendedMs ?? 86400000);
         this.db.prepare('INSERT INTO run_admissions VALUES (?,NULL)').run(plan.run.id);
-        this.db.prepare('INSERT INTO operation_scheduling VALUES (?,?)').run(plan.operation.id, input.capacityClass ?? 'development');
+        this.db.prepare('INSERT INTO operation_scheduling(operation_id,capacity_class,automation) VALUES (?,?,?)').run(plan.operation.id, input.capacityClass ?? 'development', JSON.stringify(automation));
         this.enqueue('operation', plan.operation.id);
         for (const projection of plan.projections) this.enqueue('projection', projection.id);
       }
@@ -126,6 +124,42 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
     });
   }
 
+  scheduleOperation(input: Pick<StartPlan, 'operation' | 'outbox' | 'resourceKey' | 'capacityClass' | 'automation'>, authorization: AuditContext): string {
+    const context = controlContext(authorization);
+    bounded(input.resourceKey);
+    const operation = validated('lifecycle-record', input.operation), outbox = validated('lifecycle-record', input.outbox);
+    const automation = validated<AutomationContext>('automation-context', input.automation ?? { schemaVersion: '1.0' });
+    if (operation.kind !== 'operation' || outbox.kind !== 'outbox' || operation.request.requestDigest !== requestDigest(operation.request) ||
+      (input.capacityClass !== undefined && !['development','ciReview'].includes(input.capacityClass))) throw new LifecycleError('invalid_payload');
+    this.refreshAutomation(operation.runId);
+    return this.transaction(() => {
+      const old = this.db.prepare('SELECT payload FROM operations WHERE id=?').get(operation.id);
+      if (old) {
+        const stored = this.get('operation', operation.id), descriptor = this.get('outbox', outbox.id);
+        const scheduling = this.db.prepare('SELECT * FROM operation_scheduling WHERE operation_id=?').get(operation.id);
+        if (canonical(stored.request) !== canonical(operation.request) || canonical(descriptor) !== canonical(outbox) ||
+          this.db.prepare('SELECT resource_key FROM execution_bindings WHERE operation_id=?').get(operation.id)?.resource_key !== input.resourceKey ||
+          scheduling?.capacity_class !== (input.capacityClass ?? 'development') || canonical(JSON.parse(String(scheduling?.automation))) !== canonical(automation))
+          throw new LifecycleError('identity_conflict');
+        return operation.id;
+      }
+      if (!this.forwardAllowed(operation.runId) || this.unresolved(operation.runId) ||
+        !this.db.prepare('SELECT 1 FROM run_admissions WHERE run_id=?').get(operation.runId)) throw new LifecycleError('effect_blocked');
+      if (outbox.runId !== operation.runId || outbox.operationId !== operation.id) throw new LifecycleError('identity_conflict');
+      if (automation.sessionGuard) {
+        const session = this.get('session', automation.sessionGuard.enrollmentId);
+        if (session.runId !== operation.runId || session.workspaceId !== operation.workspaceId || session.sessionId !== automation.sessionGuard.sessionId)
+          throw new LifecycleError('identity_conflict');
+      }
+      this.write([operation, outbox].map(record => ({ record, expectedRevision: null })), context);
+      this.db.prepare('INSERT INTO execution_bindings VALUES (?,?,?,?)').run(operation.id, input.resourceKey, operation.request.requestDigest, context.actorId);
+      this.db.prepare('INSERT INTO operation_scheduling(operation_id,capacity_class,automation) VALUES (?,?,?)')
+        .run(operation.id, input.capacityClass ?? 'development', JSON.stringify(automation));
+      this.enqueue('operation', operation.id);
+      this.log(operation.id, 'operation_scheduled', { context, capacityClass: input.capacityClass ?? 'development', automation });
+      return operation.id;
+    });
+  }
   protected enqueue(kind: 'operation' | 'projection', id: string): void {
     this.db.prepare(`INSERT INTO deliveries(id,operation_id,projection_id,state,next_at) VALUES (?,?,?,'pending',?)`)
       .run(`${kind}:${id}`, kind === 'operation' ? id : null, kind === 'projection' ? id : null, this.clock.now());
@@ -139,6 +173,7 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
       lastError: row.last_error as string | null, revision: Number(row.revision) };
   }
   dueOperations(): Delivery[] {
+    for (const row of this.db.prepare("SELECT DISTINCT o.run_id FROM deliveries d JOIN operations o ON o.id=d.operation_id WHERE d.state IN ('pending','reconcile') AND d.next_at<=? LIMIT 64").all(this.clock.now())) this.refreshAutomation(String(row.run_id));
     return this.db.prepare(`SELECT id FROM deliveries WHERE operation_id IS NOT NULL AND state IN ('pending','reconcile') AND next_at<=? ORDER BY rowid LIMIT 64`)
       .all(this.clock.now()).map(row => this.delivery(String(row.id)));
   }
@@ -159,6 +194,7 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
     { actorId: 'coordinator', reason: 'Durable execution transition', evidenceRefs });
   }
   protected assertRunnable(id: string): void {
+    this.assertAutomation(id);
     const op = this.get('operation', id), run = this.get('run', op.runId);
     if (!this.forwardAllowed(run.id)) throw new LifecycleError('effect_blocked');
     const request = this.get('request', run.requestId);
@@ -173,6 +209,7 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
   }
   claim(operationId: string, executorId: string, attemptId: string): Claim {
     bounded(executorId); bounded(attemptId);
+    this.refreshAutomation(this.get('operation', operationId).runId);
     return this.transaction(() => {
       const old = this.db.prepare('SELECT payload FROM claims WHERE operation_id=?').get(operationId);
       if (old) {
@@ -206,13 +243,16 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
     if (!row || canonical(JSON.parse(String(row.payload))) !== canonical(safe)) throw new LifecycleError('identity_conflict');
     return { consumed: Number(row.consumed), active: Number(row.active) };
   }
-  beginEffect(claim: Claim): void {
+  beginEffect(claim: Claim, atomicSessionGuards = false): void {
+    this.refreshAutomation(this.get('operation', claim.operationId).runId);
     this.transaction(() => {
       const row = this.checkClaim(claim);
       if (!row.active || row.consumed) throw new LifecycleError('effect_consumed');
       this.assertRunnable(claim.operationId);
       this.reserve(claim.operationId);
+      this.assertAutomation(claim.operationId, atomicSessionGuards);
       if (this.get('operation', claim.operationId).state !== 'claimed') throw new LifecycleError('effect_blocked');
+      this.countRepair(claim.operationId);
       this.db.prepare('UPDATE claims SET consumed=1 WHERE id=?').run(claim.id);
       this.changeOperation(claim.operationId, 'running', true, []);
       this.log(claim.operationId, 'effect_boundary', claim);
@@ -279,6 +319,7 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
           runId: op.runId, workspaceId: op.workspaceId, createdByOperation: op.id, resourceType: resource.type,
           providerId: op.request.actionId, locator: resource.id, ownershipRef: workspace.ownershipRef, cleanupPolicy: 'retain',
         } })), { actorId: 'coordinator', reason: 'Observed action resources; providerId identifies the action producer', evidenceRefs: bound.result.evidenceRefs });
+        this.recordRepairResult(op.id, bound.result.status);
         this.db.prepare('INSERT INTO execution_results VALUES (?,?)').run(op.id, JSON.stringify(bound));
         this.db.prepare('UPDATE claims SET active=0 WHERE operation_id=?').run(op.id);
         this.finishDelivery(op.id, !claim);
@@ -296,25 +337,38 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
   forwardAllowed(runId: string): boolean {
     const run = this.get('run', runId);
     const control = this.db.prepare('SELECT * FROM run_controls WHERE run_id=?').get(runId);
-    return !run.paused && !control?.operator_paused && !control?.cancel_requested &&
+    return !run.paused && !control?.operator_paused && !control?.cancel_requested && !control?.human_hold && !control?.budget_hold &&
       !['completed','cancelled','failed','outcome_unknown','waiting_human'].includes(run.state) &&
       this.db.prepare('SELECT paused FROM recovery_control WHERE id=1').get()!.paused === 0;
   }
   projectionAllowed(runId: string): boolean {
     const run = this.get('run', runId), control = this.db.prepare('SELECT * FROM run_controls WHERE run_id=?').get(runId);
-    return !run.paused && !control?.operator_paused && !control?.cancel_requested &&
+    return !run.paused && !control?.operator_paused && !control?.cancel_requested && !control?.human_hold && !control?.budget_hold &&
       this.db.prepare('SELECT paused FROM recovery_control WHERE id=1').get()!.paused === 0;
   }
   controlStatus(runId: string) {
     const run = this.get('run', runId);
     const row = this.db.prepare('SELECT * FROM run_controls WHERE run_id=?').get(runId);
-    return { ...this.schedulingStatus(runId), revision: run.revision, phase: run.state, checkpoint: run.checkpoint,
+    const scheduling = this.schedulingStatus(runId);
+    return { ...scheduling, revision: run.revision, phase: run.state, checkpoint: run.checkpoint,
+      humanHold: !!row?.human_hold, budgetHold: row?.budget_hold as string | null ?? null,
+      budget: { repairs: Number(row?.repairs ?? 0), maxRepairs: Number(row?.max_repairs ?? 3), unattendedMs: Number(row?.unattended_ms ?? 86400000), anchor: row?.budget_anchor as string | null ?? null },
+      queueReason: row?.cancel_requested ? 'cancel_requested' : row?.operator_paused ? 'operator_pause' :
+        row?.human_hold ? 'human_takeover' : row?.budget_hold ? String(row.budget_hold) :
+        this.issuePeers(run).length ? 'issue_conflict' :
+        this.db.prepare("SELECT 1 FROM operations WHERE run_id=? AND state='outcome_unknown'").get(runId) ? 'outcome_unknown' :
+        scheduling.admittedAt === null ? (scheduling.usage.activeRuns >= scheduling.policy.activeRuns ? 'global_capacity' : 'awaiting_admission') : null,
+      operations: this.db.prepare('SELECT id FROM operations WHERE run_id=? ORDER BY rowid').all(runId).map(item => {
+        const operation = this.get('operation', String(item.id));
+        return { operationId: operation.id, state: operation.state, effectBoundary: operation.effectBoundary, handle: this.operationHandle(operation.id), delivery: this.db.prepare('SELECT 1 FROM deliveries WHERE operation_id=?').get(operation.id) ? this.delivery(`operation:${operation.id}`) : null };
+      }),
       operatorPaused: !!row?.operator_paused, cancelRequested: !!row?.cancel_requested,
       cancellations: this.db.prepare('SELECT c.operation_id,c.state FROM cancellations c JOIN operations o ON o.id=c.operation_id WHERE o.run_id=?').all(runId)
         .map(c => ({ operationId: String(c.operation_id), state: c.state === 'submitted' ? 'outcome_unknown' : String(c.state) })) };
   }
   pauseRun(input: RunControl, context: AuditContext) { return this.control(input, 'pause', context); }
   resumeRun(input: RunControl, context: AuditContext) { return this.control(input, 'resume', context); }
+  takeoverRun(input: RunControl, context: AuditContext) { return this.control(input, 'takeover', context); }
   cancelRun(input: RunControl, context: AuditContext) { return this.control(input, 'cancel', context); }
   private control(input: RunControl, command: RunControl['command'], context: AuditContext) {
     const request = validated('run-control', input), safe = controlContext(context);
@@ -332,8 +386,9 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
       const state = this.db.prepare('SELECT cancel_requested FROM run_controls WHERE run_id=?').get(run.id);
       if (!state || (command === 'resume' && state.cancel_requested)) throw new LifecycleError('effect_blocked');
       this.db.prepare('INSERT INTO control_requests VALUES (?,?,?)').run(request.id, run.id, contents);
+      if (command === 'takeover') this.db.prepare('UPDATE run_controls SET human_hold=1 WHERE run_id=?').run(run.id);
       if (command === 'cancel') this.db.prepare('UPDATE run_controls SET cancel_requested=1 WHERE run_id=?').run(run.id);
-      else this.db.prepare('UPDATE run_controls SET operator_paused=? WHERE run_id=?').run(command === 'pause' ? 1 : 0, run.id);
+      else if (command !== 'takeover') this.db.prepare('UPDATE run_controls SET operator_paused=? WHERE run_id=?').run(command === 'pause' ? 1 : 0, run.id);
       this.write([{ expectedRevision: run.revision, record: { ...run, paused: command !== 'resume',
         revision: run.revision + 1, updatedAt: this.clock.now() } }], safe);
       if (command === 'cancel') {
@@ -383,7 +438,7 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
     });
   }
   block(id: string, code: string): void {
-    if (!['unsupported_capability','validation_failed','effect_blocked'].includes(code)) throw new LifecycleError('invalid_payload');
+    if (!['unsupported_capability','validation_failed','effect_blocked','stale_revision'].includes(code)) throw new LifecycleError('invalid_payload');
     this.transaction(() => {
       const d = this.delivery(id);
       if (!['pending','reconcile'].includes(d.state)) return;

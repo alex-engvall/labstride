@@ -60,11 +60,14 @@ test('late backend response cannot overwrite a human revision or consume a hook 
   assert.equal(f.store.get('session',f.session.id).lastTurnId,'human-turn');
 });
 test('reordered hooks re-observe authoritative state and cannot regress a newer generation', async t => {
-  const f = fixture(t); const newer = { ...hook(f.session,'new'), sourceVersion:'opaque:new', turnId:'new-turn' };
+  const f = fixture(t);
+  const claim=f.store.claim(f.plan.operation.id,'before-human','before-human');f.store.beginEffect(claim); const newer = { ...hook(f.session,'new'), sourceVersion:'opaque:new', turnId:'new-turn' };
   f.store.receiveHook(f.session.id,newer); f.store.receiveHook(f.session.id,hook(f.session,'old'));
   await worker(f,{ sessions:new Map([[f.session.providerId,{ async observe() { return observation(f.session,{ lastTurnId:'current-turn',humanActivityRevision:8 }); } }]]) }).tick();
   assert.equal(f.store.get('session',f.session.id).lastTurnId,'current-turn');
-  completeGeneration(f.store); nextGeneration(f.store);
+  f.store.acceptResult({schemaVersion:'1.0',kind:'result',operationId:f.plan.operation.id,requestDigest:f.plan.operation.request.requestDigest,result:{status:'succeeded',handle:null,resources:[],outputs:{},evidenceRefs:['test:original'],error:null}},claim,1);
+  for(const state of ['preparing','ready','active','completed']) {const run=f.store.get('run',f.plan.run.id);f.store.commit([{record:{...run,state,revision:run.revision+1},expectedRevision:run.revision}],context);}
+  nextGeneration(f.store);
   assert.throws(() => f.store.receiveHook(f.session.id,hook(f.session,'late')),fail('identity_conflict'));
   assert.equal(f.store.snapshot().records.filter(r => r.kind==='session').length,1);
 });

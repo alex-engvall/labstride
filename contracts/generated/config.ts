@@ -88,6 +88,8 @@ export interface LabstrideInstallationConfigurationV1 {
     metadataRetentionDays: number;
     development?: number;
     ciReview?: number;
+    maxRepairs?: number;
+    unattendedMs?: number;
   };
   /**
    * @minItems 1

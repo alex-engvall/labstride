@@ -79,3 +79,8 @@ for(const boundary of ['boundary','effect'])test(`real process death at cancella
  assert.equal(reboot.store.get('operation',plan.operation.id).state,boundary==='effect'?'cancelled':'outcome_unknown');
  assert.equal(reboot.store.controlStatus(plan.run.id).reserved,boundary!=='effect');
 });
+test('diagnostics inspect legacy lifecycle records without inventing execution bindings',async t=>{
+ const root=mkdtempSync(join(tmpdir(),'labstride-legacy-status-'));const {store}=startCoordinator(root);t.after(()=>{store.close();rmSync(root,{recursive:true,force:true});});
+ const {fixtureRecords}=await import('./helpers/lifecycle-fixture.mjs');const records=fixtureRecords();store.commit(records.map(record=>({record,expectedRevision:null})),context);
+ const status=store.controlStatus(records.find(r=>r.kind==='run').id);assert.equal(status.operations[0].delivery,null);assert.equal(status.reserved,false);assert.equal(status.queueReason,'awaiting_admission');
+});

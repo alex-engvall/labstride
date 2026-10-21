@@ -177,7 +177,8 @@
       "properties": {
         "activeRuns": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "maximum": 1024
         },
         "perIssue": {
           "const": 1
@@ -198,6 +199,16 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 1024
+        },
+        "maxRepairs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "unattendedMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 2592000000
         }
       },
       "required": [

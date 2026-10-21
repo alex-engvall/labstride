@@ -122,6 +122,9 @@ export class SqliteStore implements StateStore {
           .run(JSON.stringify(record), record.id, change.expectedRevision);
         if (Number(result.changes) !== 1) throw new LifecycleError('revision_conflict');
       } else this.db.prepare(`INSERT INTO ${table}(id,payload) VALUES (?,?)`).run(record.id, JSON.stringify(record));
+      if (record.kind === 'session' && previous?.kind === 'session' &&
+        (record.humanActivityRevision > previous.humanActivityRevision || (record.owner === 'human' && previous.owner !== 'human')))
+        this.db.prepare('UPDATE run_controls SET human_hold=1 WHERE run_id=?').run(record.runId);
       const audit = validated('lifecycle-audit', { ...audits[index], id: this.identities.next() });
       this.db.prepare('INSERT INTO audit VALUES (?,?)').run(audit.id, JSON.stringify(audit));
     }

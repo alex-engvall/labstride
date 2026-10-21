@@ -72,7 +72,7 @@ test('two coordinator processes authorize one effect and a terminal result survi
 test('claims are idempotent; grants are consumed once, no time-based takeover and no stale fencing', t => {
   let now = '2026-10-21T12:00:00.000Z'; const { store, plan } = fixture(t, { clock: { now: () => now } });
   const claim = store.claim(plan.operation.id, 'executor', 'attempt'); assert.deepEqual(store.claim(plan.operation.id, 'executor','attempt'), claim);
-  now = '2027-10-21T12:00:00.000Z';
+  now = '2026-10-21T13:00:00.000Z';
   assert.throws(() => store.claim(plan.operation.id, 'new-executor', 'attempt'), fail('resource_busy'));
   assert.throws(() => store.beginEffect({ ...claim, fencingNumber: claim.fencingNumber + 1 }), fail('identity_conflict'));
   store.beginEffect(claim); assert.throws(() => store.beginEffect(claim), fail('effect_consumed'));

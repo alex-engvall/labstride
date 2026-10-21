@@ -44,6 +44,8 @@ Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).
 
 **W01.2 progress:** LS-CORE-002/003/004 are implemented with [local execution and observation evidence](evidence/W01.2-observations-2026-10-21.md). AC01 passed with actual process death and a separate durable effect receiver. #15 closes after all three scoped PRs merge. AC02/AC09/AC21/AC35/AC36 remain integrated gates with their owning issues; W01 remains in progress.
 
+**W01.3 progress:** LS-CORE-005/007 have local [capacity](evidence/W01.3-capacity-2026-10-21.md), [pause/cancel](evidence/W01.3-controls-2026-10-21.md) and [automation safety](evidence/W01.3-automation-2026-10-21.md) implementation evidence. Issue #16 closes only after all three scoped PRs merge. Full AC08/AC24/AC31/AC36 and W01's remaining session integration stay open.
+
 ## W02 — Configuration and GitHub request/projection adapter
 
 Tracker: [#5](https://github.com/alex-engvall/labstride/issues/5).

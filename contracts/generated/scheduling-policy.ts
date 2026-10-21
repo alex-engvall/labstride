@@ -5,4 +5,6 @@ export interface SchedulingPolicy {
   activeRuns: number;
   development: number;
   ciReview: number;
+  maxRepairs?: number;
+  unattendedMs?: number;
 }
