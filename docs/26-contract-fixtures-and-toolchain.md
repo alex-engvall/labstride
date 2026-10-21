@@ -45,7 +45,9 @@ W01 owns actual observation/outbox transactions and recovery; the session adapte
 
 The tested tooling baseline is Linux x86_64, Node `24.22.0`, npm `11.19.1`, Python `3.13.5`. Node fixtures use built-in SQLite `3.53.4`; system/Python SQLite versions are separate. `package.json` constrains the Node 24 line and `package-lock.json` pins development package artifacts. This does not establish application support for every Node/Python/OS version. No public npm namespace is claimed: the fixture package is private.
 
-Development-only dependencies:
+The W00 fixture dependency inventory below records its original scope. W01.1 promotes Ajv/ajv-formats to pinned runtime dependencies and adds development-only Node types; see the [application store dependency and runtime contract](28-durable-coordinator-store.md).
+
+Original fixture dependencies:
 
 | Dependency | Pinned version | License | Purpose / maintenance |
 | --- | --- | --- | --- |

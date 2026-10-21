@@ -11,6 +11,8 @@ Do not encode all facts in one status column. Runs, workspaces, agent sessions, 
 
 Paused is a scheduling overlay: preserve the prior phase/checkpoint. A failed run can be continued only by a recorded recovery action. Completed means its configured completion conditions are verified, not merely that an agent said it was done.
 
+W01.1 persists these independent facts through the [durable store](28-durable-coordinator-store.md). Its pause overlay, explicit transitions and recovery records do not yet provide scheduling, dispatch or live provider reconciliation.
+
 ## Invariants
 
 - One live workspace per run, and at most one active run for the same issue in the pilot. Reopening creates a new generation only after explicit start; it never resurrects a deleted path silently.

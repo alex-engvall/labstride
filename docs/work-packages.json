@@ -27,7 +27,7 @@
       "In W01.4 / #17, apply W00.3's pinned loading/profile contracts and session capability limits; preserve handle ownership, reject effects requiring unsupported atomic guards and complete AC31 plus production AC22 coverage with W07. Define/validate provider-specific question/answer payloads and verify actual client correlation/recovery."
     ],
     "first_verifiable_outcome": "A queued synthetic operation resumes with its original ID after restart.",
-    "status": "planned",
+    "status": "in_progress",
     "github_issue": 4,
     "github_issue_url": "https://github.com/alex-engvall/labstride/issues/4"
   },
