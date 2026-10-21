@@ -251,7 +251,7 @@
       "title": "Prove provider credential capabilities",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W00",
       "depends_on_work_packages": [],
@@ -261,7 +261,14 @@
         "Record personal-Project observation/actor capabilities separately from repository Actions triggers and verify token-dependent downstream CI behavior."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "[Verified capabilities and remaining W01/W02/W06 work](evidence/README.md)",
+        "[Initial broad-credential probes](evidence/W00.1-github-access-2026-10-21.md)",
+        "[Dedicated App repository reads/issue writes; Project write rejected](evidence/W00.1-dedicated-app-2026-10-21.md)",
+        "[Project-only PAT draft/public-issue field writes and cleanup](evidence/W00.1-project-pat-2026-10-21.md)",
+        "[App file/PR writes, CI receipts, cleanup and later association limits](evidence/W00.1-app-file-pr-ci-2026-10-21.md)",
+        "[PAT Status/membership actors; disposable cursor/crash/overlap probes and explicit limits](evidence/W00.1-actor-observation-2026-10-21.md)"
+      ],
       "github_issue": 11,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/11"
     },

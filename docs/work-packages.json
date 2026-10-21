@@ -9,7 +9,7 @@
       "Probe the actual interactive client session identity/atomic guards and optional hook availability; define versioned hook-to-event normalization without making hooks mandatory."
     ],
     "first_verifiable_outcome": "A recorded capability matrix and reproducible discovery commands; no real deploy.",
-    "status": "planned",
+    "status": "in_progress",
     "github_issue": 3,
     "github_issue_url": "https://github.com/alex-engvall/labstride/issues/3"
   },

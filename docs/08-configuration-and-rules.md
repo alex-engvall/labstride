@@ -16,6 +16,8 @@ Native issue fields, organization issue fields, Project fields, labels and form-
 
 Contract value types (each provider capability must be verified before enablement): string, boolean, number, date, single-select and multi-select; operators: equals, notEquals, contains, exists, changedTo, all, any, not. Unsupported provider/operator combinations fail validation. Compare null/missing distinctly; never coerce an unknown model option into the default silently.
 
+Include credential/container, history coverage and actor-attribution limits in a binding's capability validation. The [personal-Project probe](evidence/W00.1-actor-observation-2026-10-21.md) recovered built-in Status events for public issue-backed items, but not an intermediate Priority transition. Current-state readability alone cannot validate a recoverable `changedTo` start rule on an arbitrary field. Timeline actor identity must pass configured authorization; User type, creator metadata and `wasAutomated=false` do not establish a human approval. Keep unsupported combinations disabled with an actionable reason rather than silently substituting another field, credential or request mechanism.
+
 ## Rules
 
 Rules have an explicit event kind, typed condition and workflow reference. The referenced workflow contains ordered action steps with typed input bindings. Conflicting matching rules are rejected; rule ordering never silently grants precedence. Bindings draw only from validated fields, recorded context or trusted literals. No eval, shell interpolation, executable templates or user-supplied action URLs.
