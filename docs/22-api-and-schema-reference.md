@@ -46,6 +46,8 @@ Design defaults: 256 KiB broker bodies, 1 MiB webhook bodies, bounded provider p
 
 A start operation returns/reconciles one session per operation ID. All later commands identify that session. A send must compare expectedLastTurnId and expectedHumanActivityRevision immediately before submission; mismatch is stale_revision. An observation can still race with human activity on the backend, so the provider must use supported atomic guards or pause/report the limitation rather than claim guaranteed race-free control.
 
+Optional provider hooks must normalize through this enrolled session boundary and the versioned event contract. The W00 hook-normalization envelope, deduplication/acknowledgement rules and any additional schema fields remain to be specified and validated together; no hook endpoint or raw-payload compatibility is implemented by this documentation. Accepted events enqueue one coordinator-owned projection path. A hook event cannot substitute for a workflow receipt, human approval or authoritative session observation.
+
 ## Boolean operator controls
 
 The controls map binds keep and pause to configured logical values of supported external fields. For example, a single-select field can express retain/release. Values must be disjoint and resolvable. Unknown/missing keep values block cleanup; unknown/missing pause state prevents new automated effects until reconciled. Operators may also set an explicit local hold through the authenticated CLI; an external release value cannot silently remove a local hold.

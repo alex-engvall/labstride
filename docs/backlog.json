@@ -16,7 +16,8 @@
       ],
       "spec": "07-lifecycle-and-recovery.md",
       "acceptance_criteria": [
-        "A coordinator restart retains run, workspace, operation and deployment facts without collapsing them into one phase."
+        "A coordinator restart retains run, workspace, operation and deployment facts without collapsing them into one phase.",
+        "Recovery retains the original issue generation, workspace and enrolled session identities; GitHub remains the task/human-decision interface."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -56,7 +57,8 @@
       ],
       "spec": "07-lifecycle-and-recovery.md",
       "acceptance_criteria": [
-        "Concurrent delivery/claim attempts produce one authorized active operation."
+        "Concurrent delivery/claim attempts produce one authorized active operation.",
+        "Duplicate or late session/hook observations cannot create another run, cross a privileged effect boundary or regress a newer generation."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -136,7 +138,8 @@
       ],
       "spec": "07-lifecycle-and-recovery.md",
       "acceptance_criteria": [
-        "Pause prevents new effects; cancellation reports actual/unknown target state rather than assumed rollback."
+        "Pause prevents new effects; cancellation reports actual/unknown target state rather than assumed rollback.",
+        "A human interruption or takeover cannot be reversed by hook-driven continuation; stale automated sends are rejected or safely blocked when guards are unsupported."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -254,7 +257,8 @@
       "depends_on_work_packages": [],
       "spec": "09-github-and-workflow-contract.md",
       "acceptance_criteria": [
-        "Personal Project and repository operations are verified with the selected minimal credentials or reported unsupported."
+        "Personal Project and repository operations are verified with the selected minimal credentials or reported unsupported.",
+        "Record personal-Project observation/actor capabilities separately from repository Actions triggers and verify token-dependent downstream CI behavior."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -294,7 +298,8 @@
       ],
       "spec": "09-github-and-workflow-contract.md",
       "acceptance_criteria": [
-        "The same current request is recovered after a missed event and produces no duplicate run."
+        "The same current request is recovered after a missed event and produces no duplicate run.",
+        "Missing hooks and failed GitHub progress writes recover through provider observation and the durable projection outbox after coordinator restart."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -314,7 +319,8 @@
       ],
       "spec": "08-configuration-and-rules.md",
       "acceptance_criteria": [
-        "Projection updates only its mapped field; a concurrent human change creates a visible conflict."
+        "Projection updates only its mapped field; a concurrent human change creates a visible conflict.",
+        "Only the coordinator projection adapter writes managed technical fields/summaries; hook/workflow observations preserve human-owned fields and decisions."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -334,7 +340,8 @@
       ],
       "spec": "08-configuration-and-rules.md",
       "acceptance_criteria": [
-        "Coordinator status writes and stale events cannot retrigger work."
+        "Coordinator status writes and stale events cannot retrigger work.",
+        "Agent turn-stop/session-end reports cannot imply task completion, human approval or a new start request."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -394,7 +401,8 @@
       "depends_on_work_packages": [],
       "spec": "10-extensions.md",
       "acceptance_criteria": [
-        "Unknown major versions fail before loading; optional minor capabilities are negotiated."
+        "Unknown major versions fail before loading; optional minor capabilities are negotiated.",
+        "Define and validate any provider hook normalization/acknowledgement envelope before enabling it; raw hook payloads are not implicitly trusted Labstride events."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -809,7 +817,8 @@
       ],
       "spec": "16-operations-and-cli.md",
       "acceptance_criteria": [
-        "A fresh operator gets actionable errors for unresolved fields, permissions, SSH and broker routing."
+        "A fresh operator gets actionable errors for unresolved fields, permissions, SSH and broker routing.",
+        "The intended distribution supplies one CLI/service installation with local SQLite and configurable paths/limits; diagnostics explain optional hook fallback and actual session compatibility."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -875,7 +884,8 @@
       ],
       "spec": "11-security-and-trust.md",
       "acceptance_criteria": [
-        "Logs/metrics contain IDs and safe reasons but no credentials, issue bodies or transcripts by default."
+        "Logs/metrics contain IDs and safe reasons but no credentials, issue bodies or transcripts by default.",
+        "Publish bounded relevant progress summaries through the coordinator instead of mirroring every tool call or full session transcripts into GitHub."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -917,7 +927,8 @@
       ],
       "spec": "11-security-and-trust.md",
       "acceptance_criteria": [
-        "The coding/workspace user cannot change trusted target ownership or coordinator policy."
+        "The coding/workspace user cannot change trusted target ownership or coordinator policy.",
+        "Agent-writable hook reports cannot change trusted policy/ownership, obtain privileged projection/deploy credentials or grant approval/completion authority."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -980,7 +991,8 @@
       ],
       "spec": "01-product-and-scope.md",
       "acceptance_criteria": [
-        "Clean installation can create/deploy/clean a workspace using only public packages."
+        "Clean installation can create/deploy/clean a workspace using only public packages.",
+        "Public workspace/deploy/cleanup installation requires no agent hooks, personal Codex login, private packages or particular hosting/control-panel product."
       ],
       "implementation_pr": null,
       "verification_evidence": [],
@@ -1063,7 +1075,8 @@
       ],
       "spec": "22-api-and-schema-reference.md",
       "acceptance_criteria": [
-        "Start/resume/observe/send/interrupt/close preserve provider identity, reject stale human/turn revisions and explicitly report missing atomic backend guards."
+        "Start/resume/observe/send/interrupt/close preserve provider identity, reject stale human/turn revisions and explicitly report missing atomic backend guards.",
+        "Optional hooks are correlated, deduplicated observations with backend reconciliation when missing; the existing interactive client resumes the same enrolled session, not a substituted daemon."
       ],
       "implementation_pr": null,
       "verification_evidence": [],

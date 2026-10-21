@@ -21,6 +21,10 @@ Commands should offer human-readable output plus versioned JSON and stable exit 
 
 Select a dedicated service identity and durable local state directory. Configure repositories/targets and references to credentials. Enroll host keys. Bind the control API locally. Configure authenticated HTTPS integration ingress or a private network route for runner claims; verify it before enabling workflows. Resolve field IDs and run dry validation first.
 
+The intended distribution contains the CLI and one coordinator service, with one installation configuration and local SQLite; package boundaries are not a fleet of services. Start GitHub observation with bounded outbound polling, so reading a personal Project does not require public webhook ingress. The authenticated runner-claim route remains a separate required gate for workflow execution. A hosting provider/control panel, hardcoded filesystem root or maintainer account is never an installation prerequisite.
+
+Doctor reports the task/decision versus operational-state boundary, managed projection ownership, configured development/CI-review limits, projection backlog and stale/missing provider observations. When a session extension is enabled, it checks the actual runtime identity, authentication availability, interactive continuity and supported human/turn guards. Hook support is optional; disabled or unavailable hooks must have an advertised observation/reconciliation fallback. Installing tools or signing in does not by itself verify these runtime contracts.
+
 OS service definitions belong to packaging examples (Linux first). Containers may be provided later; they must not disrupt the existing native agent daemon's identity or filesystem/session mapping.
 
 ## Recovery runbook

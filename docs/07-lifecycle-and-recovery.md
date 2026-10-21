@@ -31,6 +31,8 @@ Persist intent before dispatch. Record the executor claim before permitting the 
 | Dispatch response lost | Search/observe matching workflow; never dispatch blindly |
 | Workspace created, receipt lost | Inspect owned resource registry and adopt exact workspace |
 | Agent turn response lost | Observe same thread/turn; do not send the prompt again |
+| Hook missing, duplicated or late | Re-observe enrolled session/target; deduplicate and reject stale progress without restarting work |
+| GitHub progress write fails | Retain the same projection intent; refresh current human/provider state before retrying |
 | Deploy result uncertain | Read workflow and target release identity; retain workspace |
 | Directory removed, receipt lost | Verify absence under owned target and finalize same operation |
 
@@ -45,3 +47,5 @@ Serialize deployments by environment. Each queued deployment records the expecte
 Pause forbids new effects while observation continues. Cancel requests stop through declared capabilities and preserves resources by default. A running deployment is not assumed rolled back when its workflow is cancelled. A cleanup attempt that has crossed deletion's effect boundary cannot be undone; report its observed result.
 
 Design defaults: a 24-hour unattended-run limit and at most three automatic CI repair attempts. Repeated identical failures or unclear outcomes pause earlier. Plan approval has no forced timeout into implementation.
+
+Agent turn-stop and session-end observations are not run completion. An explicit human interruption cannot be undone by a hook requesting automatic continuation. Automatic continuation uses the session provider's current human/turn guards and installation budgets, not an unbounded hook loop. Missing atomic guards must pause/report the unsupported guarantee.

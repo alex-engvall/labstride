@@ -6,6 +6,10 @@ Use a GitHub App with selected repositories for repository operations where supp
 
 Signed webhooks reduce latency. Reconciliation is mandatory for missed/unsupported events and restart recovery; a pilot using personal Projects may use polling as the authoritative observation path. Default polling target is 60 seconds, adjustable for API budgets. Use pagination, cursors, backoff and current-state reads.
 
+Start the personal-Project pilot with bounded outbound polling. GitHub documents Projects v2 item webhooks for organization-level projects; do not assume a Project field change is a repository Actions trigger. Verify event availability and actor attribution for each selected credential/container. Scheduled Actions can be delayed/dropped and are not the only observation/recovery loop. See [primary sources](17-sources.md).
+
+The coordinator alone projects managed technical progress to GitHub after normalization and validation. Optional agent hooks report into that path; CI/workflow facts are independently refreshed from GitHub. Keep a failed projection in the durable outbox, coalesce superseded progress safely and preserve human edits, approvals and newer request generations. A turn-end hook is not a release-completion receipt.
+
 Authenticate webhook signatures before parsing effects. Record delivery IDs, reject oversized payloads and accept replayed deliveries without repeating effects. A valid signature proves delivery, not that an issue author may start a job.
 
 ## Merge gate
@@ -17,6 +21,8 @@ An agent may request merge when policy grants it. The executor rechecks policy a
 ## Workflow request
 
 The action maps an operation to a repository-owned workflow. Record workflow repository ID, path/ID, allowed ref and resolved workflow SHA separately from application source SHA. A workflow on an untrusted PR branch must not acquire deployment credentials.
+
+Reuse Actions for builds, tests, packaging and delivery rather than reproducing those systems in the coordinator. Workflow execution is bounded; persistent agent sessions and workspace ownership stay with their enrolled host/provider. The Actions job token is repository-scoped and temporary. W00 must separately verify Project credentials and whether the chosen token/event combination starts the expected downstream CI; a successful API write does not prove a new workflow will run. Do not copy a personal agent login into Actions as a convenience fallback.
 
 Dispatch inputs are bounded structured strings containing operation ID, request digest and protocol version. The workflow obtains the authoritative execution request from the coordinator after authentication. A run name may carry the operation ID for discovery but is not authentication.
 
