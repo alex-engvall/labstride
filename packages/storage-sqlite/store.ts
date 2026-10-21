@@ -85,6 +85,14 @@ export class SqliteStore implements StateStore {
         if (change?.record?.kind === 'operation' && this.db.prepare('SELECT 1 FROM execution_bindings WHERE operation_id=?').get(change.record.id))
           throw new LifecycleError('recovery_required');
       }
+      for (const change of input) {
+        if (change?.record?.kind === 'run' && this.db.prepare('SELECT 1 FROM run_controls WHERE run_id=?').get(change.record.id)) {
+          const old = this.get('run', change.record.id);
+          if (old.paused !== change.record.paused || (['completed','cancelled','failed'].includes(change.record.state) &&
+            this.db.prepare("SELECT 1 FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled')").get(old.id)))
+            throw new LifecycleError('recovery_required');
+        }
+      }
       this.write(input, context);
     });
   }

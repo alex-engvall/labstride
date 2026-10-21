@@ -15,6 +15,7 @@ export interface ProjectionAdapter {
   write(projection: RecordOf<'projection'>, token: string): Promise<ProjectionView>;
 }
 export interface ObservationPort {
+  projectionAllowed(runId: string): boolean;
   get<K extends import('./lifecycle.ts').Kind>(kind: K, id: string): RecordOf<K>;
   receiveHook(enrollmentId: string, hook: Hook): import('../../contracts/generated/hook-ack.ts').LabstrideHookAcknowledgement;
   bootObservations(): void;

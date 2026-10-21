@@ -125,7 +125,7 @@ export class ObservationStore extends ExecutionStore implements ObservationPort 
     if (view.version !== projection.payload.expectedFingerprint) return finish('conflict', 'human_or_provider_change');
     if (attempt?.state === 'started') return 'wait';
     if (view.value === projection.payload.value) return finish('done', 'already_matches');
-    if (this.db.prepare('SELECT paused FROM recovery_control WHERE id=1').get()!.paused === 1) return 'wait';
+    if (!this.projectionAllowed(projection.runId)) return 'wait';
     return 'write';
   }
   inspectProjection(id: string, expectedRevision: number, view: ProjectionView): 'write' | 'wait' | 'finished' {

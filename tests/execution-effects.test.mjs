@@ -93,7 +93,7 @@ test('retry is bounded and persisted; an exception after effect start is never r
 });
 test('paused or newer generations cannot cross the effect boundary', t => {
   const { store, plan } = fixture(t); const claim = store.claim(plan.operation.id, 'executor', 'attempt');
-  const run = store.get('run', plan.run.id); store.commit([{ record: { ...run, paused: true, revision: run.revision + 1 }, expectedRevision: run.revision }], context);
+  const run = store.get('run', plan.run.id); store.pauseRun({schemaVersion:'1.0',id:'pause',runId:run.id,expectedRevision:run.revision,command:'pause'},context);
   assert.throws(() => store.beginEffect(claim), fail('effect_blocked'));
 });
 test('restore of an older consistent database observes the external effect before resuming', async t => {
