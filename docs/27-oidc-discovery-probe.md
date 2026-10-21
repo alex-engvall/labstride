@@ -1,6 +1,6 @@
 # 27 — Isolated OIDC discovery probe
 
-This executable W00.2 / [#12](https://github.com/alex-engvall/labstride/issues/12) probe tests the identity boundary proposed in [workflow execution](09-github-and-workflow-contract.md). It has no operation store, claims, receipts, dispatch, command runner, merge or deployment behavior. It is not a running Labstride coordinator. See the [evidence and remaining gates](evidence/W00.2-oidc-probe-2026-10-21.md).
+This executable W00.2 / [#12](https://github.com/alex-engvall/labstride/issues/12) probe tests the identity boundary proposed in [workflow execution](09-github-and-workflow-contract.md). It has no operation store, claims, receipts, dispatch, command runner, merge or deployment behavior. It is not a running Labstride coordinator. The [live identity matrix](evidence/W00.2-live-oidc-2026-10-21.md) completes bounded discovery for the tested profile; the [initial preparation](evidence/W00.2-oidc-probe-2026-10-21.md) remains historical evidence.
 
 ## Policy and endpoints
 
@@ -40,6 +40,6 @@ Preparing source/tests or a private archive does not authorize service activatio
 
 ## Handoff
 
-W00.2 remains open until real GitHub signatures, independent run/attempt metadata, runner HTTPS connectivity, negative cases and token behavior are observed together. This fixture supplies partial supporting evidence for **LS-DEP-002**, whose status remains `planned`: W04 must implement pending-operation authorization, atomic claims/fencing, privileged effect checks and receipts. W01 owns durable identity and unknown-outcome recovery; W06 owns installation, credential expiry, ingress and operator diagnostics. No acceptance case changes to passed and no ADR change is implied by implementing this bounded probe.
+W00.2 has observed real GitHub signatures, independent run/attempt metadata, runner HTTPS connectivity, negative cases and renewal beyond original expiry in two actual attempts. This completes discovery for the examined profile. It supplies partial supporting evidence for **LS-DEP-002**, whose status remains `planned`: W04 must implement pending-operation authorization, atomic claims/fencing, privileged effect checks and receipts. W01 owns durable identity and unknown-outcome recovery; W06 owns installation, credential expiry, ingress and operator diagnostics. No acceptance case changes to passed and no ADR change was required. The temporary probe is stopped and its read token revoked; prepared HTTPS configuration is not an active execution broker.
 
 Primary references: [GitHub OIDC](https://docs.github.com/en/actions/reference/security/oidc), [attempt-specific run API](https://docs.github.com/en/rest/actions/workflow-runs#get-a-workflow-run-attempt), [jose](https://github.com/panva/jose). Installed library APIs and local executions establish the implemented behavior; documentation alone does not verify the live route.
