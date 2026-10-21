@@ -1,0 +1,71 @@
+name: Connector or action proposal
+description: Propose a connector, action, provider or reusable recipe.
+title: '[Extension]: '
+body:
+- type: markdown
+  attributes:
+    value: Public and private extensions use the same [contracts](https://github.com/alex-engvall/labstride/blob/main/docs/10-extensions.md).
+      Propose the capability here; do not include credentials or private implementation details.
+- type: dropdown
+  id: kind
+  attributes:
+    label: Extension kind
+    description: Which public contract or recipe does this use?
+    options:
+    - Connector
+    - Action
+    - Provider adapter
+    - Session provider
+    - Workflow / recipe
+  validations:
+    required: true
+- type: textarea
+  id: outcome
+  attributes:
+    label: User outcome and example
+    description: Describe a concrete use case and the target service/platform.
+  validations:
+    required: true
+- type: textarea
+  id: contract
+  attributes:
+    label: Capabilities and contract
+    description: List operations, inputs, outputs and required capability versions.
+  validations:
+    required: true
+- type: textarea
+  id: configuration
+  attributes:
+    label: Configuration and field mappings
+    description: Show how operators select fields, values and targets without changing core. Use placeholders
+      for private values.
+  validations:
+    required: true
+- type: textarea
+  id: permissions
+  attributes:
+    label: Permissions and execution boundary
+    description: State required credentials, access and where privileged effects execute.
+  validations:
+    required: true
+- type: textarea
+  id: recovery
+  attributes:
+    label: Failure, retry and cleanup behavior
+    description: Explain duplicate requests, lost responses, cancellation and ownership of created resources.
+  validations:
+    required: true
+- type: textarea
+  id: acceptance
+  attributes:
+    label: Acceptance and compatibility evidence
+    description: Describe a successful example, a failure case and contract/conformance checks.
+  validations:
+    required: true
+- type: input
+  id: distribution
+  attributes:
+    label: Distribution and related work
+    description: Existing package/repo URL, proposed distribution, dependencies or related issue IDs.
+  validations:
+    required: false

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+- name: Read the specification and implementation guide
+  url: https://github.com/alex-engvall/labstride/blob/main/docs/README.md
+  about: Check the agreed behavior and existing work packages before proposing changes.
+- name: Security reporting policy
+  url: https://github.com/alex-engvall/labstride/blob/main/SECURITY.md
+  about: Follow the current private-reporting guidance; do not post vulnerability details in public issues.

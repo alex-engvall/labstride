@@ -14,6 +14,8 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#14](https://github.com/alex-engvall/labstride/issues/14).
+
 ## LS-CORE-002 — Commit intent before side effects
 
 | Phase | Priority | Status | Work package |
@@ -25,6 +27,8 @@ Specification: [06-architecture.md](06-architecture.md).
 - Crash tests prove effects are never initiated before their intent is durable.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15).
 
 ## LS-CORE-003 — Deduplicate events and operation claims
 
@@ -38,6 +42,8 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15).
+
 ## LS-CORE-004 — Preserve unknown outcomes
 
 | Phase | Priority | Status | Work package |
@@ -49,6 +55,8 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 - A lost effect response blocks blind repetition and retains enough identity for reconciliation.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15).
 
 ## LS-CORE-005 — Bound concurrency and preserve separate workspaces
 
@@ -62,6 +70,8 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#16](https://github.com/alex-engvall/labstride/issues/16).
+
 ## LS-CORE-006 — Keep metadata outside disposable directories
 
 | Phase | Priority | Status | Work package |
@@ -73,6 +83,8 @@ Specification: [06-architecture.md](06-architecture.md).
 - Deleting a workspace leaves run, merge, deployment and cleanup evidence available.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#14](https://github.com/alex-engvall/labstride/issues/14).
 
 ## LS-CORE-007 — Pause and cancel truthfully
 
@@ -86,6 +98,8 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#16](https://github.com/alex-engvall/labstride/issues/16).
+
 ## LS-CFG-001 — Validate and snapshot configuration
 
 | Phase | Priority | Status | Work package |
@@ -97,6 +111,8 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 - Unknown keys, missing bindings and incompatible capabilities fail preflight; enabled runs retain a configuration digest.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18).
 
 ## LS-CFG-002 — Configure arbitrary supported fields and values
 
@@ -110,6 +126,8 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18).
+
 ## LS-CFG-003 — Evaluate typed rules without code execution
 
 | Phase | Priority | Status | Work package |
@@ -121,6 +139,8 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 - Shell syntax and executable text remain literal data and cannot select uninstalled operations.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18).
 
 ## LS-CFG-004 — Use trusted policy revisions
 
@@ -134,6 +154,8 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#19](https://github.com/alex-engvall/labstride/issues/19).
+
 ## LS-CFG-005 — Handle conflicting and historical matches
 
 | Phase | Priority | Status | Work package |
@@ -145,6 +167,8 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 - Conflicting start rules block effects; initial sync does not automatically start historical matching issues.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18).
 
 ## LS-GH-001 — Prove provider credential capabilities
 
@@ -158,6 +182,8 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#11](https://github.com/alex-engvall/labstride/issues/11).
+
 ## LS-GH-002 — Authorize field-triggered requests
 
 | Phase | Priority | Status | Work package |
@@ -169,6 +195,8 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 - An unapproved actor cannot start a workspace even if a signed event or field edit is received.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#19](https://github.com/alex-engvall/labstride/issues/19).
 
 ## LS-GH-003 — Reconcile missed and duplicate events
 
@@ -182,6 +210,8 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20).
+
 ## LS-GH-004 — Preserve human edits and unrelated fields
 
 | Phase | Priority | Status | Work package |
@@ -193,6 +223,8 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 - Projection updates only its mapped field; a concurrent human change creates a visible conflict.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20).
 
 ## LS-GH-005 — Separate progress from start intent
 
@@ -206,6 +238,8 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20).
+
 ## LS-GH-006 — Gate delivery on current-revision CI
 
 | Phase | Priority | Status | Work package |
@@ -217,6 +251,8 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 - Missing/pending/failed required checks block merge; a new head invalidates earlier green evidence.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#26](https://github.com/alex-engvall/labstride/issues/26).
 
 ## LS-GH-007 — Perform authorized merge without bypass
 
@@ -230,6 +266,8 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#26](https://github.com/alex-engvall/labstride/issues/26).
+
 ## LS-EXT-001 — Version manifests and shared schemas
 
 | Phase | Priority | Status | Work package |
@@ -241,6 +279,8 @@ Specification: [10-extensions.md](10-extensions.md).
 - Unknown major versions fail before loading; optional minor capabilities are negotiated.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#13](https://github.com/alex-engvall/labstride/issues/13).
 
 ## LS-EXT-002 — Support public and private extensions equally
 
@@ -254,6 +294,8 @@ Specification: [10-extensions.md](10-extensions.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#33](https://github.com/alex-engvall/labstride/issues/33).
+
 ## LS-EXT-003 — Pin installed extension identity
 
 | Phase | Priority | Status | Work package |
@@ -265,6 +307,8 @@ Specification: [10-extensions.md](10-extensions.md).
 - Issue content cannot install/upgrade an extension; an integrity mismatch prevents loading.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#17](https://github.com/alex-engvall/labstride/issues/17).
 
 ## LS-EXT-004 — Publish a conformance suite
 
@@ -278,6 +322,8 @@ Specification: [10-extensions.md](10-extensions.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#33](https://github.com/alex-engvall/labstride/issues/33).
+
 ## LS-SSH-001 — Verify SSH host identity
 
 | Phase | Priority | Status | Work package |
@@ -289,6 +335,8 @@ Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 - A host-key mismatch fails before any command; explicit enrollment/rotation is documented.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#21](https://github.com/alex-engvall/labstride/issues/21).
 
 ## LS-SSH-002 — Use a fixed helper with structured input
 
@@ -302,6 +350,8 @@ Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#21](https://github.com/alex-engvall/labstride/issues/21).
+
 ## LS-SSH-003 — Create an owned exact-revision checkout
 
 | Phase | Priority | Status | Work package |
@@ -313,6 +363,8 @@ Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 - The workspace contains the requested SHA on a dedicated branch and is recorded in the target registry.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#22](https://github.com/alex-engvall/labstride/issues/22).
 
 ## LS-SSH-004 — Recover creation after lost acknowledgement
 
@@ -326,6 +378,8 @@ Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#22](https://github.com/alex-engvall/labstride/issues/22).
+
 ## LS-SSH-005 — Keep app runtimes optional and isolated
 
 | Phase | Priority | Status | Work package |
@@ -337,6 +391,8 @@ Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 - Source-only workspace creation works; two runtime recipes have distinct resource namespaces.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#23](https://github.com/alex-engvall/labstride/issues/23).
 
 ## LS-DEP-001 — Invoke repository-owned deployment workflows
 
@@ -350,6 +406,8 @@ Specification: [19-deploy-and-recipes.md](19-deploy-and-recipes.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24).
+
 ## LS-DEP-002 — Authenticate and atomically claim execution
 
 | Phase | Priority | Status | Work package |
@@ -361,6 +419,8 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 - Wrong audience/repository/workflow/run identity is denied; only one claim may cross the effect boundary.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24).
 
 ## LS-DEP-003 — Validate bound receipts and target health
 
@@ -374,6 +434,8 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#25](https://github.com/alex-engvall/labstride/issues/25).
+
 ## LS-DEP-004 — Reconcile dispatch and deploy uncertainty
 
 | Phase | Priority | Status | Work package |
@@ -385,6 +447,8 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 - Lost dispatch/reply does not produce a second effect; ambiguous runs remain unknown until verified.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24).
 
 ## LS-DEP-005 — Serialize environment delivery
 
@@ -398,6 +462,8 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#27](https://github.com/alex-engvall/labstride/issues/27).
+
 ## LS-DEP-006 — Report recipe-specific recovery
 
 | Phase | Priority | Status | Work package |
@@ -409,6 +475,8 @@ Specification: [19-deploy-and-recipes.md](19-deploy-and-recipes.md).
 - Rollback is used only for a tested supported recipe; irreversible migration limits remain visible.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#25](https://github.com/alex-engvall/labstride/issues/25).
 
 ## LS-CLN-001 — Make cleanup a replaceable action
 
@@ -422,6 +490,8 @@ Specification: [20-workspace-cleanup.md](20-workspace-cleanup.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#28](https://github.com/alex-engvall/labstride/issues/28).
+
 ## LS-CLN-002 — Require completion and honor keep
 
 | Phase | Priority | Status | Work package |
@@ -433,6 +503,8 @@ Specification: [20-workspace-cleanup.md](20-workspace-cleanup.md).
 - Failed/unknown deploy, active use or keep blocks cleanup even if the PR is merged.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#28](https://github.com/alex-engvall/labstride/issues/28).
 
 ## LS-CLN-003 — Protect unsaved and unpushed work
 
@@ -446,6 +518,8 @@ Specification: [20-workspace-cleanup.md](20-workspace-cleanup.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#28](https://github.com/alex-engvall/labstride/issues/28).
+
 ## LS-CLN-004 — Delete only the proven owned directory
 
 | Phase | Priority | Status | Work package |
@@ -457,6 +531,8 @@ Specification: [20-workspace-cleanup.md](20-workspace-cleanup.md).
 - Root/parent/symlink/mount substitution and foreign paths are rejected before removal.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#29](https://github.com/alex-engvall/labstride/issues/29).
 
 ## LS-CLN-005 — Recover interrupted deletion
 
@@ -470,6 +546,8 @@ Specification: [20-workspace-cleanup.md](20-workspace-cleanup.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#29](https://github.com/alex-engvall/labstride/issues/29).
+
 ## LS-OPS-001 — Provide installation and diagnostics CLI
 
 | Phase | Priority | Status | Work package |
@@ -481,6 +559,8 @@ Specification: [16-operations-and-cli.md](16-operations-and-cli.md).
 - A fresh operator gets actionable errors for unresolved fields, permissions, SSH and broker routing.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#30](https://github.com/alex-engvall/labstride/issues/30).
 
 ## LS-OPS-002 — Back up and restore consistently
 
@@ -494,6 +574,8 @@ Specification: [16-operations-and-cli.md](16-operations-and-cli.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#31](https://github.com/alex-engvall/labstride/issues/31).
+
 ## LS-OPS-003 — Upgrade while preserving active handles
 
 | Phase | Priority | Status | Work package |
@@ -505,6 +587,8 @@ Specification: [13-pilot-and-release.md](13-pilot-and-release.md).
 - Pinned versions required by active operations survive upgrade, and migration failure leaves recoverable state.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#31](https://github.com/alex-engvall/labstride/issues/31).
 
 ## LS-OPS-004 — Provide redacted operational evidence
 
@@ -518,6 +602,8 @@ Specification: [11-security-and-trust.md](11-security-and-trust.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#32](https://github.com/alex-engvall/labstride/issues/32).
+
 ## LS-OPS-005 — Apply bounded retention and budgets
 
 | Phase | Priority | Status | Work package |
@@ -529,6 +615,8 @@ Specification: [16-operations-and-cli.md](16-operations-and-cli.md).
 - Configured budgets stop indefinite repairs; retention does not remove unresolved-resource records.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#32](https://github.com/alex-engvall/labstride/issues/32).
 
 ## LS-SEC-001 — Separate policy and workspace identities
 
@@ -542,6 +630,8 @@ Specification: [11-security-and-trust.md](11-security-and-trust.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#21](https://github.com/alex-engvall/labstride/issues/21).
+
 ## LS-SEC-002 — Separate deploy credentials from coding sessions
 
 | Phase | Priority | Status | Work package |
@@ -553,6 +643,8 @@ Specification: [11-security-and-trust.md](11-security-and-trust.md).
 - Agent prompts/repos lack deployment credentials; the privileged executor rechecks permission before effects.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24).
 
 ## LS-SEC-003 — Verify the security-reporting route
 
@@ -566,6 +658,8 @@ Specification: [11-security-and-trust.md](11-security-and-trust.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#35](https://github.com/alex-engvall/labstride/issues/35).
+
 ## LS-OSS-001 — Ship public functionality without private dependencies
 
 | Phase | Priority | Status | Work package |
@@ -577,6 +671,8 @@ Specification: [01-product-and-scope.md](01-product-and-scope.md).
 - Clean installation can create/deploy/clean a workspace using only public packages.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#33](https://github.com/alex-engvall/labstride/issues/33).
 
 ## LS-OSS-002 — Apply Apache-2.0 and DCO
 
@@ -590,6 +686,8 @@ Specification: [17-sources.md](17-sources.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#35](https://github.com/alex-engvall/labstride/issues/35).
+
 ## LS-OSS-003 — Publish honest examples and support scope
 
 | Phase | Priority | Status | Work package |
@@ -601,6 +699,8 @@ Specification: [13-pilot-and-release.md](13-pilot-and-release.md).
 - Laravel example and Linux support have evidence or explicit illustrative/unverified labels.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#34](https://github.com/alex-engvall/labstride/issues/34).
 
 ## LS-OSS-004 — Keep docs and implementation traceable
 
@@ -614,6 +714,8 @@ Specification: [12-test-and-quality-plan.md](12-test-and-quality-plan.md).
 
 Verification evidence: None; not implemented.
 
+Implementation issue: [#34](https://github.com/alex-engvall/labstride/issues/34).
+
 ## LS-EXT-005 — Coordinate provider-neutral sessions
 
 | Phase | Priority | Status | Work package |
@@ -625,3 +727,5 @@ Specification: [22-api-and-schema-reference.md](22-api-and-schema-reference.md).
 - Start/resume/observe/send/interrupt/close preserve provider identity, reject stale human/turn revisions and explicitly report missing atomic backend guards.
 
 Verification evidence: None; not implemented.
+
+Implementation issue: [#17](https://github.com/alex-engvall/labstride/issues/17).

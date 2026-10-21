@@ -1,0 +1,40 @@
+name: Feature proposal
+description: Describe a user need and a focused improvement.
+title: '[Feature]: '
+body:
+- type: textarea
+  id: problem
+  attributes:
+    label: Problem and user
+    description: Who needs this, what are they trying to do and what prevents it?
+  validations:
+    required: true
+- type: textarea
+  id: outcome
+  attributes:
+    label: Desired outcome
+    description: Describe the observable result and a concrete example.
+  validations:
+    required: true
+- type: textarea
+  id: acceptance
+  attributes:
+    label: Acceptance criteria
+    description: How would a contributor know the feature solves the problem?
+  validations:
+    required: true
+- type: textarea
+  id: approach
+  attributes:
+    label: Approach and alternatives
+    description: Suggest whether this belongs in core, an extension or a recipe. Mention alternatives
+      and compatibility implications.
+  validations:
+    required: false
+- type: input
+  id: related
+  attributes:
+    label: Related work
+    description: Link existing requirements, issues or extensions.
+  validations:
+    required: false

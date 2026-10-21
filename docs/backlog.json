@@ -19,7 +19,9 @@
         "A coordinator restart retains run, workspace, operation and deployment facts without collapsing them into one phase."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 14,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/14"
     },
     {
       "id": "LS-CORE-002",
@@ -37,7 +39,9 @@
         "Crash tests prove effects are never initiated before their intent is durable."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 15,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/15"
     },
     {
       "id": "LS-CORE-003",
@@ -55,7 +59,9 @@
         "Concurrent delivery/claim attempts produce one authorized active operation."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 15,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/15"
     },
     {
       "id": "LS-CORE-004",
@@ -73,7 +79,9 @@
         "A lost effect response blocks blind repetition and retains enough identity for reconciliation."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 15,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/15"
     },
     {
       "id": "LS-CORE-005",
@@ -91,7 +99,9 @@
         "Two issues run independently within configured limits; a second active run for the same issue is rejected or queued."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 16,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/16"
     },
     {
       "id": "LS-CORE-006",
@@ -109,7 +119,9 @@
         "Deleting a workspace leaves run, merge, deployment and cleanup evidence available."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 14,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/14"
     },
     {
       "id": "LS-CORE-007",
@@ -127,7 +139,9 @@
         "Pause prevents new effects; cancellation reports actual/unknown target state rather than assumed rollback."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 16,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/16"
     },
     {
       "id": "LS-CFG-001",
@@ -145,7 +159,9 @@
         "Unknown keys, missing bindings and incompatible capabilities fail preflight; enabled runs retain a configuration digest."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 18,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/18"
     },
     {
       "id": "LS-CFG-002",
@@ -163,7 +179,9 @@
         "Two installations use different field/option names and IDs without core edits; type mismatches are rejected."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 18,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/18"
     },
     {
       "id": "LS-CFG-003",
@@ -181,7 +199,9 @@
         "Shell syntax and executable text remain literal data and cannot select uninstalled operations."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 18,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/18"
     },
     {
       "id": "LS-CFG-004",
@@ -199,7 +219,9 @@
         "A PR or issue cannot expand permissions; emergency revocation blocks the next privileged action in an active run."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 19,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/19"
     },
     {
       "id": "LS-CFG-005",
@@ -217,7 +239,9 @@
         "Conflicting start rules block effects; initial sync does not automatically start historical matching issues."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 18,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/18"
     },
     {
       "id": "LS-GH-001",
@@ -233,7 +257,9 @@
         "Personal Project and repository operations are verified with the selected minimal credentials or reported unsupported."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 11,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/11"
     },
     {
       "id": "LS-GH-002",
@@ -251,7 +277,9 @@
         "An unapproved actor cannot start a workspace even if a signed event or field edit is received."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 19,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/19"
     },
     {
       "id": "LS-GH-003",
@@ -269,7 +297,9 @@
         "The same current request is recovered after a missed event and produces no duplicate run."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 20,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/20"
     },
     {
       "id": "LS-GH-004",
@@ -287,7 +317,9 @@
         "Projection updates only its mapped field; a concurrent human change creates a visible conflict."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 20,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/20"
     },
     {
       "id": "LS-GH-005",
@@ -305,7 +337,9 @@
         "Coordinator status writes and stale events cannot retrigger work."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 20,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/20"
     },
     {
       "id": "LS-GH-006",
@@ -324,7 +358,9 @@
         "Missing/pending/failed required checks block merge; a new head invalidates earlier green evidence."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 26,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/26"
     },
     {
       "id": "LS-GH-007",
@@ -343,7 +379,9 @@
         "Merge uses the expected head and records the merge SHA while respecting active repository protections."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 26,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/26"
     },
     {
       "id": "LS-EXT-001",
@@ -359,7 +397,9 @@
         "Unknown major versions fail before loading; optional minor capabilities are negotiated."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 13,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/13"
     },
     {
       "id": "LS-EXT-002",
@@ -378,7 +418,9 @@
         "An out-of-repo extension passes conformance without private-name branches in core."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 33,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/33"
     },
     {
       "id": "LS-EXT-003",
@@ -396,7 +438,9 @@
         "Issue content cannot install/upgrade an extension; an integrity mismatch prevents loading."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 17,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/17"
     },
     {
       "id": "LS-EXT-004",
@@ -415,7 +459,9 @@
         "A fixture extension passes start/observe/cancel/reconcile and malformed-output cases."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 33,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/33"
     },
     {
       "id": "LS-SSH-001",
@@ -433,7 +479,9 @@
         "A host-key mismatch fails before any command; explicit enrollment/rotation is documented."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 21,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/21"
     },
     {
       "id": "LS-SSH-002",
@@ -451,7 +499,9 @@
         "Host, path and issue metacharacters cannot escape enrolled targets or create injected commands."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 21,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/21"
     },
     {
       "id": "LS-SSH-003",
@@ -469,7 +519,9 @@
         "The workspace contains the requested SHA on a dedicated branch and is recorded in the target registry."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 22,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/22"
     },
     {
       "id": "LS-SSH-004",
@@ -487,7 +539,9 @@
         "Reconnect adopts the same owned directory; conflicting pre-existing paths are preserved and reported."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 22,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/22"
     },
     {
       "id": "LS-SSH-005",
@@ -505,7 +559,9 @@
         "Source-only workspace creation works; two runtime recipes have distinct resource namespaces."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 23,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/23"
     },
     {
       "id": "LS-DEP-001",
@@ -524,7 +580,9 @@
         "Replace the example workflow/target without core changes and record source SHA separately from workflow SHA."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 24,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/24"
     },
     {
       "id": "LS-DEP-002",
@@ -543,7 +601,9 @@
         "Wrong audience/repository/workflow/run identity is denied; only one claim may cross the effect boundary."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 24,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/24"
     },
     {
       "id": "LS-DEP-003",
@@ -562,7 +622,9 @@
         "Mismatched operation/digest/source/run/attempt results are rejected; required health failure cannot produce verified deploy."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 25,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/25"
     },
     {
       "id": "LS-DEP-004",
@@ -581,7 +643,9 @@
         "Lost dispatch/reply does not produce a second effect; ambiguous runs remain unknown until verified."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 24,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/24"
     },
     {
       "id": "LS-DEP-005",
@@ -600,7 +664,9 @@
         "Older pending work cannot overwrite a newer verified target revision."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 27,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/27"
     },
     {
       "id": "LS-DEP-006",
@@ -619,7 +685,9 @@
         "Rollback is used only for a tested supported recipe; irreversible migration limits remain visible."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 25,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/25"
     },
     {
       "id": "LS-CLN-001",
@@ -638,7 +706,9 @@
         "Selecting another cleanup action/trigger changes behavior without editing core; no fixed retention timer exists."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 28,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/28"
     },
     {
       "id": "LS-CLN-002",
@@ -657,7 +727,9 @@
         "Failed/unknown deploy, active use or keep blocks cleanup even if the PR is merged."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 28,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/28"
     },
     {
       "id": "LS-CLN-003",
@@ -676,7 +748,9 @@
         "Tracked changes, untracked/undeclared ignored files and unpushed commits preserve the directory."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 28,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/28"
     },
     {
       "id": "LS-CLN-004",
@@ -695,7 +769,9 @@
         "Root/parent/symlink/mount substitution and foreign paths are rejected before removal."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 29,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/29"
     },
     {
       "id": "LS-CLN-005",
@@ -714,7 +790,9 @@
         "A durable target tombstone permits reconciliation without deleting another resource; duplicate requests return the original result."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 29,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/29"
     },
     {
       "id": "LS-OPS-001",
@@ -734,7 +812,9 @@
         "A fresh operator gets actionable errors for unresolved fields, permissions, SSH and broker routing."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 30,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/30"
     },
     {
       "id": "LS-OPS-002",
@@ -754,7 +834,9 @@
         "Restored state reconciles live external effects before resuming; no stale outbox is blindly replayed."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 31,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/31"
     },
     {
       "id": "LS-OPS-003",
@@ -774,7 +856,9 @@
         "Pinned versions required by active operations survive upgrade, and migration failure leaves recoverable state."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 31,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/31"
     },
     {
       "id": "LS-OPS-004",
@@ -794,7 +878,9 @@
         "Logs/metrics contain IDs and safe reasons but no credentials, issue bodies or transcripts by default."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 32,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/32"
     },
     {
       "id": "LS-OPS-005",
@@ -814,7 +900,9 @@
         "Configured budgets stop indefinite repairs; retention does not remove unresolved-resource records."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 32,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/32"
     },
     {
       "id": "LS-SEC-001",
@@ -832,7 +920,9 @@
         "The coding/workspace user cannot change trusted target ownership or coordinator policy."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 21,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/21"
     },
     {
       "id": "LS-SEC-002",
@@ -851,7 +941,9 @@
         "Agent prompts/repos lack deployment credentials; the privileged executor rechecks permission before effects."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 24,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/24"
     },
     {
       "id": "LS-SEC-003",
@@ -870,7 +962,9 @@
         "A real private vulnerability report path is configured and documented before public release."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 35,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/35"
     },
     {
       "id": "LS-OSS-001",
@@ -889,7 +983,9 @@
         "Clean installation can create/deploy/clean a workspace using only public packages."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 33,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/33"
     },
     {
       "id": "LS-OSS-002",
@@ -908,7 +1004,9 @@
         "License, attribution and DCO contribution checks exist; external copyright is not misrepresented as assigned."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 35,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/35"
     },
     {
       "id": "LS-OSS-003",
@@ -927,7 +1025,9 @@
         "Laravel example and Linux support have evidence or explicit illustrative/unverified labels."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 34,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/34"
     },
     {
       "id": "LS-OSS-004",
@@ -946,7 +1046,9 @@
         "Every completed requirement links acceptance evidence; generated checklist matches backlog."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 34,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/34"
     },
     {
       "id": "LS-EXT-005",
@@ -964,7 +1066,9 @@
         "Start/resume/observe/send/interrupt/close preserve provider identity, reject stale human/turn revisions and explicitly report missing atomic backend guards."
       ],
       "implementation_pr": null,
-      "verification_evidence": []
+      "verification_evidence": [],
+      "github_issue": 17,
+      "github_issue_url": "https://github.com/alex-engvall/labstride/issues/17"
     }
   ]
 }

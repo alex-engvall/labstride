@@ -18,6 +18,8 @@ def checklist(reqs):
                     'Specification: [' + r['spec'] + '](' + r['spec'] + ').', '',
                     *['- ' + c for c in r['acceptance_criteria']], '',
                     'Verification evidence: ' + (', '.join(r['verification_evidence']) or 'None; not implemented.'), ''])
+        if r.get('github_issue_url'):
+            out.extend([f"Implementation issue: [#{r['github_issue']}]({r['github_issue_url']}).", ''])
     return '\n'.join(out).strip() + '\n'
 
 

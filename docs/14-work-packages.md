@@ -4,6 +4,8 @@ Build small vertical slices. Dependencies are technical sequencing, not permissi
 
 ## W00 — Resolve integration and toolchain gates
 
+Tracker: [#3](https://github.com/alex-engvall/labstride/issues/3).
+
 **Prerequisites:** None.
 
 - Record supported runtime/dependency versions and licenses.
@@ -14,6 +16,8 @@ Build small vertical slices. Dependencies are technical sequencing, not permissi
 **Requirements:** LS-GH-001, LS-EXT-001
 
 ## W01 — Durable coordinator and operation model
+
+Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).
 
 **Prerequisites:** W00.
 
@@ -26,6 +30,8 @@ Build small vertical slices. Dependencies are technical sequencing, not permissi
 
 ## W02 — Configuration and GitHub request/projection adapter
 
+Tracker: [#5](https://github.com/alex-engvall/labstride/issues/5).
+
 **Prerequisites:** W01.
 
 - Compile configurable fields/rules and operator permissions.
@@ -36,6 +42,8 @@ Build small vertical slices. Dependencies are technical sequencing, not permissi
 **Requirements:** LS-CFG-001, LS-CFG-002, LS-CFG-003, LS-CFG-004, LS-CFG-005, LS-GH-002, LS-GH-003, LS-GH-004, LS-GH-005
 
 ## W03 — SSH and independent workspace action
+
+Tracker: [#6](https://github.com/alex-engvall/labstride/issues/6).
 
 **Prerequisites:** W01.
 
@@ -48,6 +56,8 @@ Build small vertical slices. Dependencies are technical sequencing, not permissi
 
 ## W04 — Workflow broker, CI and delivery action
 
+Tracker: [#7](https://github.com/alex-engvall/labstride/issues/7).
+
 **Prerequisites:** W02, W03.
 
 - Implement authenticated claims, receipt validation and dispatch reconciliation.
@@ -58,6 +68,8 @@ Build small vertical slices. Dependencies are technical sequencing, not permissi
 **Requirements:** LS-GH-006, LS-GH-007, LS-DEP-001, LS-DEP-002, LS-DEP-003, LS-DEP-004, LS-DEP-005, LS-DEP-006, LS-SEC-002
 
 ## W05 — Directory cleanup action
+
+Tracker: [#8](https://github.com/alex-engvall/labstride/issues/8).
 
 **Prerequisites:** W03, W04.
 
@@ -70,6 +82,8 @@ Build small vertical slices. Dependencies are technical sequencing, not permissi
 
 ## W06 — CLI, installation and operations
 
+Tracker: [#9](https://github.com/alex-engvall/labstride/issues/9).
+
 **Prerequisites:** W02, W03, W04.
 
 - Implement operator diagnostics and pause/reconcile controls.
@@ -80,6 +94,8 @@ Build small vertical slices. Dependencies are technical sequencing, not permissi
 **Requirements:** LS-OPS-001, LS-OPS-002, LS-OPS-003, LS-OPS-004, LS-OPS-005
 
 ## W07 — Public examples and prerelease
+
+Tracker: [#10](https://github.com/alex-engvall/labstride/issues/10).
 
 **Prerequisites:** W05, W06.
 
