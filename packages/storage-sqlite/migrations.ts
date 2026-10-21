@@ -87,6 +87,24 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
     attempts INTEGER NOT NULL DEFAULT 0 CHECK(attempts >= 0), next_at TEXT NOT NULL,
     last_error TEXT, revision INTEGER NOT NULL DEFAULT 1 CHECK(revision > 0),
     CHECK((operation_id IS NULL) != (projection_id IS NULL)));
+` }, { version: 4, sql: `
+  CREATE TABLE fences (resource_key TEXT PRIMARY KEY, number INTEGER NOT NULL CHECK(number BETWEEN 1 AND 9007199254740991));
+  CREATE TABLE claims (id TEXT PRIMARY KEY, operation_id TEXT NOT NULL UNIQUE REFERENCES operations(id),
+    resource_key TEXT NOT NULL, payload TEXT NOT NULL CHECK(json_valid(payload)),
+    consumed INTEGER NOT NULL DEFAULT 0 CHECK(consumed IN (0,1)),
+    active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)));
+  CREATE UNIQUE INDEX one_resource_claim ON claims(resource_key) WHERE active=1;
+  CREATE TABLE resource_holds (resource_key TEXT PRIMARY KEY, reason TEXT NOT NULL);
+  CREATE TABLE execution_results (operation_id TEXT PRIMARY KEY REFERENCES operations(id), payload TEXT NOT NULL CHECK(json_valid(payload)));
+  CREATE TABLE execution_log (sequence INTEGER PRIMARY KEY AUTOINCREMENT, operation_id TEXT REFERENCES operations(id),
+    at TEXT NOT NULL, kind TEXT NOT NULL, payload TEXT NOT NULL CHECK(json_valid(payload)));
+  CREATE TRIGGER execution_log_no_update BEFORE UPDATE ON execution_log BEGIN SELECT RAISE(ABORT, 'immutable_execution_log'); END;
+  CREATE TRIGGER execution_log_no_delete BEFORE DELETE ON execution_log BEGIN SELECT RAISE(ABORT, 'immutable_execution_log'); END;
+  CREATE TRIGGER execution_result_no_update BEFORE UPDATE ON execution_results BEGIN SELECT RAISE(ABORT, 'immutable_execution_result'); END;
+  CREATE TRIGGER execution_result_no_delete BEFORE DELETE ON execution_results BEGIN SELECT RAISE(ABORT, 'immutable_execution_result'); END;
+  CREATE TABLE recovery_control (id INTEGER PRIMARY KEY CHECK(id=1), paused INTEGER NOT NULL CHECK(paused IN (0,1)), epoch INTEGER NOT NULL);
+  INSERT INTO recovery_control VALUES (1,0,0);
+  CREATE TABLE restore_checks (operation_id TEXT PRIMARY KEY REFERENCES operations(id), epoch INTEGER NOT NULL, resolved INTEGER NOT NULL CHECK(resolved IN (0,1)));
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

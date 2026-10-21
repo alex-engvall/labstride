@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ExecutionRecord",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "const": "claim"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "operationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "executorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "attemptId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "resourceKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "requestDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "fencingNumber": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "id",
+        "operationId",
+        "executorId",
+        "attemptId",
+        "resourceKey",
+        "requestDigest",
+        "fencingNumber",
+        "createdAt"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "kind": {
+          "const": "result"
+        },
+        "operationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "requestDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/operationResult"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "kind",
+        "operationId",
+        "requestDigest",
+        "result"
+      ]
+    }
+  ]
+}
