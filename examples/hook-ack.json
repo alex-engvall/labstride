@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "1.0",
+  "eventId": "event-example",
+  "outcome": "accepted",
+  "persistence": "durable",
+  "observationId": "observation-example",
+  "error": null
+}

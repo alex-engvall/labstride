@@ -1,0 +1,1618 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LabstrideContractResult",
+  "oneOf": [
+    {
+      "title": "provider_capabilitiesSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "const": "capabilities"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/provider_capabilitiesOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "provider_readSnapshotSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "const": "readSnapshot"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/provider_readSnapshotOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "provider_subscribeSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "const": "subscribe"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/provider_subscribeOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "provider_reconcileSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "const": "reconcile"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/provider_reconcileOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "provider_projectSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "const": "project"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/provider_projectOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "providererrorResponse",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "enum": [
+            "capabilities",
+            "readSnapshot",
+            "subscribe",
+            "reconcile",
+            "project"
+          ]
+        },
+        "outcome": {
+          "const": "error"
+        },
+        "result": {
+          "type": "null"
+        },
+        "error": {
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "not": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "const": "outcome_unknown"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "provideroutcome_unknownResponse",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "enum": [
+            "capabilities",
+            "readSnapshot",
+            "subscribe",
+            "reconcile",
+            "project"
+          ]
+        },
+        "outcome": {
+          "const": "outcome_unknown"
+        },
+        "result": {
+          "type": "null"
+        },
+        "error": {
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "properties": {
+                "code": {
+                  "const": "outcome_unknown"
+                }
+              },
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "connector_probeSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "probe"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/connector_probeOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "connector_executeSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "execute"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/connector_executeOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "connector_uploadSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "upload"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/connector_uploadOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "connector_downloadSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "download"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/connector_downloadOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "connector_inspectSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "inspect"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/connector_inspectOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "connector_cancelSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "cancel"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/connector_cancelOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "connectorerrorResponse",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "enum": [
+            "probe",
+            "execute",
+            "upload",
+            "download",
+            "inspect",
+            "cancel"
+          ]
+        },
+        "outcome": {
+          "const": "error"
+        },
+        "result": {
+          "type": "null"
+        },
+        "error": {
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "not": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "const": "outcome_unknown"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "connectoroutcome_unknownResponse",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "enum": [
+            "probe",
+            "execute",
+            "upload",
+            "download",
+            "inspect",
+            "cancel"
+          ]
+        },
+        "outcome": {
+          "const": "outcome_unknown"
+        },
+        "result": {
+          "type": "null"
+        },
+        "error": {
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "properties": {
+                "code": {
+                  "const": "outcome_unknown"
+                }
+              },
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "action_describeSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "describe"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/action_describeOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "action_validateSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "validate"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/action_validateOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "action_startSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "start"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/action_startOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "action_observeSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "observe"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/action_observeOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "action_cancelSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "cancel"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/action_cancelOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "action_reconcileSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "reconcile"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/action_reconcileOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "actionerrorResponse",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "enum": [
+            "describe",
+            "validate",
+            "start",
+            "observe",
+            "cancel",
+            "reconcile"
+          ]
+        },
+        "outcome": {
+          "const": "error"
+        },
+        "result": {
+          "type": "null"
+        },
+        "error": {
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "not": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "const": "outcome_unknown"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "actionoutcome_unknownResponse",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "enum": [
+            "describe",
+            "validate",
+            "start",
+            "observe",
+            "cancel",
+            "reconcile"
+          ]
+        },
+        "outcome": {
+          "const": "outcome_unknown"
+        },
+        "result": {
+          "type": "null"
+        },
+        "error": {
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "properties": {
+                "code": {
+                  "const": "outcome_unknown"
+                }
+              },
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "session_provider_capabilitiesSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "capabilities"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_capabilitiesOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "session_provider_startSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "start"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_startOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "session_provider_resumeSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "resume"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_resumeOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "session_provider_observeSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "observe"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_observeOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "session_provider_sendSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "send"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_sendOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "session_provider_interruptSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "interrupt"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_interruptOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "session_provider_closeSuccess",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "close"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "result": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_closeOutput"
+        },
+        "error": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "session_providererrorResponse",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "enum": [
+            "capabilities",
+            "start",
+            "resume",
+            "observe",
+            "send",
+            "interrupt",
+            "close"
+          ]
+        },
+        "outcome": {
+          "const": "error"
+        },
+        "result": {
+          "type": "null"
+        },
+        "error": {
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "not": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "const": "outcome_unknown"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "title": "session_provideroutcome_unknownResponse",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "enum": [
+            "capabilities",
+            "start",
+            "resume",
+            "observe",
+            "send",
+            "interrupt",
+            "close"
+          ]
+        },
+        "outcome": {
+          "const": "outcome_unknown"
+        },
+        "result": {
+          "type": "null"
+        },
+        "error": {
+          "allOf": [
+            {
+              "$ref": "contract-common.schema.json#/$defs/error"
+            },
+            {
+              "properties": {
+                "code": {
+                  "const": "outcome_unknown"
+                }
+              },
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "outcome",
+        "result",
+        "error"
+      ]
+    }
+  ]
+}

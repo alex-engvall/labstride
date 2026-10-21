@@ -9,8 +9,14 @@ The JSON schemas are proposed normative v1 contracts for implementation. They ar
 | [operation](../schemas/operation.schema.json) | [request](../examples/operation.json) | Action executor |
 | [receipt](../schemas/receipt.schema.json) | [receipt](../examples/receipt.json) | Workflow adapter/broker |
 | [event](../schemas/event.schema.json) | [event](../examples/event.json) | Provider adapter |
+| [contract request](../schemas/contract-request.schema.json) | [four families](../examples/contract-families.json) | Extension dispatch |
+| [contract result](../schemas/contract-result.schema.json) | [result](../examples/contract-result.json) | Extension caller |
+| [hook observation](../schemas/hook-observation.schema.json) | [observation](../examples/hook-observation.json) | Enrolled adapter/coordinator |
+| [hook acknowledgement](../schemas/hook-ack.schema.json) | [acknowledgement](../examples/hook-ack.json) | Durable observation boundary |
 
 ## Validation layers
+
+The [W00.3 clean-environment probe](evidence/W00.3-toolchain-session-discovery-2026-10-21.md) found missing optional date-time/uri checkers. The [fixture implementation](26-contract-fixtures-and-toolchain.md) fixes this through pinned dependencies, checker-availability failure and invalid-format rejection. Validation uses a local-only registry; it does not fetch schemas from payload URLs. Generated TypeScript does not replace runtime format/pattern/conditional validation.
 
 Schema validation is followed by semantic validation: repository/target/field references exist; option values resolve; action input/output schemas match; claims agree with observed provider identity; paths belong to the workspace; and the current policy permits the effect. A schema-valid template is not an enabled or authorized installation.
 
@@ -46,7 +52,7 @@ Design defaults: 256 KiB broker bodies, 1 MiB webhook bodies, bounded provider p
 
 A start operation returns/reconciles one session per operation ID. All later commands identify that session. A send must compare expectedLastTurnId and expectedHumanActivityRevision immediately before submission; mismatch is stale_revision. An observation can still race with human activity on the backend, so the provider must use supported atomic guards or pause/report the limitation rather than claim guaranteed race-free control.
 
-Optional provider hooks must normalize through this enrolled session boundary and the versioned event contract. The W00 hook-normalization envelope, deduplication/acknowledgement rules and any additional schema fields remain to be specified and validated together; no hook endpoint or raw-payload compatibility is implemented by this documentation. Accepted events enqueue one coordinator-owned projection path. A hook event cannot substitute for a workflow receipt, human approval or authoritative session observation.
+Optional provider hooks must normalize through this enrolled boundary and the [hook observation/acknowledgement contracts](26-contract-fixtures-and-toolchain.md). They bind provider/run/request-generation/workspace/session/turn and distinguish committed acceptance, duplicate and rejection. The SQLite fixture verifies commit-before-ack and restart deduplication; raw-hook mapping, an enrolled endpoint and the actual outbox remain unimplemented. Accepted runtime events must enqueue one coordinator-owned projection path. Hooks cannot substitute for workflow receipts, human approval or authoritative session observations.
 
 ## Boolean operator controls
 

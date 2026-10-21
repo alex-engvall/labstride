@@ -279,14 +279,14 @@ Implementation issue: [#26](https://github.com/alex-engvall/labstride/issues/26)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W00 |
+| MVP | P0 | in_progress | W00 |
 
 Specification: [10-extensions.md](10-extensions.md).
 
 - Unknown major versions fail before loading; optional minor capabilities are negotiated.
 - Define and validate any provider hook normalization/acknowledgement envelope before enabling it; raw hook payloads are not implicitly trusted Labstride events.
 
-Verification evidence: None; not implemented.
+Verification evidence: [Partial W00.3 toolchain/session discovery; contract and format-validation gaps](evidence/W00.3-toolchain-session-discovery-2026-10-21.md), [Reviewed contract/hook fixtures, host-profile gates, safe type generation and enforced formats](evidence/W00.3-contract-fixtures-2026-10-21.md)
 
 Implementation issue: [#13](https://github.com/alex-engvall/labstride/issues/13).
 

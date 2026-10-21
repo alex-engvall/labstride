@@ -35,6 +35,9 @@ Specification version 0.1.0. Application runtime is not implemented. W00.1 GitHu
 - [W00.1 Project-only PAT verification](evidence/W00.1-project-pat-2026-10-21.md)
 - [W00.1 App file/PR writes and downstream CI](evidence/W00.1-app-file-pr-ci-2026-10-21.md)
 - [W00.1 actor attribution and observation/recovery discovery](evidence/W00.1-actor-observation-2026-10-21.md)
+- [W00.3 toolchain, existing-session access and contract gaps](evidence/W00.3-toolchain-session-discovery-2026-10-21.md)
+- [Contract fixtures and selected tooling](26-contract-fixtures-and-toolchain.md)
+- [W00.3 implemented fixture/type/format evidence](evidence/W00.3-contract-fixtures-2026-10-21.md)
 
 ## Machine-readable sources
 

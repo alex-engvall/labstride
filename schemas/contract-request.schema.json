@@ -1,0 +1,894 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LabstrideContractRequest",
+  "oneOf": [
+    {
+      "title": "provider_capabilitiesRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "const": "capabilities"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/provider_capabilitiesInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "provider_readSnapshotRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "const": "readSnapshot"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/provider_readSnapshotInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "provider_subscribeRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "const": "subscribe"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/provider_subscribeInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "provider_reconcileRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "const": "reconcile"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/provider_reconcileInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "provider_projectRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "provider"
+        },
+        "method": {
+          "const": "project"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/provider_projectInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "connector_probeRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "probe"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/connector_probeInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "connector_executeRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "execute"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/connector_executeInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "connector_uploadRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "upload"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/connector_uploadInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "connector_downloadRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "download"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/connector_downloadInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "connector_inspectRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "inspect"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/connector_inspectInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "connector_cancelRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "connector"
+        },
+        "method": {
+          "const": "cancel"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/connector_cancelInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "action_describeRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "describe"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/action_describeInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "action_validateRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "validate"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/action_validateInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "action_startRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "start"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/action_startInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "action_observeRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "observe"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/action_observeInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "action_cancelRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "cancel"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/action_cancelInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "action_reconcileRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "action"
+        },
+        "method": {
+          "const": "reconcile"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/action_reconcileInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "session_provider_capabilitiesRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "capabilities"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_capabilitiesInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "session_provider_startRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "start"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_startInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "session_provider_resumeRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "resume"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_resumeInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "session_provider_observeRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "observe"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_observeInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "session_provider_sendRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "send"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_sendInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "session_provider_interruptRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "interrupt"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_interruptInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    },
+    {
+      "title": "session_provider_closeRequest",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "requestId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "extensionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "protocol": {
+          "$ref": "contract-common.schema.json#/$defs/protocol"
+        },
+        "family": {
+          "const": "session-provider"
+        },
+        "method": {
+          "const": "close"
+        },
+        "input": {
+          "$ref": "contract-common.schema.json#/$defs/session_provider_closeInput"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "extensionId",
+        "protocol",
+        "family",
+        "method",
+        "input"
+      ]
+    }
+  ]
+}

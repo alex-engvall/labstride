@@ -1,0 +1,200 @@
+{
+  "requests": [
+    {
+      "schemaVersion": "1.0",
+      "requestId": "request-provider",
+      "extensionId": "example.provider",
+      "protocol": {
+        "major": 1,
+        "minor": 0
+      },
+      "family": "provider",
+      "method": "readSnapshot",
+      "input": {
+        "subjectId": "issue-example"
+      }
+    },
+    {
+      "schemaVersion": "1.0",
+      "requestId": "request-connector",
+      "extensionId": "example.connector",
+      "protocol": {
+        "major": 1,
+        "minor": 0
+      },
+      "family": "connector",
+      "method": "execute",
+      "input": {
+        "operation": {
+          "schemaVersion": "1.0",
+          "operationId": "op-example-001",
+          "runId": "run-example-001",
+          "workspaceId": "ws-example-001",
+          "actionId": "labstride.github-workflow",
+          "actionVersion": "0.1.0",
+          "configDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+          "source": {
+            "repositoryId": "1001",
+            "repository": "example-owner/example-app",
+            "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "targetId": "application-test",
+          "deadline": "2026-10-21T14:00:00Z",
+          "inputs": {
+            "workflow": "deploy",
+            "environment": "test"
+          },
+          "requestDigest": "efe91cc1901aa249421b4d9c78217fe677b44f4d6e30d752f9dabb0b08bcc22f"
+        }
+      }
+    },
+    {
+      "schemaVersion": "1.0",
+      "requestId": "request-action",
+      "extensionId": "labstride.github-workflow",
+      "protocol": {
+        "major": 1,
+        "minor": 0
+      },
+      "family": "action",
+      "method": "start",
+      "input": {
+        "operation": {
+          "schemaVersion": "1.0",
+          "operationId": "op-example-001",
+          "runId": "run-example-001",
+          "workspaceId": "ws-example-001",
+          "actionId": "labstride.github-workflow",
+          "actionVersion": "0.1.0",
+          "configDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+          "source": {
+            "repositoryId": "1001",
+            "repository": "example-owner/example-app",
+            "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "targetId": "application-test",
+          "deadline": "2026-10-21T14:00:00Z",
+          "inputs": {
+            "workflow": "deploy",
+            "environment": "test"
+          },
+          "requestDigest": "efe91cc1901aa249421b4d9c78217fe677b44f4d6e30d752f9dabb0b08bcc22f"
+        }
+      }
+    },
+    {
+      "schemaVersion": "1.0",
+      "requestId": "request-session-provider",
+      "extensionId": "example.session-provider",
+      "protocol": {
+        "major": 1,
+        "minor": 0
+      },
+      "family": "session-provider",
+      "method": "send",
+      "input": {
+        "schemaVersion": "1.0",
+        "operationId": "op-session-001",
+        "workspaceId": "ws-example-001",
+        "providerId": "example.session-provider",
+        "command": "send",
+        "sessionId": "session-example",
+        "expectedLastTurnId": "turn-example",
+        "expectedHumanActivityRevision": 0,
+        "input": {
+          "interaction": "existing-client"
+        }
+      }
+    }
+  ],
+  "results": [
+    {
+      "schemaVersion": "1.0",
+      "requestId": "request-provider",
+      "extensionId": "example.provider",
+      "protocol": {
+        "major": 1,
+        "minor": 0
+      },
+      "family": "provider",
+      "method": "readSnapshot",
+      "outcome": "ok",
+      "result": {
+        "subjectId": "issue-example",
+        "sourceVersion": "revision-1",
+        "actorId": null,
+        "observedAt": "2026-10-21T00:00:00Z",
+        "fields": {}
+      },
+      "error": null
+    },
+    {
+      "schemaVersion": "1.0",
+      "requestId": "request-connector",
+      "extensionId": "example.connector",
+      "protocol": {
+        "major": 1,
+        "minor": 0
+      },
+      "family": "connector",
+      "method": "execute",
+      "outcome": "ok",
+      "result": {
+        "status": "accepted",
+        "handle": "handle-example",
+        "resources": [],
+        "evidenceRefs": [],
+        "outputs": {},
+        "error": null
+      },
+      "error": null
+    },
+    {
+      "schemaVersion": "1.0",
+      "requestId": "request-action",
+      "extensionId": "labstride.github-workflow",
+      "protocol": {
+        "major": 1,
+        "minor": 0
+      },
+      "family": "action",
+      "method": "start",
+      "outcome": "ok",
+      "result": {
+        "status": "accepted",
+        "handle": "handle-example",
+        "resources": [],
+        "evidenceRefs": [],
+        "outputs": {},
+        "error": null
+      },
+      "error": null
+    },
+    {
+      "schemaVersion": "1.0",
+      "requestId": "request-session-provider",
+      "extensionId": "example.session-provider",
+      "protocol": {
+        "major": 1,
+        "minor": 0
+      },
+      "family": "session-provider",
+      "method": "send",
+      "outcome": "ok",
+      "result": {
+        "schemaVersion": "1.0",
+        "workspaceId": "ws-example-001",
+        "providerId": "example.session-provider",
+        "sessionId": "session-example",
+        "state": "ready",
+        "lastTurnId": null,
+        "humanActivityRevision": 0,
+        "effectiveSettings": {},
+        "evidenceRefs": [
+          "evidence-example-001"
+        ]
+      },
+      "error": null
+    }
+  ]
+}
