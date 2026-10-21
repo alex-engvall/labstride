@@ -5,7 +5,7 @@ export type Kind = LifecycleRecord['kind'];
 export type RecordOf<K extends Kind> = Extract<LifecycleRecord, { kind: K }>;
 export type ErrorCode = 'invalid_payload' | 'not_found' | 'identity_conflict' | 'revision_conflict' |
   'invalid_transition' | 'recovery_required' | 'storage_busy' | 'storage_failure' |
-  'migration_failed' | 'unsupported_schema' | 'unsafe_state_path';
+  'migration_failed' | 'unsupported_schema' | 'unsafe_state_path' | 'resource_busy' | 'effect_consumed' | 'effect_blocked';
 
 export class LifecycleError extends Error {
   readonly code: ErrorCode;
@@ -53,7 +53,7 @@ const edges: Partial<Record<Kind, Record<string, readonly string[]>>> = {
     retained: ['ready', 'cleanup_pending', 'error', 'outcome_unknown'],
     cleanup_pending: ['retained', 'deleting', 'error', 'outcome_unknown'], deleting: ['deleted', 'error', 'outcome_unknown'],
   },
-  operation: { prepared: ['claimed', 'cancelled'], claimed: ['running', 'failed', 'cancelled', 'outcome_unknown'],
+  operation: { prepared: ['claimed', 'cancelled', 'outcome_unknown'], claimed: ['running', 'failed', 'cancelled', 'outcome_unknown'],
     running: ['succeeded', 'failed', 'cancelled', 'outcome_unknown'] },
   deployment: { requested: ['running', 'failed'], running: ['verified', 'failed', 'outcome_unknown'] },
   session: { ready: ['busy', 'waiting_human', 'closed', 'failed', 'outcome_unknown'],

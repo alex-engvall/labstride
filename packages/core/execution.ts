@@ -13,3 +13,33 @@ export interface InboxStore {
   pendingEvents(): InboxEntry[];
   scheduleStart(id: string, plan: StartPlan, authorization: AuditContext): string;
 }
+
+export type ExecutionRecord = import('../../contracts/generated/execution-record.ts').ExecutionRecord;
+export type Claim = Extract<ExecutionRecord, { kind: 'claim' }>;
+export type BoundResult = Extract<ExecutionRecord, { kind: 'result' }>;
+export type OperationResult = BoundResult['result'];
+export interface Delivery {
+  id: string; operationId: string | null; projectionId: string | null;
+  state: 'pending' | 'reconcile' | 'blocked' | 'done' | 'superseded' | 'conflict';
+  attempts: number; nextAt: string; lastError: string | null; revision: number;
+}
+export interface RetryPolicy { maxAttempts: number; baseMs: number; capMs: number }
+export const defaultRetryPolicy: RetryPolicy = { maxAttempts: 5, baseMs: 1000, capMs: 60000 };
+export interface ActionAdapter {
+  // The embedding application enrolls reviewed adapters; payloads cannot load code.
+  validate(operation: RecordOf<'operation'>['request']): Promise<void>;
+  start(operation: RecordOf<'operation'>['request'], claim: Claim): Promise<BoundResult>;
+  reconcile(operation: RecordOf<'operation'>['request'], handle: string | null): Promise<BoundResult>;
+}
+export interface ExecutionPort extends InboxStore {
+  get<K extends import('./lifecycle.ts').Kind>(kind: K, id: string): RecordOf<K>;
+  dueOperations(): Delivery[];
+  delivery(id: string): Delivery;
+  claim(operationId: string, executorId: string, attemptId: string): Claim;
+  beginEffect(claim: Claim): void;
+  acceptResult(result: BoundResult, claim: Claim | null, expectedRevision: number, projections?: RecordOf<'projection'>[]): boolean;
+  markUnknown(operationId: string): void;
+  retryRead(id: string, policy: RetryPolicy, random: number): void;
+  block(id: string, code: string): void;
+  operationHandle(operationId: string): string | null;
+}

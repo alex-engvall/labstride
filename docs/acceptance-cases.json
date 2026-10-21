@@ -10,10 +10,11 @@
       "precondition": "Committed intent before crash",
       "action": "Kill the real coordinator after intent commit and before dispatch.",
       "expected": "After restart exactly the same operation is scheduled once.",
-      "status": "not_run",
+      "status": "passed",
       "evidence": [
         "evidence/W01.1-lifecycles-2026-10-21.md",
-        "evidence/W01.1-retention-2026-10-21.md"
+        "evidence/W01.1-retention-2026-10-21.md",
+        "evidence/W01.2-effects-2026-10-21.md"
       ]
     },
     {
@@ -107,7 +108,9 @@
       "action": "Drop the SSH connection after creation before receipt.",
       "expected": "Reconciliation adopts the exact registered directory, not a second one.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W01.2-effects-2026-10-21.md"
+      ]
     },
     {
       "id": "AC10",
@@ -247,7 +250,9 @@
       "action": "Restore before a known external deployment while effects are paused.",
       "expected": "Reconcile actual state before any pending effects resume.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W01.2-effects-2026-10-21.md"
+      ]
     },
     {
       "id": "AC22",
@@ -439,7 +444,8 @@
       "status": "not_run",
       "evidence": [
         "evidence/W01.1-lifecycles-2026-10-21.md",
-        "evidence/W01.1-retention-2026-10-21.md"
+        "evidence/W01.1-retention-2026-10-21.md",
+        "evidence/W01.2-effects-2026-10-21.md"
       ]
     }
   ]

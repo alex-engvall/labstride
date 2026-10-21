@@ -27,7 +27,7 @@ Specification: [06-architecture.md](06-architecture.md).
 
 - Crash tests prove effects are never initiated before their intent is durable.
 
-Verification evidence: evidence/W01.2-inbox-2026-10-21.md
+Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md
 
 Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15).
 
@@ -42,7 +42,7 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 - Concurrent delivery/claim attempts produce one authorized active operation.
 - Duplicate or late session/hook observations cannot create another run, cross a privileged effect boundary or regress a newer generation.
 
-Verification evidence: evidence/W01.2-inbox-2026-10-21.md
+Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md
 
 Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15).
 
@@ -56,7 +56,7 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 - A lost effect response blocks blind repetition and retains enough identity for reconciliation.
 
-Verification evidence: evidence/W01.2-inbox-2026-10-21.md
+Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md
 
 Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15).
 
