@@ -1,0 +1,109 @@
+[
+  {
+    "id": "W00",
+    "title": "Resolve integration and toolchain gates",
+    "depends_on": [],
+    "scope": [
+      "Record supported runtime/dependency versions and licenses.",
+      "Prove personal Project access, workflow OIDC identity and broker reachability with synthetic fixtures."
+    ],
+    "first_verifiable_outcome": "A recorded capability matrix and reproducible discovery commands; no real deploy.",
+    "status": "planned"
+  },
+  {
+    "id": "W01",
+    "title": "Durable coordinator and operation model",
+    "depends_on": [
+      "W00"
+    ],
+    "scope": [
+      "Implement migrations, typed states, intent/outbox and atomic claims.",
+      "Kill/restart a real process around each effect boundary."
+    ],
+    "first_verifiable_outcome": "A queued synthetic operation resumes with its original ID after restart.",
+    "status": "planned"
+  },
+  {
+    "id": "W02",
+    "title": "Configuration and GitHub request/projection adapter",
+    "depends_on": [
+      "W01"
+    ],
+    "scope": [
+      "Compile configurable fields/rules and operator permissions.",
+      "Implement current-state reconciliation and non-destructive projections."
+    ],
+    "first_verifiable_outcome": "A test Project field transition creates exactly one queued run.",
+    "status": "planned"
+  },
+  {
+    "id": "W03",
+    "title": "SSH and independent workspace action",
+    "depends_on": [
+      "W01"
+    ],
+    "scope": [
+      "Implement host enrollment, trusted helper and resource registry.",
+      "Create and reconcile independent source workspaces."
+    ],
+    "first_verifiable_outcome": "Two issues have separate branches/directories and recover after connection loss.",
+    "status": "planned"
+  },
+  {
+    "id": "W04",
+    "title": "Workflow broker, CI and delivery action",
+    "depends_on": [
+      "W02",
+      "W03"
+    ],
+    "scope": [
+      "Implement authenticated claims, receipt validation and dispatch reconciliation.",
+      "Recheck exact-revision CI/merge permissions; invoke own test deploy workflow."
+    ],
+    "first_verifiable_outcome": "A test deployment is tied to the correct source and workflow revisions and verified target.",
+    "status": "planned"
+  },
+  {
+    "id": "W05",
+    "title": "Directory cleanup action",
+    "depends_on": [
+      "W03",
+      "W04"
+    ],
+    "scope": [
+      "Implement policy eligibility, keep/quiescence and dirty/unpushed checks.",
+      "Implement safe target deletion with durable tombstones."
+    ],
+    "first_verifiable_outcome": "One eligible directory is removed; blocked and unrelated paths remain intact.",
+    "status": "planned"
+  },
+  {
+    "id": "W06",
+    "title": "CLI, installation and operations",
+    "depends_on": [
+      "W02",
+      "W03",
+      "W04"
+    ],
+    "scope": [
+      "Implement operator diagnostics and pause/reconcile controls.",
+      "Exercise backup, upgrade and restore with unresolved external effects."
+    ],
+    "first_verifiable_outcome": "A fresh operator can diagnose and recover a run without editing database rows.",
+    "status": "planned"
+  },
+  {
+    "id": "W07",
+    "title": "Public examples and prerelease",
+    "depends_on": [
+      "W05",
+      "W06"
+    ],
+    "scope": [
+      "Validate a clean public install without private extensions.",
+      "Finish DCO, reporting route, contract SDK, examples and release evidence."
+    ],
+    "first_verifiable_outcome": "A versioned prerelease with all P0 acceptance evidence and explicit platform limits.",
+    "status": "planned"
+  }
+]

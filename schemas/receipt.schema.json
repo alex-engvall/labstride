@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Labstride workflow receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "operationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "requestDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "claimId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "fencingNumber": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "executor": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "const": "github-actions"
+        },
+        "repositoryId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workflowPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workflowSha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "runId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runAttempt": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "provider",
+        "repositoryId",
+        "workflowPath",
+        "workflowSha",
+        "runId",
+        "runAttempt"
+      ]
+    },
+    "sourceSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "targetId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "conclusion": {
+      "enum": [
+        "succeeded",
+        "failed",
+        "cancelled",
+        "outcome_unknown"
+      ]
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "state"
+        ]
+      },
+      "minItems": 0
+    },
+    "outputs": {
+      "type": "object"
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "retryClass": {
+          "enum": [
+            "none",
+            "read_only",
+            "pre_effect_transient",
+            "reconcile"
+          ]
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryClass"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "operationId",
+    "requestDigest",
+    "claimId",
+    "fencingNumber",
+    "executor",
+    "sourceSha",
+    "targetId",
+    "conclusion",
+    "observedAt",
+    "resources",
+    "outputs"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "conclusion": {
+            "enum": [
+              "failed",
+              "outcome_unknown"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "error"
+        ]
+      }
+    }
+  ]
+}

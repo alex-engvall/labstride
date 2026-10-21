@@ -1,0 +1,970 @@
+{
+  "schema_version": "1.0",
+  "product": "Labstride",
+  "spec_version": "0.1.0",
+  "requirements": [
+    {
+      "id": "LS-CORE-001",
+      "title": "Persist runs and independent lifecycles",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W01",
+      "depends_on_work_packages": [
+        "W00"
+      ],
+      "spec": "07-lifecycle-and-recovery.md",
+      "acceptance_criteria": [
+        "A coordinator restart retains run, workspace, operation and deployment facts without collapsing them into one phase."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CORE-002",
+      "title": "Commit intent before side effects",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W01",
+      "depends_on_work_packages": [
+        "W00"
+      ],
+      "spec": "06-architecture.md",
+      "acceptance_criteria": [
+        "Crash tests prove effects are never initiated before their intent is durable."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CORE-003",
+      "title": "Deduplicate events and operation claims",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W01",
+      "depends_on_work_packages": [
+        "W00"
+      ],
+      "spec": "07-lifecycle-and-recovery.md",
+      "acceptance_criteria": [
+        "Concurrent delivery/claim attempts produce one authorized active operation."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CORE-004",
+      "title": "Preserve unknown outcomes",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W01",
+      "depends_on_work_packages": [
+        "W00"
+      ],
+      "spec": "07-lifecycle-and-recovery.md",
+      "acceptance_criteria": [
+        "A lost effect response blocks blind repetition and retains enough identity for reconciliation."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CORE-005",
+      "title": "Bound concurrency and preserve separate workspaces",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W01",
+      "depends_on_work_packages": [
+        "W00"
+      ],
+      "spec": "07-lifecycle-and-recovery.md",
+      "acceptance_criteria": [
+        "Two issues run independently within configured limits; a second active run for the same issue is rejected or queued."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CORE-006",
+      "title": "Keep metadata outside disposable directories",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W01",
+      "depends_on_work_packages": [
+        "W00"
+      ],
+      "spec": "06-architecture.md",
+      "acceptance_criteria": [
+        "Deleting a workspace leaves run, merge, deployment and cleanup evidence available."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CORE-007",
+      "title": "Pause and cancel truthfully",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W01",
+      "depends_on_work_packages": [
+        "W00"
+      ],
+      "spec": "07-lifecycle-and-recovery.md",
+      "acceptance_criteria": [
+        "Pause prevents new effects; cancellation reports actual/unknown target state rather than assumed rollback."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CFG-001",
+      "title": "Validate and snapshot configuration",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W02",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "08-configuration-and-rules.md",
+      "acceptance_criteria": [
+        "Unknown keys, missing bindings and incompatible capabilities fail preflight; enabled runs retain a configuration digest."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CFG-002",
+      "title": "Configure arbitrary supported fields and values",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W02",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "08-configuration-and-rules.md",
+      "acceptance_criteria": [
+        "Two installations use different field/option names and IDs without core edits; type mismatches are rejected."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CFG-003",
+      "title": "Evaluate typed rules without code execution",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W02",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "08-configuration-and-rules.md",
+      "acceptance_criteria": [
+        "Shell syntax and executable text remain literal data and cannot select uninstalled operations."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CFG-004",
+      "title": "Use trusted policy revisions",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W02",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "08-configuration-and-rules.md",
+      "acceptance_criteria": [
+        "A PR or issue cannot expand permissions; emergency revocation blocks the next privileged action in an active run."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CFG-005",
+      "title": "Handle conflicting and historical matches",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W02",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "08-configuration-and-rules.md",
+      "acceptance_criteria": [
+        "Conflicting start rules block effects; initial sync does not automatically start historical matching issues."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-GH-001",
+      "title": "Prove provider credential capabilities",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W00",
+      "depends_on_work_packages": [],
+      "spec": "09-github-and-workflow-contract.md",
+      "acceptance_criteria": [
+        "Personal Project and repository operations are verified with the selected minimal credentials or reported unsupported."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-GH-002",
+      "title": "Authorize field-triggered requests",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W02",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "09-github-and-workflow-contract.md",
+      "acceptance_criteria": [
+        "An unapproved actor cannot start a workspace even if a signed event or field edit is received."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-GH-003",
+      "title": "Reconcile missed and duplicate events",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W02",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "09-github-and-workflow-contract.md",
+      "acceptance_criteria": [
+        "The same current request is recovered after a missed event and produces no duplicate run."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-GH-004",
+      "title": "Preserve human edits and unrelated fields",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W02",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "08-configuration-and-rules.md",
+      "acceptance_criteria": [
+        "Projection updates only its mapped field; a concurrent human change creates a visible conflict."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-GH-005",
+      "title": "Separate progress from start intent",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W02",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "08-configuration-and-rules.md",
+      "acceptance_criteria": [
+        "Coordinator status writes and stale events cannot retrigger work."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-GH-006",
+      "title": "Gate delivery on current-revision CI",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W04",
+      "depends_on_work_packages": [
+        "W02",
+        "W03"
+      ],
+      "spec": "09-github-and-workflow-contract.md",
+      "acceptance_criteria": [
+        "Missing/pending/failed required checks block merge; a new head invalidates earlier green evidence."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-GH-007",
+      "title": "Perform authorized merge without bypass",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W04",
+      "depends_on_work_packages": [
+        "W02",
+        "W03"
+      ],
+      "spec": "09-github-and-workflow-contract.md",
+      "acceptance_criteria": [
+        "Merge uses the expected head and records the merge SHA while respecting active repository protections."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-EXT-001",
+      "title": "Version manifests and shared schemas",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W00",
+      "depends_on_work_packages": [],
+      "spec": "10-extensions.md",
+      "acceptance_criteria": [
+        "Unknown major versions fail before loading; optional minor capabilities are negotiated."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-EXT-002",
+      "title": "Support public and private extensions equally",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W07",
+      "depends_on_work_packages": [
+        "W05",
+        "W06"
+      ],
+      "spec": "10-extensions.md",
+      "acceptance_criteria": [
+        "An out-of-repo extension passes conformance without private-name branches in core."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-EXT-003",
+      "title": "Pin installed extension identity",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W01",
+      "depends_on_work_packages": [
+        "W00"
+      ],
+      "spec": "10-extensions.md",
+      "acceptance_criteria": [
+        "Issue content cannot install/upgrade an extension; an integrity mismatch prevents loading."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-EXT-004",
+      "title": "Publish a conformance suite",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W07",
+      "depends_on_work_packages": [
+        "W05",
+        "W06"
+      ],
+      "spec": "10-extensions.md",
+      "acceptance_criteria": [
+        "A fixture extension passes start/observe/cancel/reconcile and malformed-output cases."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-SSH-001",
+      "title": "Verify SSH host identity",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W03",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "18-ssh-workspaces.md",
+      "acceptance_criteria": [
+        "A host-key mismatch fails before any command; explicit enrollment/rotation is documented."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-SSH-002",
+      "title": "Use a fixed helper with structured input",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W03",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "18-ssh-workspaces.md",
+      "acceptance_criteria": [
+        "Host, path and issue metacharacters cannot escape enrolled targets or create injected commands."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-SSH-003",
+      "title": "Create an owned exact-revision checkout",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W03",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "18-ssh-workspaces.md",
+      "acceptance_criteria": [
+        "The workspace contains the requested SHA on a dedicated branch and is recorded in the target registry."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-SSH-004",
+      "title": "Recover creation after lost acknowledgement",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W03",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "18-ssh-workspaces.md",
+      "acceptance_criteria": [
+        "Reconnect adopts the same owned directory; conflicting pre-existing paths are preserved and reported."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-SSH-005",
+      "title": "Keep app runtimes optional and isolated",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W03",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "18-ssh-workspaces.md",
+      "acceptance_criteria": [
+        "Source-only workspace creation works; two runtime recipes have distinct resource namespaces."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-DEP-001",
+      "title": "Invoke repository-owned deployment workflows",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W04",
+      "depends_on_work_packages": [
+        "W02",
+        "W03"
+      ],
+      "spec": "19-deploy-and-recipes.md",
+      "acceptance_criteria": [
+        "Replace the example workflow/target without core changes and record source SHA separately from workflow SHA."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-DEP-002",
+      "title": "Authenticate and atomically claim execution",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W04",
+      "depends_on_work_packages": [
+        "W02",
+        "W03"
+      ],
+      "spec": "09-github-and-workflow-contract.md",
+      "acceptance_criteria": [
+        "Wrong audience/repository/workflow/run identity is denied; only one claim may cross the effect boundary."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-DEP-003",
+      "title": "Validate bound receipts and target health",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W04",
+      "depends_on_work_packages": [
+        "W02",
+        "W03"
+      ],
+      "spec": "09-github-and-workflow-contract.md",
+      "acceptance_criteria": [
+        "Mismatched operation/digest/source/run/attempt results are rejected; required health failure cannot produce verified deploy."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-DEP-004",
+      "title": "Reconcile dispatch and deploy uncertainty",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W04",
+      "depends_on_work_packages": [
+        "W02",
+        "W03"
+      ],
+      "spec": "07-lifecycle-and-recovery.md",
+      "acceptance_criteria": [
+        "Lost dispatch/reply does not produce a second effect; ambiguous runs remain unknown until verified."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-DEP-005",
+      "title": "Serialize environment delivery",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W04",
+      "depends_on_work_packages": [
+        "W02",
+        "W03"
+      ],
+      "spec": "07-lifecycle-and-recovery.md",
+      "acceptance_criteria": [
+        "Older pending work cannot overwrite a newer verified target revision."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-DEP-006",
+      "title": "Report recipe-specific recovery",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W04",
+      "depends_on_work_packages": [
+        "W02",
+        "W03"
+      ],
+      "spec": "19-deploy-and-recipes.md",
+      "acceptance_criteria": [
+        "Rollback is used only for a tested supported recipe; irreversible migration limits remain visible."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CLN-001",
+      "title": "Make cleanup a replaceable action",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W05",
+      "depends_on_work_packages": [
+        "W03",
+        "W04"
+      ],
+      "spec": "20-workspace-cleanup.md",
+      "acceptance_criteria": [
+        "Selecting another cleanup action/trigger changes behavior without editing core; no fixed retention timer exists."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CLN-002",
+      "title": "Require completion and honor keep",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W05",
+      "depends_on_work_packages": [
+        "W03",
+        "W04"
+      ],
+      "spec": "20-workspace-cleanup.md",
+      "acceptance_criteria": [
+        "Failed/unknown deploy, active use or keep blocks cleanup even if the PR is merged."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CLN-003",
+      "title": "Protect unsaved and unpushed work",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W05",
+      "depends_on_work_packages": [
+        "W03",
+        "W04"
+      ],
+      "spec": "20-workspace-cleanup.md",
+      "acceptance_criteria": [
+        "Tracked changes, untracked/undeclared ignored files and unpushed commits preserve the directory."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CLN-004",
+      "title": "Delete only the proven owned directory",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W05",
+      "depends_on_work_packages": [
+        "W03",
+        "W04"
+      ],
+      "spec": "20-workspace-cleanup.md",
+      "acceptance_criteria": [
+        "Root/parent/symlink/mount substitution and foreign paths are rejected before removal."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-CLN-005",
+      "title": "Recover interrupted deletion",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W05",
+      "depends_on_work_packages": [
+        "W03",
+        "W04"
+      ],
+      "spec": "20-workspace-cleanup.md",
+      "acceptance_criteria": [
+        "A durable target tombstone permits reconciliation without deleting another resource; duplicate requests return the original result."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-OPS-001",
+      "title": "Provide installation and diagnostics CLI",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W06",
+      "depends_on_work_packages": [
+        "W02",
+        "W03",
+        "W04"
+      ],
+      "spec": "16-operations-and-cli.md",
+      "acceptance_criteria": [
+        "A fresh operator gets actionable errors for unresolved fields, permissions, SSH and broker routing."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-OPS-002",
+      "title": "Back up and restore consistently",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W06",
+      "depends_on_work_packages": [
+        "W02",
+        "W03",
+        "W04"
+      ],
+      "spec": "16-operations-and-cli.md",
+      "acceptance_criteria": [
+        "Restored state reconciles live external effects before resuming; no stale outbox is blindly replayed."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-OPS-003",
+      "title": "Upgrade while preserving active handles",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W06",
+      "depends_on_work_packages": [
+        "W02",
+        "W03",
+        "W04"
+      ],
+      "spec": "13-pilot-and-release.md",
+      "acceptance_criteria": [
+        "Pinned versions required by active operations survive upgrade, and migration failure leaves recoverable state."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-OPS-004",
+      "title": "Provide redacted operational evidence",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W06",
+      "depends_on_work_packages": [
+        "W02",
+        "W03",
+        "W04"
+      ],
+      "spec": "11-security-and-trust.md",
+      "acceptance_criteria": [
+        "Logs/metrics contain IDs and safe reasons but no credentials, issue bodies or transcripts by default."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-OPS-005",
+      "title": "Apply bounded retention and budgets",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W06",
+      "depends_on_work_packages": [
+        "W02",
+        "W03",
+        "W04"
+      ],
+      "spec": "16-operations-and-cli.md",
+      "acceptance_criteria": [
+        "Configured budgets stop indefinite repairs; retention does not remove unresolved-resource records."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-SEC-001",
+      "title": "Separate policy and workspace identities",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W03",
+      "depends_on_work_packages": [
+        "W01"
+      ],
+      "spec": "11-security-and-trust.md",
+      "acceptance_criteria": [
+        "The coding/workspace user cannot change trusted target ownership or coordinator policy."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-SEC-002",
+      "title": "Separate deploy credentials from coding sessions",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W04",
+      "depends_on_work_packages": [
+        "W02",
+        "W03"
+      ],
+      "spec": "11-security-and-trust.md",
+      "acceptance_criteria": [
+        "Agent prompts/repos lack deployment credentials; the privileged executor rechecks permission before effects."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-SEC-003",
+      "title": "Verify the security-reporting route",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W07",
+      "depends_on_work_packages": [
+        "W05",
+        "W06"
+      ],
+      "spec": "11-security-and-trust.md",
+      "acceptance_criteria": [
+        "A real private vulnerability report path is configured and documented before public release."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-OSS-001",
+      "title": "Ship public functionality without private dependencies",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W07",
+      "depends_on_work_packages": [
+        "W05",
+        "W06"
+      ],
+      "spec": "01-product-and-scope.md",
+      "acceptance_criteria": [
+        "Clean installation can create/deploy/clean a workspace using only public packages."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-OSS-002",
+      "title": "Apply Apache-2.0 and DCO",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W07",
+      "depends_on_work_packages": [
+        "W05",
+        "W06"
+      ],
+      "spec": "17-sources.md",
+      "acceptance_criteria": [
+        "License, attribution and DCO contribution checks exist; external copyright is not misrepresented as assigned."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-OSS-003",
+      "title": "Publish honest examples and support scope",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W07",
+      "depends_on_work_packages": [
+        "W05",
+        "W06"
+      ],
+      "spec": "13-pilot-and-release.md",
+      "acceptance_criteria": [
+        "Laravel example and Linux support have evidence or explicit illustrative/unverified labels."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-OSS-004",
+      "title": "Keep docs and implementation traceable",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W07",
+      "depends_on_work_packages": [
+        "W05",
+        "W06"
+      ],
+      "spec": "12-test-and-quality-plan.md",
+      "acceptance_criteria": [
+        "Every completed requirement links acceptance evidence; generated checklist matches backlog."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    },
+    {
+      "id": "LS-EXT-005",
+      "title": "Coordinate provider-neutral sessions",
+      "phase": "MVP",
+      "priority": "P0",
+      "status": "planned",
+      "owner_role": "maintainer",
+      "work_package": "W01",
+      "depends_on_work_packages": [
+        "W00"
+      ],
+      "spec": "22-api-and-schema-reference.md",
+      "acceptance_criteria": [
+        "Start/resume/observe/send/interrupt/close preserve provider identity, reject stale human/turn revisions and explicitly report missing atomic backend guards."
+      ],
+      "implementation_pr": null,
+      "verification_evidence": []
+    }
+  ]
+}

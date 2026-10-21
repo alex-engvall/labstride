@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Labstride operation request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "operationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "runId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "workspaceId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "actionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actionVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "configDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "requestDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repositoryId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      },
+      "required": [
+        "repositoryId",
+        "repository",
+        "sha"
+      ]
+    },
+    "targetId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "inputs": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "operationId",
+    "runId",
+    "workspaceId",
+    "actionId",
+    "actionVersion",
+    "configDigest",
+    "requestDigest",
+    "source",
+    "targetId",
+    "deadline",
+    "inputs"
+  ]
+}

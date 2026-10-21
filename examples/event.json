@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "eventId": "evt-example-001",
+  "installationId": "example-installation",
+  "provider": "github",
+  "kind": "field.changed",
+  "origin": "human",
+  "externalId": "delivery-example-001",
+  "subjectId": "issue-1001",
+  "actorId": "user-1001",
+  "occurredAt": "2026-10-21T12:00:00Z",
+  "observedAt": "2026-10-21T12:00:05Z",
+  "sourceVersion": "snapshot-001",
+  "facts": {
+    "field": "request",
+    "from": "idle",
+    "to": "start"
+  }
+}

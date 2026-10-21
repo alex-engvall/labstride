@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Labstride session command v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "operationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "workspaceId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "command": {
+      "enum": [
+        "start",
+        "resume",
+        "observe",
+        "send",
+        "interrupt",
+        "close"
+      ]
+    },
+    "sessionId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "expectedLastTurnId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "expectedHumanActivityRevision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "input": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "operationId",
+    "workspaceId",
+    "providerId",
+    "command",
+    "sessionId",
+    "expectedLastTurnId",
+    "expectedHumanActivityRevision",
+    "input"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "command": {
+            "const": "start"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "sessionId": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}

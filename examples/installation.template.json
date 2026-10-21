@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "1.0",
+  "installationId": "example-installation",
+  "enabled": false,
+  "broker": {
+    "url": "https://labstride.example.invalid",
+    "oidcAudience": "labstride:example-installation"
+  },
+  "github": {
+    "repositories": [
+      "example-owner/example-app"
+    ],
+    "actorIds": [
+      "REPLACE_OPERATOR_ID"
+    ],
+    "credentialRef": "secret:github-app",
+    "projectCredentialRef": "secret:project-access",
+    "pollIntervalSeconds": 60
+  },
+  "fields": {
+    "request": {
+      "source": "project_v2",
+      "scopeId": "REPLACE_PROJECT_ID",
+      "fieldId": "REPLACE_REQUEST_FIELD_ID",
+      "type": "single-select",
+      "options": {
+        "start": "REPLACE_START_OPTION_ID",
+        "pause": "REPLACE_PAUSE_OPTION_ID"
+      }
+    },
+    "status": {
+      "source": "project_v2",
+      "scopeId": "REPLACE_PROJECT_ID",
+      "fieldId": "REPLACE_STATUS_FIELD_ID",
+      "type": "single-select",
+      "options": {
+        "preparing": "REPLACE_PREPARING_OPTION_ID",
+        "merged": "REPLACE_MERGED_OPTION_ID"
+      }
+    },
+    "keep": {
+      "source": "project_v2",
+      "scopeId": "REPLACE_PROJECT_ID",
+      "fieldId": "REPLACE_KEEP_FIELD_ID",
+      "type": "single-select",
+      "options": {
+        "retain": "REPLACE_KEEP_OPTION_ID",
+        "release": "REPLACE_RELEASE_OPTION_ID"
+      }
+    }
+  },
+  "targets": {
+    "development": {
+      "connector": "labstride.ssh",
+      "configuration": {
+        "host": "ssh.example.invalid",
+        "port": 22,
+        "user": "REPLACE_USER",
+        "root": "REPLACE_OWNED_ROOT",
+        "hostKeyRef": "trust:development-host",
+        "credentialRef": "secret:development-ssh"
+      }
+    },
+    "application-test": {
+      "connector": "labstride.github-workflow.connector",
+      "configuration": {
+        "repository": "example-owner/example-app",
+        "workflowPath": ".github/workflows/deploy.yml",
+        "workflowRef": "REPLACE_TRUSTED_REF",
+        "workflowSha": "REPLACE_TRUSTED_SHA",
+        "environment": "test"
+      }
+    }
+  },
+  "extensions": [
+    {
+      "id": "labstride.github",
+      "version": "0.1.0",
+      "integrity": "REPLACE_ARTIFACT_SHA256"
+    },
+    {
+      "id": "labstride.ssh",
+      "version": "0.1.0",
+      "integrity": "REPLACE_ARTIFACT_SHA256"
+    },
+    {
+      "id": "labstride.github-workflow",
+      "version": "0.1.0",
+      "integrity": "REPLACE_ARTIFACT_SHA256"
+    },
+    {
+      "id": "labstride.workspace-create",
+      "version": "0.1.0",
+      "integrity": "REPLACE_ARTIFACT_SHA256"
+    },
+    {
+      "id": "labstride.workspace-delete",
+      "version": "0.1.0",
+      "integrity": "REPLACE_ARTIFACT_SHA256"
+    },
+    {
+      "id": "labstride.github-workflow.connector",
+      "version": "0.1.0",
+      "integrity": "REPLACE_ARTIFACT_SHA256"
+    }
+  ],
+  "limits": {
+    "activeRuns": 2,
+    "perIssue": 1,
+    "perDeploymentTarget": 1,
+    "metadataRetentionDays": 90
+  },
+  "rules": [
+    {
+      "id": "start",
+      "event": "field.changed",
+      "condition": {
+        "field": "request",
+        "op": "changedTo",
+        "value": "start"
+      },
+      "workflow": "prepare"
+    },
+    {
+      "id": "cleanup",
+      "event": "run.completed",
+      "condition": {
+        "field": "keep",
+        "op": "equals",
+        "value": "release"
+      },
+      "workflow": "cleanup"
+    }
+  ],
+  "workflows": {
+    "prepare": [
+      {
+        "id": "checkout",
+        "action": "labstride.workspace-create",
+        "inputs": {
+          "target": "development",
+          "source": "context.source"
+        }
+      }
+    ],
+    "deploy": [
+      {
+        "id": "release",
+        "action": "labstride.github-workflow",
+        "inputs": {
+          "target": "application-test",
+          "source": "context.mergeSha"
+        }
+      }
+    ],
+    "cleanup": [
+      {
+        "id": "delete-directory",
+        "action": "labstride.workspace-delete",
+        "inputs": {
+          "workspace": "context.workspaceId"
+        }
+      }
+    ]
+  },
+  "projections": [
+    {
+      "fact": "workspace.preparing",
+      "field": "status",
+      "value": "preparing"
+    },
+    {
+      "fact": "pr.merged",
+      "field": "status",
+      "value": "merged"
+    }
+  ],
+  "extensionConfiguration": {},
+  "controls": {
+    "keep": {
+      "field": "keep",
+      "enabledValues": [
+        "retain"
+      ],
+      "disabledValues": [
+        "release"
+      ]
+    },
+    "pause": {
+      "field": "request",
+      "enabledValues": [
+        "pause"
+      ],
+      "disabledValues": [
+        "start"
+      ]
+    }
+  }
+}

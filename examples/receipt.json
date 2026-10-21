@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-example-001",
+  "requestDigest": "efe91cc1901aa249421b4d9c78217fe677b44f4d6e30d752f9dabb0b08bcc22f",
+  "claimId": "claim-example-001",
+  "fencingNumber": 1,
+  "executor": {
+    "provider": "github-actions",
+    "repositoryId": "1001",
+    "workflowPath": ".github/workflows/deploy.yml",
+    "workflowSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "runId": "2001",
+    "runAttempt": 1
+  },
+  "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "targetId": "application-test",
+  "conclusion": "succeeded",
+  "observedAt": "2026-10-21T13:00:00Z",
+  "resources": [
+    {
+      "type": "release",
+      "id": "release-example-001",
+      "state": "healthy"
+    }
+  ],
+  "outputs": {
+    "deployedSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "health": "passed"
+  }
+}

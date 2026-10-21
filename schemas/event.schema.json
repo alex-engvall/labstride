@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Labstride normalized event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "eventId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "installationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "origin": {
+      "enum": [
+        "human",
+        "provider",
+        "coordinator",
+        "extension"
+      ]
+    },
+    "externalId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subjectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actorId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sourceVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "facts": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "installationId",
+    "provider",
+    "kind",
+    "origin",
+    "externalId",
+    "subjectId",
+    "actorId",
+    "occurredAt",
+    "observedAt",
+    "sourceVersion",
+    "facts"
+  ]
+}
