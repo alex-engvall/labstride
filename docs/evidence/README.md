@@ -4,7 +4,7 @@ Recorded 2026-10-21 for [issue #11](https://github.com/alex-engvall/labstride/is
 
 Issue completion and runtime acceptance are separate tracking levels. LS-GH-001 remains `in_progress` while its cross-package acceptance coverage is outstanding; W00 remains `in_progress` because other integration/toolchain gates remain. The application runtime is not implemented. The historical probe reports retain their observed results and limits; their requirement-level status does not require reopening #11.
 
-For W00.3 / #13, see the separate [toolchain/session capability matrix and discovery closeout](W00.3-discovery-closeout-2026-10-21.md). It completes bounded discovery and the reviewed contract foundation with an explicit initial hooks-disabled profile, without marking runtime acceptance passed or recording an issue closure before merge. The original W00.1 evidence below remains scoped to GitHub.
+For W00.3 / #13, see the separate [toolchain/session capability matrix and discovery closeout](W00.3-discovery-closeout-2026-10-21.md). It records bounded discovery, the foundation merged in PR #41, #13's completed closure and an explicit initial hooks-disabled profile; runtime acceptance is not marked passed. The original W00.1 evidence below remains scoped to GitHub.
 
 ## Verified provider capabilities and limits
 

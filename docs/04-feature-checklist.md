@@ -286,7 +286,7 @@ Specification: [10-extensions.md](10-extensions.md).
 - Unknown major versions fail before loading; optional minor capabilities are negotiated.
 - Define and validate any provider hook normalization/acknowledgement envelope before enabling it; raw hook payloads are not implicitly trusted Labstride events.
 
-Verification evidence: [Partial W00.3 toolchain/session discovery; contract and format-validation gaps](evidence/W00.3-toolchain-session-discovery-2026-10-21.md), [Reviewed contract/hook fixtures, host-profile gates, safe type generation and enforced formats](evidence/W00.3-contract-fixtures-2026-10-21.md), [Completed W00.3 discovery (#13): capability matrix, hooks-disabled profile and owned runtime handoff; closure after foundation/closeout merge](evidence/W00.3-discovery-closeout-2026-10-21.md)
+Verification evidence: [Partial W00.3 toolchain/session discovery; contract and format-validation gaps](evidence/W00.3-toolchain-session-discovery-2026-10-21.md), [Reviewed contract/hook fixtures, host-profile gates, safe type generation and enforced formats](evidence/W00.3-contract-fixtures-2026-10-21.md), [Completed W00.3 discovery (#13 closed; PR #41 merged): capability matrix, hooks-disabled profile and W01.4/runtime handoff](evidence/W00.3-discovery-closeout-2026-10-21.md)
 
 Implementation issue: [#13](https://github.com/alex-engvall/labstride/issues/13).
 

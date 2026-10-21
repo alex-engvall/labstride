@@ -20,7 +20,7 @@ Tracker: [#3](https://github.com/alex-engvall/labstride/issues/3).
 
 **Discovery closeout:** W00.1 / [#11](https://github.com/alex-engvall/labstride/issues/11) is completed; [PR #39](https://github.com/alex-engvall/labstride/pull/39) merged its scoped provider evidence. See the [capability and handoff matrix](evidence/README.md). W00 remains `in_progress` for its other gates. LS-GH-001 remains `in_progress` for cross-package acceptance; the unrun runtime cases do not keep discovery #11 open.
 
-**Toolchain/contract closeout:** W00.3 / [#13](https://github.com/alex-engvall/labstride/issues/13) discovery is complete for the examined environment and reviewed [PR #41](https://github.com/alex-engvall/labstride/pull/41) foundation. The [capability matrix and handoff](evidence/W00.3-discovery-closeout-2026-10-21.md) distinguish operator verification, backend reads, executable fixtures and the adopted initial hooks-disabled profile. Close #13 once the foundation and closeout reach the default branch; no merge/closure is asserted here. LS-EXT-001 remains `in_progress`; AC22/AC35/AC36 stay `not_run`. Missing atomic guards block dependent effects, not bounded discovery completion. W00 still owns its other OIDC/broker gates.
+**Toolchain/contract closeout:** W00.3 / [#13](https://github.com/alex-engvall/labstride/issues/13) discovery is complete for the examined environment; #13 is closed as completed and [PR #41](https://github.com/alex-engvall/labstride/pull/41) merged the foundation. This documentation follow-up records the [capability matrix and handoff](evidence/W00.3-discovery-closeout-2026-10-21.md), distinguishing operator verification, backend reads, executable fixtures and the adopted initial hooks-disabled profile. LS-EXT-001 remains `in_progress`; AC22/AC31/AC35/AC36 stay `not_run`. Missing atomic guards block dependent effects and remain W01.4 work; they do not require reopening bounded discovery. W00 still owns its other OIDC/broker gates.
 
 ## W01 — Durable coordinator and operation model
 
@@ -32,7 +32,7 @@ Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).
 - Kill/restart a real process around each effect boundary.
 - Apply the completed W00.1 discovery to atomic observation/checkpoint and intent/outbox persistence; preserve original operation identities and uncertain outcomes across actual coordinator crashes.
 - Persist session observation and projection identity; prove missing/duplicate/late hook recovery and outbox retries without stale human-state overwrites.
-- Apply W00.3's pinned loading/profile contracts and session capability limits; preserve handle ownership, reject effects requiring unsupported atomic guards and complete production AC22 coverage with W07.
+- In W01.4 / #17, apply W00.3's pinned loading/profile contracts and session capability limits; preserve handle ownership, reject effects requiring unsupported atomic guards and complete AC31 plus production AC22 coverage with W07. Define/validate provider-specific question/answer payloads and verify actual client correlation/recovery.
 
 **First verifiable outcome:** A queued synthetic operation resumes with its original ID after restart.
 
@@ -104,7 +104,7 @@ Tracker: [#9](https://github.com/alex-engvall/labstride/issues/9).
 - Exercise backup, upgrade and restore with unresolved external effects.
 - Complete W00.1's runtime handoff through Doctor diagnostics for missing capabilities, invalid cursors, expired credentials and unknown outcomes; verify AC29 using the owning GitHub/broker/host slices.
 - Package the CLI and single service together; diagnose optional hook/session compatibility without a hosting/control-panel dependency.
-- Apply W00.3's capability matrix: diagnose hooks-disabled, missing/untrusted hooks and unsupported atomic guards. Own the public session-provider enablement/continuity gates with W01; manual client verification and fixture success do not pass AC35/AC36.
+- Apply W00.3's capability matrix: diagnose hooks-disabled, missing/untrusted hooks and unsupported atomic guards. Support W01.4 / #17's session-provider enablement/continuity gates operationally; manual client verification and fixture success do not pass AC31/AC35/AC36.
 
 **First verifiable outcome:** A fresh operator can diagnose and recover a run without editing database rows.
 
