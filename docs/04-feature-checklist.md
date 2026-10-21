@@ -13,7 +13,7 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 - A coordinator restart retains run, workspace, operation and deployment facts without collapsing them into one phase.
 - Recovery retains the original issue generation, workspace and enrolled session identities; GitHub remains the task/human-decision interface.
 
-Verification evidence: evidence/W01.1-lifecycles-2026-10-21.md
+Verification evidence: evidence/W01.1-lifecycles-2026-10-21.md, evidence/W01.1-retention-2026-10-21.md
 
 Implementation issue: [#14](https://github.com/alex-engvall/labstride/issues/14).
 
@@ -78,13 +78,13 @@ Implementation issue: [#16](https://github.com/alex-engvall/labstride/issues/16)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W01 |
+| MVP | P0 | implemented | W01 |
 
 Specification: [06-architecture.md](06-architecture.md).
 
 - Deleting a workspace leaves run, merge, deployment and cleanup evidence available.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W01.1-retention-2026-10-21.md
 
 Implementation issue: [#14](https://github.com/alex-engvall/labstride/issues/14).
 

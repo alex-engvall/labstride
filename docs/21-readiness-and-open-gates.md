@@ -27,3 +27,5 @@ The [W00.3 closeout](evidence/W00.3-discovery-closeout-2026-10-21.md) similarly 
 Adopted technical design defaults may change through an ADR backed by evidence. The accepted product decisions must not be silently weakened to pass a gate. In particular, replacing the existing interactive client with a different experience is not an acceptable unnoticed compatibility workaround.
 
 The [hybrid decision](adr/0006-hybrid-coordination.md) is accepted design, not evidence that these probes passed. Preserve the original full MVP criteria. Tool installation, successful login, Project reads or a documented hook event do not establish the integrated continuity guarantee.
+
+W01.1 now supplies the [application persistence and retention foundation](28-durable-coordinator-store.md), with [process](evidence/W01.1-lifecycles-2026-10-21.md) and [filesystem/upgrade](evidence/W01.1-retention-2026-10-21.md) evidence. Remaining gates above refer to integrated effect authorization, execution, session/provider recovery and installation behavior. LS-CORE-001/LS-CORE-006 are implemented, not verified; AC01/AC20/AC36 remain `not_run`.

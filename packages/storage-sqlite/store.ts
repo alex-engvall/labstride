@@ -1,17 +1,19 @@
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, realpathSync } from 'node:fs';
-import { isAbsolute, join } from 'node:path';
+import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { checkChange, LifecycleError } from '../core/lifecycle.ts';
 import type { AuditContext, AuditRecord, Change, Clock, IdentityProvider, Kind, LifecycleRecord, RecordOf, RecoverySnapshot, StateStore } from '../core/lifecycle.ts';
 import { migrate } from './migrations.ts';
 import { validated } from './validation.ts';
+import { assertDatabaseFiles, assertSeparate, canonicalPath } from './paths.ts';
 
 const tables: Record<Kind, string> = {
   installation: 'installations', request: 'requests', run: 'runs', workspace: 'workspaces', operation: 'operations',
   deployment: 'deployments', session: 'sessions', outbox: 'outbox', projection: 'projections',
+  resource: 'resources', evidence: 'evidence',
 };
-export interface StoreDependencies { clock?: Clock; identities?: IdentityProvider }
+export interface StoreDependencies { clock?: Clock; identities?: IdentityProvider; localWorkspaceRoots?: readonly string[] }
 function classify(error: unknown): LifecycleError {
   if (error instanceof LifecycleError) return error;
   const code = (error as { errcode?: number }).errcode;
@@ -29,15 +31,26 @@ export class SqliteStore implements StateStore {
   constructor(dataDir: string, dependencies: StoreDependencies = {}) {
     this.#clock = dependencies.clock ?? { now: () => new Date().toISOString() };
     this.#identities = dependencies.identities ?? { next: randomUUID };
-    if (!isAbsolute(dataDir)) throw new LifecycleError('unsafe_state_path');
-    mkdirSync(dataDir, { recursive: true, mode: 0o700 });
-    this.dataDir = realpathSync(dataDir);
-    this.#db = new DatabaseSync(join(this.dataDir, 'state.sqlite'), { timeout: 5000 });
+    const canonical = canonicalPath(dataDir);
+    for (const root of dependencies.localWorkspaceRoots ?? []) assertSeparate(canonical, root);
+    try {
+      mkdirSync(dataDir, { recursive: true, mode: 0o700 });
+      this.dataDir = realpathSync(dataDir);
+      assertDatabaseFiles(this.dataDir);
+    } catch { throw new LifecycleError('unsafe_state_path'); }
+    try { this.#db = new DatabaseSync(join(this.dataDir, 'state.sqlite'), { timeout: 5000 }); }
+    catch (error) { throw classify(error); }
     try {
       this.#db.exec('PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL');
       migrate(this.#db);
       const mode = this.#db.prepare('PRAGMA journal_mode=WAL').get();
       if (mode!.journal_mode !== 'wal') throw new LifecycleError('storage_failure');
+      // Recheck recorded local paths on every boot, including changed symlink aliases.
+      for (const { payload } of this.#db.prepare('SELECT payload FROM workspaces').all()) {
+        const record = validated('lifecycle-record', JSON.parse(String(payload)));
+        if (record.kind !== 'workspace') throw new LifecycleError('storage_failure');
+        if (record.localPath !== null) assertSeparate(this.dataDir, record.localPath);
+      }
     } catch (error) { this.#db.close(); throw classify(error); }
   }
 
@@ -50,9 +63,11 @@ export class SqliteStore implements StateStore {
     return record as RecordOf<K>;
   }
   get<K extends Kind>(kind: K, id: string): RecordOf<K> {
-    const record = this.#read(kind, id);
-    if (!record) throw new LifecycleError('not_found');
-    return record;
+    try {
+      const record = this.#read(kind, id);
+      if (!record) throw new LifecycleError('not_found');
+      return record;
+    } catch (error) { throw classify(error); }
   }
 
   commit(input: Change[], context: AuditContext): void {
@@ -73,9 +88,9 @@ export class SqliteStore implements StateStore {
           const record = change.record;
           const previous = this.#read(record.kind, record.id);
           checkChange(previous, change);
-          if (change.recovery && context.evidenceRefs.length === 0) throw new LifecycleError('recovery_required');
+          if (change.recovery && audits[index].evidenceRefs.length === 0) throw new LifecycleError('recovery_required');
           if ('state' in record && ['completed', 'succeeded', 'verified', 'deleted'].includes(record.state) &&
-            context.evidenceRefs.length === 0) throw new LifecycleError('invalid_payload');
+            audits[index].evidenceRefs.length === 0) throw new LifecycleError('invalid_payload');
           this.#checkReferences(record);
           const table = tables[record.kind];
           if (previous) {
@@ -96,6 +111,7 @@ export class SqliteStore implements StateStore {
   }
 
   #checkReferences(record: LifecycleRecord): void {
+    if (record.kind === 'workspace' && record.localPath !== null) assertSeparate(this.dataDir, record.localPath);
     if (record.kind === 'run') {
       const request = this.get('request', record.requestId);
       if (record.configRevision !== this.get('installation', request.installationId).configRevision)
@@ -121,6 +137,20 @@ export class SqliteStore implements StateStore {
       if (record.generation !== request.generation || record.providerId !== request.providerId ||
         record.subjectId !== request.issueId) throw new LifecycleError('identity_conflict');
     }
+    if (record.kind === 'resource') {
+      const workspace = this.get('workspace', record.workspaceId);
+      if (record.ownershipRef !== workspace.ownershipRef) throw new LifecycleError('identity_conflict');
+    }
+    if (record.kind === 'evidence') {
+      const operation = this.get('operation', record.operationId);
+      if ((record.sourceSha !== null && record.sourceSha !== operation.request.source.sha) ||
+        (record.targetId !== null && record.targetId !== operation.request.targetId)) throw new LifecycleError('identity_conflict');
+      if (record.correctsId !== null) {
+        const original = this.get('evidence', record.correctsId);
+        if (original.runId !== record.runId || original.workspaceId !== record.workspaceId || original.subjectId !== record.subjectId)
+          throw new LifecycleError('identity_conflict');
+      }
+    }
   }
 
   #records(): LifecycleRecord[] {
@@ -143,19 +173,19 @@ export class SqliteStore implements StateStore {
   history(runId: string): { records: LifecycleRecord[]; audit: AuditRecord[] } {
     this.#db.exec('BEGIN');
     try {
-    this.get('run', runId);
-    const snapshot = { records: this.#records() };
-    const run = snapshot.records.find(record => record.kind === 'run' && record.id === runId) as RecordOf<'run'>;
-    const request = this.get('request', run.requestId);
-    const records = snapshot.records.filter(record => ('runId' in record && record.runId === runId) ||
-      (record.kind === 'run' && record.id === runId) || (record.kind === 'request' && record.id === request.id) ||
-      (record.kind === 'installation' && record.id === request.installationId));
-    const identities = new Set(records.map(record => `${record.kind}:${record.id}`));
-    const audit = this.#db.prepare('SELECT payload FROM audit ORDER BY rowid').all()
-      .map(row => validated('lifecycle-audit', JSON.parse(String(row.payload))))
-      .filter(item => identities.has(`${item.record.kind}:${item.record.id}`));
-    this.#db.exec('COMMIT');
-    return { records, audit };
+      this.get('run', runId);
+      const snapshot = { records: this.#records() };
+      const run = snapshot.records.find(record => record.kind === 'run' && record.id === runId) as RecordOf<'run'>;
+      const request = this.get('request', run.requestId);
+      const records = snapshot.records.filter(record => ('runId' in record && record.runId === runId) ||
+        (record.kind === 'run' && record.id === runId) || (record.kind === 'request' && record.id === request.id) ||
+        (record.kind === 'installation' && record.id === request.installationId));
+      const identities = new Set(records.map(record => `${record.kind}:${record.id}`));
+      const audit = this.#db.prepare('SELECT payload FROM audit ORDER BY rowid').all()
+        .map(row => validated('lifecycle-audit', JSON.parse(String(row.payload))))
+        .filter(item => identities.has(`${item.record.kind}:${item.record.id}`));
+      this.#db.exec('COMMIT');
+      return { records, audit };
     } catch (error) { this.#db.exec('ROLLBACK'); throw classify(error); }
   }
   close(): void { this.#db.close(); }

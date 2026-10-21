@@ -19,9 +19,10 @@
         "A coordinator restart retains run, workspace, operation and deployment facts without collapsing them into one phase.",
         "Recovery retains the original issue generation, workspace and enrolled session identities; GitHub remains the task/human-decision interface."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/44",
       "verification_evidence": [
-        "evidence/W01.1-lifecycles-2026-10-21.md"
+        "evidence/W01.1-lifecycles-2026-10-21.md",
+        "evidence/W01.1-retention-2026-10-21.md"
       ],
       "github_issue": 14,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/14"
@@ -112,7 +113,7 @@
       "title": "Keep metadata outside disposable directories",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W01",
       "depends_on_work_packages": [
@@ -122,8 +123,10 @@
       "acceptance_criteria": [
         "Deleting a workspace leaves run, merge, deployment and cleanup evidence available."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/45",
+      "verification_evidence": [
+        "evidence/W01.1-retention-2026-10-21.md"
+      ],
       "github_issue": 14,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/14"
     },

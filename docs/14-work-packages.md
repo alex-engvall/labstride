@@ -40,7 +40,7 @@ Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).
 
 **Requirements:** LS-CORE-001, LS-CORE-002, LS-CORE-003, LS-CORE-004, LS-CORE-005, LS-CORE-006, LS-CORE-007, LS-EXT-003, LS-EXT-005
 
-**W01.1 progress:** The first [durable lifecycle slice](28-durable-coordinator-store.md) has [process-crash and revision-conflict evidence](evidence/W01.1-lifecycles-2026-10-21.md). LS-CORE-001 is implemented locally; resource/evidence retention is the next #14 slice. AC01/AC20/AC36 remain integration gates and W01 stays in progress.
+**W01.1 progress:** The first [durable lifecycle slice](28-durable-coordinator-store.md) has [process-crash and revision-conflict evidence](evidence/W01.1-lifecycles-2026-10-21.md). LS-CORE-001 and LS-CORE-006 are implemented locally with [resource/evidence retention coverage](evidence/W01.1-retention-2026-10-21.md). #14 closes after its two scoped PRs merge. AC01/AC20/AC36 remain integration gates and W01 stays in progress.
 
 ## W02 — Configuration and GitHub request/projection adapter
 
