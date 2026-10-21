@@ -4,6 +4,8 @@ Recorded 2026-10-21 for [issue #11](https://github.com/alex-engvall/labstride/is
 
 Issue completion and runtime acceptance are separate tracking levels. LS-GH-001 remains `in_progress` while its cross-package acceptance coverage is outstanding; W00 remains `in_progress` because other integration/toolchain gates remain. The application runtime is not implemented. The historical probe reports retain their observed results and limits; their requirement-level status does not require reopening #11.
 
+For W00.3 / #13, see the separate [toolchain/session capability matrix and discovery closeout](W00.3-discovery-closeout-2026-10-21.md). It records bounded discovery, the foundation merged in PR #41, #13's completed closure and an explicit initial hooks-disabled profile; runtime acceptance is not marked passed. The original W00.1 evidence below remains scoped to GitHub.
+
 ## Verified provider capabilities and limits
 
 The operator selected public `alex-engvall/fortnox-mcp` as the sole dedicated App test repository and personal Project #8 as the Project target. Those are evidence fixtures, not product defaults. In the dedicated-credential probes, repository effects used downscoped App installation tokens and Project effects used a separate user PAT reporting only `project`. The earlier broad-credential discovery is recorded separately below.
@@ -36,6 +38,6 @@ W01 owns durable state and effect recovery; W02 supplies the provider observatio
 
 For CI evidence, W01 must retain validated identities/receipts, W02 must reconcile provider facts without inventing missing associations, and W06 must expose unresolved evidence to the operator. W04 still owns current-revision merge/delivery gates. Likewise, recovered Status events do not pass W02's start-rule authorization, ordering or generation gate. Workspace/session effects still require W03 and the enrolled session adapter; the W01 handoff does not implement those integrations.
 
-Other W00/W04 gates also remain: runtime/dependency inventory, actual client/session compatibility, workflow OIDC/broker reachability and later authorized dispatch/delivery behavior. The three green fortnox-mcp workflows verify the App PR trigger path only. They do not verify these Labstride features.
+Other W00/W04 gates also remain: workflow OIDC/broker reachability and later authorized dispatch/delivery behavior. W00.3 records the selected toolchain, contract fixtures and client capability limits; actual installed-runtime qualification and session continuity remain with their [implementation owners](W00.3-discovery-closeout-2026-10-21.md). The three green fortnox-mcp workflows verify the App PR trigger path only. They do not verify these Labstride features.
 
 **Acceptance status:** AC02, AC05, AC29, AC35 and AC36 remain `not_run`. No real Labstride run, enrolled workspace/session, Doctor or integrated recovery scenario was exercised. See [open gates](../21-readiness-and-open-gates.md) and the canonical [backlog](../backlog.json). These implementation/integration gates continue in their owning packages and do not block completion of discovery #11. AC29 remains to be exercised through W06 using W01/W02 capabilities and the required broker/host slices; AC35/AC36 require the integrated coordinator, GitHub, workspace and session-provider behavior.

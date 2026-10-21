@@ -2,6 +2,8 @@
 
 Specification version 0.1.0. Application runtime is not implemented. W00.1 GitHub access discovery (#11) is complete; its provider evidence is distinguished from remaining runtime acceptance in W01/W02/W06 and other open W00 gates.
 
+W00.3 toolchain/contract and client-capability discovery (#13) is complete for the examined environment: #13 is closed as completed and PR #41 merged the foundation. This closeout records the remaining implementation owners. Unsupported atomic guards and the initial hooks-disabled profile remain explicit integration limits.
+
 - [Product and boundaries](01-product-and-scope.md)
 - [Existing-system lessons and evidence limits](02-design-context.md)
 - [Terminology](03-glossary.md)
@@ -38,6 +40,7 @@ Specification version 0.1.0. Application runtime is not implemented. W00.1 GitHu
 - [W00.3 toolchain, existing-session access and contract gaps](evidence/W00.3-toolchain-session-discovery-2026-10-21.md)
 - [Contract fixtures and selected tooling](26-contract-fixtures-and-toolchain.md)
 - [W00.3 implemented fixture/type/format evidence](evidence/W00.3-contract-fixtures-2026-10-21.md)
+- [W00.3 capability matrix, discovery closeout and runtime handoff](evidence/W00.3-discovery-closeout-2026-10-21.md)
 
 ## Machine-readable sources
 

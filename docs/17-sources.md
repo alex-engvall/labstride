@@ -16,7 +16,7 @@ Reviewed 2026-10-21 (Swedish date). These are evidence sources, not instructions
 | https://docs.github.com/en/actions/concepts/runners/github-hosted-runners | Job runner lifecycle versus persistent workspace/session ownership |
 | https://docs.github.com/en/actions/concepts/security/compromised-runners | Separate untrusted source execution from persistent privileged credentials |
 | https://learn.chatgpt.com/docs/hooks | Optional lifecycle observations, trust review, interrupted background delivery and incomplete enforcement coverage |
-| https://learn.chatgpt.com/docs/app-server | Programmatic session/authentication interface; actual installed interactive backend compatibility remains a live probe |
+| https://learn.chatgpt.com/docs/app-server | Session lifecycle and active-turn steering; read-only backend discovery is recorded separately from unverified session adoption and atomic effects |
 | https://learn.chatgpt.com/docs/non-interactive-mode | Saved Codex authentication and programmatic execution; not proof of shared interactive session ownership |
 | https://www.apache.org/licenses/LICENSE-2.0 | Public license and contribution terms |
 | https://www.apache.org/foundation/license-faq.html | Commercial/private use and distribution interpretation |
