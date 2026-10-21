@@ -39,9 +39,11 @@ flowchart TD
 
 The diagram shows responsibilities, not mandatory network paths. A workflow may deploy to a cloud service while its related source workspace resides on SSH.
 
-## Proposed package layout
+## Package layout and implemented persistence
 
 packages/core, packages/contracts, packages/storage-sqlite, packages/provider-github, packages/connector-ssh, packages/action-github-workflow, packages/action-workspace-create, packages/action-workspace-delete; apps/coordinator and apps/cli. Packages begin in one public repository. The private agent implementation is a separate repo consuming released/pinned contracts.
+
+W01.1 implements `packages/core`, `packages/storage-sqlite` and the bounded `apps/coordinator` bootstrap; see [the durable store contract](28-durable-coordinator-store.md). Other package responsibilities below remain planned.
 
 These are code boundaries, not separately deployed services. Ship the CLI and coordinator together. Implement storage and extension boundaries only as needed by the first complete slice; the logical persistence model below does not require building every subsystem before demonstrating recovery. The public core must run without an agent or hook runtime.
 

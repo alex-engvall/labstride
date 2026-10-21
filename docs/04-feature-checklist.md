@@ -6,14 +6,14 @@ Generated from backlog.json. Edit the JSON and regenerate; do not maintain a sec
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W01 |
+| MVP | P0 | implemented | W01 |
 
 Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 - A coordinator restart retains run, workspace, operation and deployment facts without collapsing them into one phase.
 - Recovery retains the original issue generation, workspace and enrolled session identities; GitHub remains the task/human-decision interface.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W01.1-lifecycles-2026-10-21.md
 
 Implementation issue: [#14](https://github.com/alex-engvall/labstride/issues/14).
 

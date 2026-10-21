@@ -11,7 +11,9 @@
       "action": "Kill the real coordinator after intent commit and before dispatch.",
       "expected": "After restart exactly the same operation is scheduled once.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W01.1-lifecycles-2026-10-21.md"
+      ]
     },
     {
       "id": "AC02",
@@ -432,7 +434,9 @@
       "action": "Use one owned test issue, one isolated SSH workspace and the actual enrolled interactive client. Duplicate the start, lose the SSH reply, omit a hook, fail a GitHub write and restart the coordinator; then perform a human turn before an automated continuation.",
       "expected": "The same recorded operation/workspace/session is adopted without duplicate effects; the existing client can resume it, stale automated continuation is rejected and unsupported atomic guards are reported without inventing a guarantee.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W01.1-lifecycles-2026-10-21.md"
+      ]
     }
   ]
 }

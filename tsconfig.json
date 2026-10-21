@@ -6,7 +6,17 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": false,
-    "types": []
+    "types": [
+      "node"
+    ],
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true
   },
-  "include": ["contracts/generated/*.ts", "tests/types/*.ts"]
+  "include": [
+    "contracts/generated/*.ts",
+    "tests/types/*.ts",
+    "packages/**/*.ts",
+    "apps/**/*.ts"
+  ]
 }
