@@ -23,7 +23,8 @@
       "Implement migrations, typed states, intent/outbox and atomic claims.",
       "Kill/restart a real process around each effect boundary.",
       "Apply the completed W00.1 discovery to atomic observation/checkpoint and intent/outbox persistence; preserve original operation identities and uncertain outcomes across actual coordinator crashes.",
-      "Persist session observation and projection identity; prove missing/duplicate/late hook recovery and outbox retries without stale human-state overwrites."
+      "Persist session observation and projection identity; prove missing/duplicate/late hook recovery and outbox retries without stale human-state overwrites.",
+      "Apply W00.3's pinned loading/profile contracts and session capability limits; preserve handle ownership, reject effects requiring unsupported atomic guards and complete production AC22 coverage with W07."
     ],
     "first_verifiable_outcome": "A queued synthetic operation resumes with its original ID after restart.",
     "status": "planned",
@@ -40,7 +41,8 @@
       "Compile configurable fields/rules and operator permissions.",
       "Implement current-state reconciliation and non-destructive projections.",
       "Use bounded personal-Project polling and one managed projection writer; keep human task/decision authority separate from operational records.",
-      "Apply the completed W00.1 discovery to credential/container preflight, supported history reconciliation, actor/binding/generation authorization and safe cursor/error/budget/expiry handling; reject unsupported bindings and historical starts on initial import."
+      "Apply the completed W00.1 discovery to credential/container preflight, supported history reconciliation, actor/binding/generation authorization and safe cursor/error/budget/expiry handling; reject unsupported bindings and historical starts on initial import.",
+      "Apply W00.3's session observation boundary to authorized, generation-bound projections; optional hooks cannot grant human intent or replace backend reconciliation."
     ],
     "first_verifiable_outcome": "A test Project field transition creates exactly one queued run.",
     "status": "planned",
@@ -55,7 +57,8 @@
     ],
     "scope": [
       "Implement host enrollment, trusted helper and resource registry.",
-      "Create and reconcile independent source workspaces."
+      "Create and reconcile independent source workspaces.",
+      "Qualify W00.3's observed SSH prerequisite through real enrolled target/workspace effects and direct results without fabricated workflow identity."
     ],
     "first_verifiable_outcome": "Two issues have separate branches/directories and recover after connection loss.",
     "status": "planned",
@@ -106,7 +109,8 @@
       "Implement operator diagnostics and pause/reconcile controls.",
       "Exercise backup, upgrade and restore with unresolved external effects.",
       "Complete W00.1's runtime handoff through Doctor diagnostics for missing capabilities, invalid cursors, expired credentials and unknown outcomes; verify AC29 using the owning GitHub/broker/host slices.",
-      "Package the CLI and single service together; diagnose optional hook/session compatibility without a hosting/control-panel dependency."
+      "Package the CLI and single service together; diagnose optional hook/session compatibility without a hosting/control-panel dependency.",
+      "Apply W00.3's capability matrix: diagnose hooks-disabled, missing/untrusted hooks and unsupported atomic guards. Own the public session-provider enablement/continuity gates with W01; manual client verification and fixture success do not pass AC35/AC36."
     ],
     "first_verifiable_outcome": "A fresh operator can diagnose and recover a run without editing database rows.",
     "status": "planned",
@@ -122,7 +126,8 @@
     ],
     "scope": [
       "Validate a clean public install without private extensions.",
-      "Finish DCO, reporting route, contract SDK, examples and release evidence."
+      "Finish DCO, reporting route, contract SDK, examples and release evidence.",
+      "Complete W00.3's runtime/package dependency integrity, notices and clean-install qualification with W01, preserving the agent-independent public path."
     ],
     "first_verifiable_outcome": "A versioned prerelease with all P0 acceptance evidence and explicit platform limits.",
     "status": "planned",

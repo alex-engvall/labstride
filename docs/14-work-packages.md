@@ -20,6 +20,8 @@ Tracker: [#3](https://github.com/alex-engvall/labstride/issues/3).
 
 **Discovery closeout:** W00.1 / [#11](https://github.com/alex-engvall/labstride/issues/11) is completed; [PR #39](https://github.com/alex-engvall/labstride/pull/39) merged its scoped provider evidence. See the [capability and handoff matrix](evidence/README.md). W00 remains `in_progress` for its other gates. LS-GH-001 remains `in_progress` for cross-package acceptance; the unrun runtime cases do not keep discovery #11 open.
 
+**Toolchain/contract closeout:** W00.3 / [#13](https://github.com/alex-engvall/labstride/issues/13) discovery is complete for the examined environment and reviewed [PR #41](https://github.com/alex-engvall/labstride/pull/41) foundation. The [capability matrix and handoff](evidence/W00.3-discovery-closeout-2026-10-21.md) distinguish operator verification, backend reads, executable fixtures and the adopted initial hooks-disabled profile. Close #13 once the foundation and closeout reach the default branch; no merge/closure is asserted here. LS-EXT-001 remains `in_progress`; AC22/AC35/AC36 stay `not_run`. Missing atomic guards block dependent effects, not bounded discovery completion. W00 still owns its other OIDC/broker gates.
+
 ## W01 — Durable coordinator and operation model
 
 Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).
@@ -30,6 +32,7 @@ Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).
 - Kill/restart a real process around each effect boundary.
 - Apply the completed W00.1 discovery to atomic observation/checkpoint and intent/outbox persistence; preserve original operation identities and uncertain outcomes across actual coordinator crashes.
 - Persist session observation and projection identity; prove missing/duplicate/late hook recovery and outbox retries without stale human-state overwrites.
+- Apply W00.3's pinned loading/profile contracts and session capability limits; preserve handle ownership, reject effects requiring unsupported atomic guards and complete production AC22 coverage with W07.
 
 **First verifiable outcome:** A queued synthetic operation resumes with its original ID after restart.
 
@@ -45,6 +48,7 @@ Tracker: [#5](https://github.com/alex-engvall/labstride/issues/5).
 - Implement current-state reconciliation and non-destructive projections.
 - Use bounded personal-Project polling and one managed projection writer; keep human task/decision authority separate from operational records.
 - Apply the completed W00.1 discovery to credential/container preflight, supported history reconciliation, actor/binding/generation authorization and safe cursor/error/budget/expiry handling; reject unsupported bindings and historical starts on initial import.
+- Apply W00.3's session observation boundary to authorized, generation-bound projections; optional hooks cannot grant human intent or replace backend reconciliation.
 
 **First verifiable outcome:** A test Project field transition creates exactly one queued run.
 
@@ -58,6 +62,7 @@ Tracker: [#6](https://github.com/alex-engvall/labstride/issues/6).
 
 - Implement host enrollment, trusted helper and resource registry.
 - Create and reconcile independent source workspaces.
+- Qualify W00.3's observed SSH prerequisite through real enrolled target/workspace effects and direct results without fabricated workflow identity.
 
 **First verifiable outcome:** Two issues have separate branches/directories and recover after connection loss.
 
@@ -99,6 +104,7 @@ Tracker: [#9](https://github.com/alex-engvall/labstride/issues/9).
 - Exercise backup, upgrade and restore with unresolved external effects.
 - Complete W00.1's runtime handoff through Doctor diagnostics for missing capabilities, invalid cursors, expired credentials and unknown outcomes; verify AC29 using the owning GitHub/broker/host slices.
 - Package the CLI and single service together; diagnose optional hook/session compatibility without a hosting/control-panel dependency.
+- Apply W00.3's capability matrix: diagnose hooks-disabled, missing/untrusted hooks and unsupported atomic guards. Own the public session-provider enablement/continuity gates with W01; manual client verification and fixture success do not pass AC35/AC36.
 
 **First verifiable outcome:** A fresh operator can diagnose and recover a run without editing database rows.
 
@@ -112,6 +118,7 @@ Tracker: [#10](https://github.com/alex-engvall/labstride/issues/10).
 
 - Validate a clean public install without private extensions.
 - Finish DCO, reporting route, contract SDK, examples and release evidence.
+- Complete W00.3's runtime/package dependency integrity, notices and clean-install qualification with W01, preserving the agent-independent public path.
 
 **First verifiable outcome:** A versioned prerelease with all P0 acceptance evidence and explicit platform limits.
 

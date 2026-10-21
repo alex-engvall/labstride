@@ -47,3 +47,5 @@ Do not put a general-purpose runner carrying deployment credentials inside an ag
 This refines ADR-001 through ADR-005 and preserves stable requirement, work-package and issue identities. No existing runtime or database migration is claimed: the repository is still a specification. Existing event/session envelopes remain proposed contracts; hook-specific normalization is an open W00 deliverable, not a newly working endpoint.
 
 Installation-specific credentials, hostnames and paths remain outside public examples. Requirement statuses stay planned and acceptance cases stay not_run until actual execution evidence exists. Source references are in [sources and evidence](../17-sources.md).
+
+Subsequent scoped discovery is recorded in the [W00.3 capability matrix and closeout](../evidence/W00.3-discovery-closeout-2026-10-21.md): it completes the contract foundation and selects an initial hooks-disabled profile while retaining the atomic-guard and live-continuity gates. This does not change the hybrid decision or pass its runtime acceptance cases; current requirement statuses live in the canonical backlog.
