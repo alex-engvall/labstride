@@ -27,6 +27,16 @@ The request contains schema version, operation/run/workspace IDs, action ID/vers
 
 The result declares conclusion, evidence, resources and a structured error if present. Progress events are advisory; they cannot alone mark an operation complete. A connector disconnect after sending a command is outcome_unknown unless the remote registry proves the result.
 
+## Optional agent hooks
+
+Codex is an initial session-provider compatibility target, not a dependency of the core or public workspace/deploy/cleanup flow. Its installed runtime may support hooks for session start/resume, tool observations, turn stop and interruption. Probe the actual client/version/trust configuration before advertising these capabilities; other providers can observe their backend without hooks.
+
+Normalize only bounded relevant observations through the enrolled session adapter. Correlate run, request generation, session and turn where available, plus a deduplication key. The coordinator validates the association, stores the observation and queues managed GitHub projections. W00 defines the provider-specific normalization and acknowledgement envelope before implementation; raw provider hook JSON is not automatically a valid Labstride event.
+
+Hook reports may be lost, duplicated, reordered or forged by agent-writable code. They cannot authorize plan approval, declare verified task/deploy completion, remove a cleanup hold or expand installed capabilities. Check important results against the actual provider/target. If a hook cannot reach the coordinator, recover through backend observation; preserve locally acknowledged pending work in the durable event/outbox path. Do not require every tool invocation or full transcript to be published to GitHub.
+
+Human takeover must use the same enrolled interactive client's session backend and supported atomic guards. A standalone SDK/CLI or second daemon is not a silent substitute for that compatibility requirement. The initial public conformance fixture exercises the protocol without a private agent account; the owner-use integration separately proves actual session continuity. See [ADR-006](adr/0006-hybrid-coordination.md).
+
 ## Error vocabulary
 
 validation_failed, forbidden, unsupported_capability, authentication_failed, identity_mismatch, stale_revision, policy_changed, resource_busy, rate_limited, transient_unavailable, configuration_invalid, projection_conflict, operation_failed, cancelled, outcome_unknown.

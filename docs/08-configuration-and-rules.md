@@ -26,7 +26,9 @@ If multiple start rules match the same request with incompatible actions/targets
 
 ## Authority and manual changes
 
-GitHub reflects requested intent and progress; the coordinator stores operational truth. Human changes to configured pause/keep controls are effective after authorization and refresh. A manual edit of a projected status is not an instruction to change execution state unless a separate rule explicitly makes it one.
+GitHub owns task content, acceptance criteria, prioritization and authorized human intent, and displays progress. The coordinator owns durable execution identity/recovery records and refreshes observed facts from the relevant providers. This division avoids a second independently editable task backlog. Human changes to configured pause/keep controls are effective after authorization and refresh. A manual edit of a projected status is not an instruction to change execution state unless a separate rule explicitly makes it one.
+
+Distinguish human delivery flow from technical execution progress where the installation uses both. Field names and stage values remain configurable. The coordinator's projection adapter is the single writer for managed technical fields/summaries; agent hooks and Actions report observations instead of directly competing for those fields. Status outputs cannot masquerade as human start or approval requests.
 
 Before projection, refresh the current value. If it differs from the last observed/owned value, record projection_conflict rather than overwriting a human. Do not claim the provider has atomic compare-and-set unless verified. Reconcile races after writes. Discard late results from older run generations.
 

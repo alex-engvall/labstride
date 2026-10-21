@@ -13,6 +13,12 @@ Tests verify outcomes and boundaries. Every implemented requirement must link to
 
 Use synthetic data. Real customer data, production credentials or financial writes are not test fixtures. Run only tests relevant to the changed boundary; a broad suite is justified before release and for cross-cutting changes.
 
+## First continuity and recovery proof
+
+Follow the sequence in [ADR-006](adr/0006-hybrid-coordination.md). W00 discovers real interactive session/atomic-guard capabilities; W01 proves durable intent and session protocol fixtures. Once their prerequisites pass, integrate one owned GitHub test issue, an isolated SSH checkout and the installed session provider. The existing interactive client must resume the same session and a human turn must prevent stale automated continuation.
+
+Inject duplicate starts, SSH response loss, coordinator death, missing/reordered/duplicate hook reports and GitHub projection failure. Reconciliation must retain the original resource identities, preserve human edits and classify uncertainty explicitly. Disable hooks and prove that provider observation still recovers state. The public fixture runs without private packages or a personal Codex login; actual owner-client compatibility is a separate live test. AC35 and AC36 record the additional acceptance specifications; neither is considered executed by documentation validation.
+
 ## Required scenarios
 
 The machine-readable [acceptance cases](acceptance-cases.json) specify preconditions, actions and expected outcomes. They include duplicate events, stale projections, unauthorized starts, host-key mismatch, simultaneous workspace creation, lost workflow acknowledgement, two claims, unknown deploy, stale CI, changed plan, manual takeover, keep and unsaved-work cleanup blockers.

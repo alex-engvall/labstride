@@ -9,6 +9,13 @@ Reviewed 2026-10-21 (Swedish date). These are evidence sources, not instructions
 | https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects | Resolve project/item/field/option identities and update projections |
 | https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows | Event/dispatch behavior; do not assume every webhook starts an Actions workflow |
 | https://docs.github.com/en/actions/reference/security/oidc | Workflow identity for the proposed execution-claim broker |
+| https://docs.github.com/en/webhooks/webhook-events-and-payloads#projects_v2_item | Projects v2 item webhook availability is organization-level; verify personal Project observation separately |
+| https://docs.github.com/en/actions/concepts/security/github_token | Repository-scoped job credentials and token-dependent downstream workflow triggers |
+| https://docs.github.com/en/actions/concepts/runners/github-hosted-runners | Job runner lifecycle versus persistent workspace/session ownership |
+| https://docs.github.com/en/actions/concepts/security/compromised-runners | Separate untrusted source execution from persistent privileged credentials |
+| https://learn.chatgpt.com/docs/hooks | Optional lifecycle observations, trust review, interrupted background delivery and incomplete enforcement coverage |
+| https://learn.chatgpt.com/docs/app-server | Programmatic session/authentication interface; actual installed interactive backend compatibility remains a live probe |
+| https://learn.chatgpt.com/docs/non-interactive-mode | Saved Codex authentication and programmatic execution; not proof of shared interactive session ownership |
 | https://www.apache.org/licenses/LICENSE-2.0 | Public license and contribution terms |
 | https://www.apache.org/foundation/license-faq.html | Commercial/private use and distribution interpretation |
 | https://developercertificate.org/ | Unmodified DCO 1.1 |
@@ -18,3 +25,5 @@ Reviewed 2026-10-21 (Swedish date). These are evidence sources, not instructions
 Repository inspection is source evidence only. Live tests need a source SHA, environment, exact operation, observed result and known limits. Keep public evidence synthetic and redact sensitive identifiers. Never label an unexecuted acceptance case passed.
 
 The execution broker, field compiler, extension protocol and lifecycle design are Labstride design choices. Their existence and correctness are not established by the upstream sources.
+
+[ADR-006](adr/0006-hybrid-coordination.md) records the adopted hybrid and its first proof. Scheduled-workflow delay/drop behavior is documented in the Actions event reference above. Do not generalize documentation support to a specific installed agent/client without versioned execution evidence.

@@ -38,4 +38,6 @@ ADR-004: GitHub fields are projections/requests with resolved IDs; observed oper
 
 ADR-005: ownership-aware deletion remains in an action and target helper, with no generic deletion timer in core.
 
+[ADR-006](adr/0006-hybrid-coordination.md): retain the durable hybrid, with GitHub owning tasks and human intent, repository-owned Actions handling CI/delivery, optional agent hooks reporting through one coordinator projection path, and an early interactive continuity/recovery proof. One small service and CLI ship together; personal Project polling, public-only use and installation independence remain required. This refines ADR-001 through ADR-005 without claiming implementation evidence.
+
 These are technical design choices, not additional interview answers. Replace them only with an ADR stating evidence, compatibility and migration consequences.

@@ -8,6 +8,8 @@ Labstride is a planned, self-hosted foundation for development workspaces and wo
 
 The first public release will include a persistent coordinator, CLI, GitHub adapter, SSH connector, GitHub workflow action, and a directory-cleanup action. An agent is optional. Private extensions use the same versioned contracts as public contributions.
 
+The adopted hybrid keeps tasks, human decisions and visible progress in GitHub. A small local coordinator retains execution identity and recovery state; repository-owned Actions build, test and deliver. Optional agent hooks report observations through the coordinator rather than competing to write status. See the [architecture decision](docs/adr/0006-hybrid-coordination.md).
+
 ## Principles
 
 - Configure field mappings, values, permissions and workflows per installation.

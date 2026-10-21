@@ -396,6 +396,43 @@
       "expected": "The replacement executes the application SHA and records both identities accurately.",
       "status": "not_run",
       "evidence": []
+    },
+    {
+      "id": "AC35",
+      "requirements": [
+        "LS-CORE-003",
+        "LS-GH-003",
+        "LS-GH-004",
+        "LS-GH-005",
+        "LS-EXT-005",
+        "LS-CFG-004",
+        "LS-SEC-001",
+        "LS-SEC-002"
+      ],
+      "precondition": "Missing, late, duplicate or forged hook reports and a failed GitHub projection",
+      "action": "Drop/reorder/duplicate session reports, submit a foreign-session or fabricated completion/approval report, fail a progress write and restart the coordinator while a human edits a mapped field. Repeat with hooks disabled.",
+      "expected": "The enrolled provider/target is re-observed; the original run/session is retained, pending projections recover without overwriting human decisions, and hook reports cannot authorize completion, approval or another privileged effect.",
+      "status": "not_run",
+      "evidence": []
+    },
+    {
+      "id": "AC36",
+      "requirements": [
+        "LS-CORE-001",
+        "LS-CORE-003",
+        "LS-CORE-005",
+        "LS-CORE-007",
+        "LS-GH-001",
+        "LS-GH-003",
+        "LS-SSH-003",
+        "LS-SSH-004",
+        "LS-EXT-005"
+      ],
+      "precondition": "First integrated issue/workspace/session continuity proof after W00 and W01 prerequisites",
+      "action": "Use one owned test issue, one isolated SSH workspace and the actual enrolled interactive client. Duplicate the start, lose the SSH reply, omit a hook, fail a GitHub write and restart the coordinator; then perform a human turn before an automated continuation.",
+      "expected": "The same recorded operation/workspace/session is adopted without duplicate effects; the existing client can resume it, stale automated continuation is rejected and unsupported atomic guards are reported without inventing a guarantee.",
+      "status": "not_run",
+      "evidence": []
     }
   ]
 }

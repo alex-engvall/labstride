@@ -11,6 +11,7 @@ Generated from backlog.json. Edit the JSON and regenerate; do not maintain a sec
 Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 - A coordinator restart retains run, workspace, operation and deployment facts without collapsing them into one phase.
+- Recovery retains the original issue generation, workspace and enrolled session identities; GitHub remains the task/human-decision interface.
 
 Verification evidence: None; not implemented.
 
@@ -39,6 +40,7 @@ Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15)
 Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 - Concurrent delivery/claim attempts produce one authorized active operation.
+- Duplicate or late session/hook observations cannot create another run, cross a privileged effect boundary or regress a newer generation.
 
 Verification evidence: None; not implemented.
 
@@ -95,6 +97,7 @@ Implementation issue: [#14](https://github.com/alex-engvall/labstride/issues/14)
 Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 - Pause prevents new effects; cancellation reports actual/unknown target state rather than assumed rollback.
+- A human interruption or takeover cannot be reversed by hook-driven continuation; stale automated sends are rejected or safely blocked when guards are unsupported.
 
 Verification evidence: None; not implemented.
 
@@ -179,6 +182,7 @@ Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18)
 Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contract.md).
 
 - Personal Project and repository operations are verified with the selected minimal credentials or reported unsupported.
+- Record personal-Project observation/actor capabilities separately from repository Actions triggers and verify token-dependent downstream CI behavior.
 
 Verification evidence: None; not implemented.
 
@@ -207,6 +211,7 @@ Implementation issue: [#19](https://github.com/alex-engvall/labstride/issues/19)
 Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contract.md).
 
 - The same current request is recovered after a missed event and produces no duplicate run.
+- Missing hooks and failed GitHub progress writes recover through provider observation and the durable projection outbox after coordinator restart.
 
 Verification evidence: None; not implemented.
 
@@ -221,6 +226,7 @@ Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20)
 Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - Projection updates only its mapped field; a concurrent human change creates a visible conflict.
+- Only the coordinator projection adapter writes managed technical fields/summaries; hook/workflow observations preserve human-owned fields and decisions.
 
 Verification evidence: None; not implemented.
 
@@ -235,6 +241,7 @@ Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20)
 Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - Coordinator status writes and stale events cannot retrigger work.
+- Agent turn-stop/session-end reports cannot imply task completion, human approval or a new start request.
 
 Verification evidence: None; not implemented.
 
@@ -277,6 +284,7 @@ Implementation issue: [#26](https://github.com/alex-engvall/labstride/issues/26)
 Specification: [10-extensions.md](10-extensions.md).
 
 - Unknown major versions fail before loading; optional minor capabilities are negotiated.
+- Define and validate any provider hook normalization/acknowledgement envelope before enabling it; raw hook payloads are not implicitly trusted Labstride events.
 
 Verification evidence: None; not implemented.
 
@@ -557,6 +565,7 @@ Implementation issue: [#29](https://github.com/alex-engvall/labstride/issues/29)
 Specification: [16-operations-and-cli.md](16-operations-and-cli.md).
 
 - A fresh operator gets actionable errors for unresolved fields, permissions, SSH and broker routing.
+- The intended distribution supplies one CLI/service installation with local SQLite and configurable paths/limits; diagnostics explain optional hook fallback and actual session compatibility.
 
 Verification evidence: None; not implemented.
 
@@ -599,6 +608,7 @@ Implementation issue: [#31](https://github.com/alex-engvall/labstride/issues/31)
 Specification: [11-security-and-trust.md](11-security-and-trust.md).
 
 - Logs/metrics contain IDs and safe reasons but no credentials, issue bodies or transcripts by default.
+- Publish bounded relevant progress summaries through the coordinator instead of mirroring every tool call or full session transcripts into GitHub.
 
 Verification evidence: None; not implemented.
 
@@ -627,6 +637,7 @@ Implementation issue: [#32](https://github.com/alex-engvall/labstride/issues/32)
 Specification: [11-security-and-trust.md](11-security-and-trust.md).
 
 - The coding/workspace user cannot change trusted target ownership or coordinator policy.
+- Agent-writable hook reports cannot change trusted policy/ownership, obtain privileged projection/deploy credentials or grant approval/completion authority.
 
 Verification evidence: None; not implemented.
 
@@ -669,6 +680,7 @@ Implementation issue: [#35](https://github.com/alex-engvall/labstride/issues/35)
 Specification: [01-product-and-scope.md](01-product-and-scope.md).
 
 - Clean installation can create/deploy/clean a workspace using only public packages.
+- Public workspace/deploy/cleanup installation requires no agent hooks, personal Codex login, private packages or particular hosting/control-panel product.
 
 Verification evidence: None; not implemented.
 
@@ -725,6 +737,7 @@ Implementation issue: [#34](https://github.com/alex-engvall/labstride/issues/34)
 Specification: [22-api-and-schema-reference.md](22-api-and-schema-reference.md).
 
 - Start/resume/observe/send/interrupt/close preserve provider identity, reject stale human/turn revisions and explicitly report missing atomic backend guards.
+- Optional hooks are correlated, deduplicated observations with backend reconciliation when missing; the existing interactive client resumes the same enrolled session, not a substituted daemon.
 
 Verification evidence: None; not implemented.
 

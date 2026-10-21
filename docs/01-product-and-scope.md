@@ -27,6 +27,12 @@ No custom web dashboard, hosted SaaS, marketplace, automatic extension installat
 
 The initial runtime is TypeScript/Node.js with SQLite. Linux runtime/SSH behavior must be tested before support is claimed. Provider-specific runtime setup belongs to recipes and actions. Future connectors may support different platforms.
 
+## Hybrid responsibility boundary
+
+GitHub owns the task description, acceptance criteria, priority and authorized human decisions. It is also the operator's visible progress surface. The coordinator owns durable execution identity, pending operations, locks and recovery records; it does not become another task-planning product. Repository-owned GitHub Actions perform builds, checks, packaging and configured delivery actions. A session-provider adapter manages the optional agent's lifecycle. Agent hooks are optional observations, never the only evidence that work completed.
+
+The public installation aims for one distribution with a CLI and one small coordinator process, one installation configuration and a local SQLite database. Pilot hostnames, control panels, account identities and model choices are installation settings. No personal agent login or private extension is needed for public workspace/deploy/cleanup functionality. The first implementation demonstrates one recoverable vertical slice before expanding the remaining packages; see [ADR-006](adr/0006-hybrid-coordination.md).
+
 ## Definition of useful
 
 One operator can configure their own fields, start an issue, continue work interactively, observe CI and merge/deploy outcomes, recover after a coordinator restart, and clean up a completed workspace without losing unsaved work. Another operator can replace the field names and deploy workflow without patching core code.

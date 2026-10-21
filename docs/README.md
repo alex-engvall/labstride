@@ -17,6 +17,7 @@ Specification version 0.1.0. All application features are planned, not implement
 - [Gates and release](13-pilot-and-release.md)
 - [Implementation sequence](14-work-packages.md)
 - [Current decisions](15-decisions.md)
+- [ADR-006: durable hybrid and first continuity proof](adr/0006-hybrid-coordination.md)
 - [CLI and runbooks](16-operations-and-cli.md)
 - [Primary references](17-sources.md)
 - [SSH and workspace creation](18-ssh-workspaces.md)

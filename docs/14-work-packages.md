@@ -2,6 +2,8 @@
 
 Build small vertical slices. Dependencies are technical sequencing, not permission to skip acceptance. The private session-provider work can begin with W00 and join W04–W06 after its own compatibility gate.
 
+The adopted [hybrid architecture](adr/0006-hybrid-coordination.md) retains one durable coordinator, GitHub task/human authority, Actions CI/delivery and optional agent observations. The first integrated continuity proof follows W00 discovery and W01 recovery, then joins W02/W03 with the independently installed session adapter. Prove duplicate-start recovery, connection loss, missing hook/projection recovery and human takeover before expanding all delivery/cleanup subsystems. This order preserves the full MVP scope and existing dependency graph.
+
 ## W00 — Resolve integration and toolchain gates
 
 Tracker: [#3](https://github.com/alex-engvall/labstride/issues/3).
@@ -10,6 +12,7 @@ Tracker: [#3](https://github.com/alex-engvall/labstride/issues/3).
 
 - Record supported runtime/dependency versions and licenses.
 - Prove personal Project access, workflow OIDC identity and broker reachability with synthetic fixtures.
+- Probe the actual interactive client's session identity/atomic guards and optional hook availability; define versioned hook-to-event normalization without making hooks mandatory.
 
 **First verifiable outcome:** A recorded capability matrix and reproducible discovery commands; no real deploy.
 
@@ -23,6 +26,7 @@ Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).
 
 - Implement migrations, typed states, intent/outbox and atomic claims.
 - Kill/restart a real process around each effect boundary.
+- Persist session observation and projection identity; prove missing/duplicate/late hook recovery and outbox retries without stale human-state overwrites.
 
 **First verifiable outcome:** A queued synthetic operation resumes with its original ID after restart.
 
@@ -36,6 +40,7 @@ Tracker: [#5](https://github.com/alex-engvall/labstride/issues/5).
 
 - Compile configurable fields/rules and operator permissions.
 - Implement current-state reconciliation and non-destructive projections.
+- Use bounded personal-Project polling and one managed projection writer; keep human task/decision authority separate from operational records.
 
 **First verifiable outcome:** A test Project field transition creates exactly one queued run.
 
@@ -88,6 +93,7 @@ Tracker: [#9](https://github.com/alex-engvall/labstride/issues/9).
 
 - Implement operator diagnostics and pause/reconcile controls.
 - Exercise backup, upgrade and restore with unresolved external effects.
+- Package the CLI and single service together; diagnose optional hook/session compatibility without a hosting/control-panel dependency.
 
 **First verifiable outcome:** A fresh operator can diagnose and recover a run without editing database rows.
 

@@ -15,12 +15,15 @@ Protect deployment credentials, source code, workspace content, agent credential
 | Agent reads deployment credentials | Separate identities, files and environments; no secrets in agent prompt |
 | Malicious installed extension | Reviewed pinned artifact and least privilege; installed code is trusted, not sandboxed |
 | Crash causes repeated effect | Durable intent, claim, fencing where possible and unknown-outcome reconciliation |
+| Hook reports forged completion or approval | Enrolled session correlation, bounded observation contract and independent policy/provider checks |
 
 ## Identities
 
 Separate coordinator identity, GitHub repository/project credentials, workflow identity, SSH workspace user and privileged target operations. The agent user must not be able to edit coordinator policy, host-key trust or the authoritative ownership registry.
 
 An operator-approved rule grants bounded operations, not a generic terminal with production secrets. Autonomous merge/deploy can be enabled without handing the coding session the credential that enforces policy. A revocation is checked again before each privileged effect.
+
+Hooks execute within their provider's trust boundary and are not a complete enforcement or audit boundary. Agent-writable scripts cannot hold the coordinator's privileged Project/deployment credentials or become the authority for merge, approval, cleanup ownership or task completion. Use the trusted projection path and reject stale/foreign session observations. Keep agent authentication with its enrolled provider identity; do not distribute personal login caches to CI runners. Do not execute untrusted contributor code on a persistent runner carrying the agent's or deployment operator's credentials.
 
 ## Data minimization
 
