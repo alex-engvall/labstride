@@ -7,6 +7,8 @@ Reviewed 2026-10-21 (Swedish date). These are evidence sources, not instructions
 | https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/managing-issue-fields-in-your-organization | Distinguish organization issue fields from Project fields |
 | https://docs.github.com/en/rest/issues/issue-field-values | Read/write issue-field values; preserve unrelated values |
 | https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects | Resolve project/item/field/option identities and update projections |
+| https://docs.github.com/en/graphql/reference/projects | Distinguish current-state creators from actor-bearing issue/PR Status and membership history |
+| https://docs.github.com/en/webhooks/types-of-webhooks | Webhooks attach to supported resources, not individual user accounts |
 | https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows | Event/dispatch behavior; do not assume every webhook starts an Actions workflow |
 | https://docs.github.com/en/actions/reference/security/oidc | Workflow identity for the proposed execution-claim broker |
 | https://docs.github.com/en/webhooks/webhook-events-and-payloads#projects_v2_item | Projects v2 item webhook availability is organization-level; verify personal Project observation separately |

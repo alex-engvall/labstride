@@ -177,14 +177,14 @@ Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W00 |
+| MVP | P0 | in_progress | W00 |
 
 Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contract.md).
 
 - Personal Project and repository operations are verified with the selected minimal credentials or reported unsupported.
 - Record personal-Project observation/actor capabilities separately from repository Actions triggers and verify token-dependent downstream CI behavior.
 
-Verification evidence: None; not implemented.
+Verification evidence: [Verified capabilities and remaining W01/W02/W06 work](evidence/README.md), [Initial broad-credential probes](evidence/W00.1-github-access-2026-10-21.md), [Dedicated App repository reads/issue writes; Project write rejected](evidence/W00.1-dedicated-app-2026-10-21.md), [Project-only PAT draft/public-issue field writes and cleanup](evidence/W00.1-project-pat-2026-10-21.md), [App file/PR writes, three successful downstream CI runs and cleanup](evidence/W00.1-app-file-pr-ci-2026-10-21.md), [PAT Status/membership actors; disposable cursor/crash/overlap probes and explicit limits](evidence/W00.1-actor-observation-2026-10-21.md)
 
 Implementation issue: [#11](https://github.com/alex-engvall/labstride/issues/11).
 

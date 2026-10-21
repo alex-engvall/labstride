@@ -38,6 +38,8 @@ OS service definitions belong to packaging examples (Linux first). Containers ma
 
 Do not delete the database as a reset method while external resources still exist.
 
+Observation history may be read again with deduplication, but rebuilding an observation store is not recovery of operation intent, claims, workspace/session identity or ownership. The [W00.1 disposable observer probe](evidence/W00.1-actor-observation-2026-10-21.md) verified cursor catch-up and crash/overlap behavior only in its own harness. Doctor must distinguish those provider capabilities from an implemented and verified coordinator recovery path, report unsupported field/actor history, and reject invalid-cursor/partial-error results as evidence of successful catch-up.
+
 ## Metrics and logs
 
 Measure queue age, active workspaces, action duration, unknown outcomes, failed reconciliation, projection conflicts, stale leases, CI repair attempts and cleanup blockers. Avoid issues/prompts as metric labels. Logs have stable codes, operation IDs and redacted safe messages.
