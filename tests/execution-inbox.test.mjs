@@ -16,6 +16,7 @@ function fixture(t) {
 const message = async child => (await once(child, 'message', { signal: AbortSignal.timeout(10000) }))[0];
 async function child(t, mode, root) {
   const p = fork(new URL('./helpers/inbox-process.mjs', import.meta.url), [mode, root], { stdio: ['ignore', 'pipe', 'pipe', 'ipc'] });
+  p.exited = once(p, 'exit');
   t.after(() => { if (p.exitCode === null && p.signalCode === null) p.kill('SIGKILL'); });
   assert.equal((await message(p)).stage, 'ready'); return p;
 }
@@ -47,13 +48,13 @@ test('observation origin, mismatched actor, forged generation and invalid plan c
 });
 test('concurrent real processes converge on the original request/run/workspace', async t => {
   const { store, root } = fixture(t); const children = await Promise.all([child(t, 'race', root), child(t, 'race', root)]);
-  const replies = children.map(message), exits = children.map(p => once(p, 'exit')); children.forEach(p => p.send('go'));
+  const replies = children.map(message), exits = children.map(p => p.exited); children.forEach(p => p.send('go'));
   assert.deepEqual((await Promise.all(replies)).map(r => r.run), [startPlan().run.id, startPlan().run.id]); await Promise.all(exits);
   for (const kind of ['request', 'run', 'workspace', 'operation', 'outbox']) assert.equal(store.snapshot().records.filter(r => r.kind === kind).length, 1);
 });
 for (const mode of ['before', 'after', 'ack']) test(`real process loss at ${mode} boundary recovers durable inbox and atomic scheduling`, async t => {
   const { root, store } = fixture(t); const p = await child(t, mode, root); const reply = message(p); p.send('go');
-  assert.equal((await reply).stage, mode); const exit = once(p, 'exit'); p.kill('SIGKILL'); await exit;
+  assert.equal((await reply).stage, mode); const exit = p.exited; p.kill('SIGKILL'); await exit;
   const reboot = startCoordinator(root); t.after(() => reboot.store.close());
   assert.equal(reboot.store.snapshot().records.filter(r => r.kind === 'run').length, mode === 'after' ? 1 : 0);
   const receipt = reboot.store.receive(eventInput()); assert.equal(receipt.duplicate, true);

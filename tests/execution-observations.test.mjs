@@ -25,7 +25,8 @@ function worker(f, opts = {}) {
 }
 async function child(t, mode, f) {
   const p = fork(new URL('./helpers/observation-process.mjs', import.meta.url), [mode,f.state,f.target], { stdio: ['ignore','pipe','pipe','ipc'] });
-  t.after(async () => { if (p.exitCode === null && p.signalCode === null) { const exit = once(p,'exit'); p.kill('SIGKILL'); await exit; } });
+  p.exited = once(p, 'exit');
+  t.after(async () => { if (p.exitCode === null && p.signalCode === null) { const exit = p.exited; p.kill('SIGKILL'); await exit; } });
   assert.equal((await message(p)).stage,'ready'); return p;
 }
 test('advisory hooks commit before acknowledgement, deduplicate and reject foreign/fabricated authority', t => {
@@ -116,12 +117,12 @@ test('human change between read and write is rejected atomically by the provider
 for (const mode of ['hook','lost-write']) test(`actual process death after ${mode} commit preserves recovery identity`, async t => {
   const f = fixture(t); const p = await child(t,mode,f); const reply = message(p); p.send('go');
   assert.equal((await reply).stage,mode==='hook'?'hook-committed':'write-committed');
-  const exit = once(p,'exit'); p.kill('SIGKILL'); await exit;
+  const exit = p.exited; p.kill('SIGKILL'); await exit;
   if (mode === 'hook') {
     const receipt = f.store.receiveHook(f.session.id,hook(f.session)); assert.equal(receipt.outcome,'duplicate');
     assert.equal(f.store.get('session',f.session.id).sessionId,f.session.sessionId);
   } else {
-    const restarted = await child(t,'recover',f); const done = message(restarted); const exited = once(restarted,'exit'); restarted.send('go');
+    const restarted = await child(t,'recover',f); const done = message(restarted); const exited = restarted.exited; restarted.send('go');
     assert.equal((await done).state,'done'); await exited; assert.equal(f.external.count(),1);
   }
 });
@@ -138,9 +139,9 @@ test('concurrent projection workers perform one conditional write', async t => {
 });
 test('a human edit after a lost write response is preserved during real process restart', async t => {
   const f = fixture(t); const p = await child(t,'lost-write',f); const ready = message(p); p.send('go');
-  assert.equal((await ready).stage,'write-committed'); const exit=once(p,'exit'); p.kill('SIGKILL'); await exit;
+  assert.equal((await ready).stage,'write-committed'); const exit=p.exited; p.kill('SIGKILL'); await exit;
   f.external.human('new-human-decision');
-  const next = await child(t,'recover',f); const done = message(next), exited=once(next,'exit'); next.send('go');
+  const next = await child(t,'recover',f); const done = message(next), exited=next.exited; next.send('go');
   assert.equal((await done).state,'conflict'); await exited;
   assert.equal(f.external.count(),1); assert.equal(f.external.view().value,'new-human-decision');
 });

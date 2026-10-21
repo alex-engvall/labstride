@@ -252,7 +252,8 @@ export class ExecutionStore extends SqliteStore implements InboxStore {
         if (bound.result.evidenceRefs.length === 0) throw new LifecycleError('invalid_payload');
         this.changeOperation(op.id, bound.result.status, true, bound.result.evidenceRefs);
         const workspace = this.get('workspace', op.workspaceId);
-        if (bound.result.resources.length) this.write(bound.result.resources.map(resource => ({ expectedRevision: null, record: {
+        for (let offset = 0; offset < bound.result.resources.length; offset += 64)
+          this.write(bound.result.resources.slice(offset, offset + 64).map(resource => ({ expectedRevision: null, record: {
           schemaVersion: '1.0', kind: 'resource', id: this.identities.next(), revision: 1, createdAt: this.clock.now(), updatedAt: this.clock.now(),
           runId: op.runId, workspaceId: op.workspaceId, createdByOperation: op.id, resourceType: resource.type,
           providerId: op.request.actionId, locator: resource.id, ownershipRef: workspace.ownershipRef, cleanupPolicy: 'retain',

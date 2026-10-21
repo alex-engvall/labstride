@@ -42,7 +42,7 @@
       "acceptance_criteria": [
         "Crash tests prove effects are never initiated before their intent is durable."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/48",
       "verification_evidence": [
         "evidence/W01.2-inbox-2026-10-21.md",
         "evidence/W01.2-effects-2026-10-21.md",
@@ -67,7 +67,7 @@
         "Concurrent delivery/claim attempts produce one authorized active operation.",
         "Duplicate or late session/hook observations cannot create another run, cross a privileged effect boundary or regress a newer generation."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/48",
       "verification_evidence": [
         "evidence/W01.2-inbox-2026-10-21.md",
         "evidence/W01.2-effects-2026-10-21.md",
@@ -91,7 +91,7 @@
       "acceptance_criteria": [
         "A lost effect response blocks blind repetition and retains enough identity for reconciliation."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/48",
       "verification_evidence": [
         "evidence/W01.2-inbox-2026-10-21.md",
         "evidence/W01.2-effects-2026-10-21.md",
