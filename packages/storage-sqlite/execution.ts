@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
-import { SchedulingStore } from './scheduling.ts';
+import { SchedulingStore, controlContext } from './scheduling.ts';
 import { validated } from './validation.ts';
 import { LifecycleError } from '../core/lifecycle.ts';
+import type { RunControl } from '../../contracts/generated/run-control.ts';
 import type { AuditContext, RecordOf } from '../core/lifecycle.ts';
 import type { InboxEntry, InboxInput, InboxStore, StartPlan, Claim, BoundResult, Delivery, RetryPolicy } from '../core/execution.ts';
 
@@ -114,6 +115,7 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
           (json_extract(r.payload,'$.repositoryId')=? AND json_extract(w.payload,'$.branch')=?))`).get(plan.workspace.id,
           plan.workspace.targetId, plan.workspace.locator, plan.workspace.localPath, plan.workspace.localPath, plan.run.repositoryId, plan.workspace.branch);
         if (collision) throw new LifecycleError('identity_conflict');
+        this.db.prepare('INSERT INTO run_controls(run_id) VALUES (?)').run(plan.run.id);
         this.db.prepare('INSERT INTO run_admissions VALUES (?,NULL)').run(plan.run.id);
         this.db.prepare('INSERT INTO operation_scheduling VALUES (?,?)').run(plan.operation.id, input.capacityClass ?? 'development');
         this.enqueue('operation', plan.operation.id);
@@ -158,6 +160,7 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
   }
   protected assertRunnable(id: string): void {
     const op = this.get('operation', id), run = this.get('run', op.runId);
+    if (!this.forwardAllowed(run.id)) throw new LifecycleError('effect_blocked');
     const request = this.get('request', run.requestId);
     const latest = this.db.prepare('SELECT max(generation) AS generation FROM requests WHERE installation_id=? AND provider_id=? AND issue_id=?')
       .get(request.installationId, request.providerId, request.issueId);
@@ -234,6 +237,11 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
     this.db.prepare(`UPDATE deliveries SET state=CASE WHEN EXISTS(SELECT 1 FROM restore_checks WHERE operation_id=? AND resolved=0)
       THEN 'reconcile' ELSE 'done' END,last_error=NULL,revision=revision+1 WHERE operation_id=? AND state!='conflict'`).run(operationId,operationId);
   }
+  validateResult(input: BoundResult): BoundResult {
+    const bound = validated('execution-record', input);
+    if (bound.kind !== 'result') throw new LifecycleError('invalid_payload');
+    return bound;
+  }
   acceptResult(input: BoundResult, claim: Claim | null, expectedRevision: number, projections: RecordOf<'projection'>[] = [], observedEpoch = 0): boolean {
     const bound = validated('execution-record', input);
     if (bound.kind !== 'result') throw new LifecycleError('invalid_payload');
@@ -274,6 +282,7 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
         this.db.prepare('INSERT INTO execution_results VALUES (?,?)').run(op.id, JSON.stringify(bound));
         this.db.prepare('UPDATE claims SET active=0 WHERE operation_id=?').run(op.id);
         this.finishDelivery(op.id, !claim);
+        this.finishCancellationRun(op.runId);
         if (projections.length) {
           if (projections.some(p => p.runId !== op.runId || p.kind !== 'projection')) throw new LifecycleError('identity_conflict');
           this.write(projections.map(record => ({ record, expectedRevision: null })), { actorId: 'coordinator', reason: 'Observed operation result projection', evidenceRefs: bound.result.evidenceRefs });
@@ -282,6 +291,95 @@ export class ExecutionStore extends SchedulingStore implements InboxStore {
       }
       this.log(op.id, 'observation', bound);
       return true;
+    });
+  }
+  forwardAllowed(runId: string): boolean {
+    const run = this.get('run', runId);
+    const control = this.db.prepare('SELECT * FROM run_controls WHERE run_id=?').get(runId);
+    return !run.paused && !control?.operator_paused && !control?.cancel_requested &&
+      !['completed','cancelled','failed','outcome_unknown','waiting_human'].includes(run.state) &&
+      this.db.prepare('SELECT paused FROM recovery_control WHERE id=1').get()!.paused === 0;
+  }
+  projectionAllowed(runId: string): boolean {
+    const run = this.get('run', runId), control = this.db.prepare('SELECT * FROM run_controls WHERE run_id=?').get(runId);
+    return !run.paused && !control?.operator_paused && !control?.cancel_requested &&
+      this.db.prepare('SELECT paused FROM recovery_control WHERE id=1').get()!.paused === 0;
+  }
+  controlStatus(runId: string) {
+    const run = this.get('run', runId);
+    const row = this.db.prepare('SELECT * FROM run_controls WHERE run_id=?').get(runId);
+    return { ...this.schedulingStatus(runId), revision: run.revision, phase: run.state, checkpoint: run.checkpoint,
+      operatorPaused: !!row?.operator_paused, cancelRequested: !!row?.cancel_requested,
+      cancellations: this.db.prepare('SELECT c.operation_id,c.state FROM cancellations c JOIN operations o ON o.id=c.operation_id WHERE o.run_id=?').all(runId)
+        .map(c => ({ operationId: String(c.operation_id), state: c.state === 'submitted' ? 'outcome_unknown' : String(c.state) })) };
+  }
+  pauseRun(input: RunControl, context: AuditContext) { return this.control(input, 'pause', context); }
+  resumeRun(input: RunControl, context: AuditContext) { return this.control(input, 'resume', context); }
+  cancelRun(input: RunControl, context: AuditContext) { return this.control(input, 'cancel', context); }
+  private control(input: RunControl, command: RunControl['command'], context: AuditContext) {
+    const request = validated('run-control', input), safe = controlContext(context);
+    if (request.command !== command) throw new LifecycleError('invalid_payload');
+    return this.transaction(() => {
+      const contents = canonical({ request, context: safe });
+      const old = this.db.prepare('SELECT payload FROM control_requests WHERE id=?').get(request.id);
+      if (old) {
+        if (old.payload !== contents) throw new LifecycleError('identity_conflict');
+        return this.controlStatus(request.runId);
+      }
+      const run = this.get('run', request.runId);
+      if (run.revision !== request.expectedRevision) throw new LifecycleError('revision_conflict');
+      if (['completed','failed','cancelled'].includes(run.state)) throw new LifecycleError('invalid_transition');
+      const state = this.db.prepare('SELECT cancel_requested FROM run_controls WHERE run_id=?').get(run.id);
+      if (!state || (command === 'resume' && state.cancel_requested)) throw new LifecycleError('effect_blocked');
+      this.db.prepare('INSERT INTO control_requests VALUES (?,?,?)').run(request.id, run.id, contents);
+      if (command === 'cancel') this.db.prepare('UPDATE run_controls SET cancel_requested=1 WHERE run_id=?').run(run.id);
+      else this.db.prepare('UPDATE run_controls SET operator_paused=? WHERE run_id=?').run(command === 'pause' ? 1 : 0, run.id);
+      this.write([{ expectedRevision: run.revision, record: { ...run, paused: command !== 'resume',
+        revision: run.revision + 1, updatedAt: this.clock.now() } }], safe);
+      if (command === 'cancel') {
+        for (const { id } of this.db.prepare("SELECT id FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled')").all(run.id)) {
+          const op = this.get('operation', String(id));
+          if (op.effectBoundary === 'not_crossed') {
+            this.changeOperation(op.id, 'cancelled', false, safe.evidenceRefs);
+            this.db.prepare('UPDATE claims SET active=0 WHERE operation_id=?').run(op.id);
+            this.finishDelivery(op.id, false);
+          } else this.db.prepare("INSERT OR IGNORE INTO cancellations VALUES (?,?,'pending')").run(op.id, request.id);
+        }
+        this.finishCancellationRun(run.id);
+      }
+      this.log(null, 'run_control', { request, context: safe });
+      return this.controlStatus(run.id);
+    });
+  }
+  private finishCancellationRun(runId: string): void {
+    if (!this.db.prepare('SELECT 1 FROM run_controls WHERE run_id=? AND cancel_requested=1').get(runId) || this.unresolved(runId)) return;
+    const run = this.get('run', runId);
+    this.db.prepare("UPDATE cancellations SET state='observed' WHERE operation_id IN (SELECT id FROM operations WHERE run_id=?) AND state!='submitted'").run(runId);
+    if (['completed','failed','cancelled'].includes(run.state)) return;
+    const request = this.db.prepare('SELECT id FROM control_requests WHERE run_id=? ORDER BY rowid DESC LIMIT 1').get(runId)!;
+    this.write([{ expectedRevision: run.revision, recovery: run.state === 'outcome_unknown', record: { ...run, state: 'cancelled',
+      revision: run.revision + 1, updatedAt: this.clock.now() } }],
+      { actorId: 'coordinator', reason: 'Cancellation resolved; operation results retained', evidenceRefs: [String(request.id)] });
+  }
+  dueCancellations(): { operationId: string; controlId: string }[] {
+    return this.db.prepare("SELECT c.operation_id,c.control_id FROM cancellations c JOIN operations o ON o.id=c.operation_id WHERE c.state='pending' AND o.state NOT IN ('succeeded','failed','cancelled') ORDER BY c.rowid LIMIT 64")
+      .all().map(row => ({ operationId: String(row.operation_id), controlId: String(row.control_id) }));
+  }
+  beginCancellation(operationId: string): void {
+    this.transaction(() => {
+      if (this.db.prepare('SELECT paused FROM recovery_control WHERE id=1').get()!.paused) throw new LifecycleError('effect_blocked');
+      const op = this.get('operation', operationId);
+      if (['succeeded','failed','cancelled'].includes(op.state)) throw new LifecycleError('effect_consumed');
+      const row = this.db.prepare("UPDATE cancellations SET state='submitted' WHERE operation_id=? AND state='pending'").run(operationId);
+      if (row.changes !== 1) throw new LifecycleError('effect_consumed');
+      this.log(operationId, 'cancel_boundary', { operationId });
+    });
+  }
+  cancellationState(operationId: string, state: 'requested' | 'unsupported' | 'outcome_unknown'): void {
+    this.transaction(() => {
+      this.db.prepare("UPDATE cancellations SET state=? WHERE operation_id=? AND state IN ('pending','submitted')").run(state, operationId);
+      this.log(operationId, 'cancel_outcome', { state });
+      this.finishCancellationRun(this.get('operation', operationId).runId);
     });
   }
   block(id: string, code: string): void {

@@ -154,3 +154,13 @@ test('explicit application composition pauses restore before any worker can disp
     observations:{ sessions:new Map(),projections:new Map([[f.plan.projections[0].providerId,f.external.adapter]]) } });
   await runtime.tick(); await runtime.close(); assert.equal(starts,0); assert.equal(f.external.count(),0);
 });
+test('paused run retains observations while new projection effects and retry consumption stop',async t=>{
+ const f=fixture(t);let reads=0;
+ const pause={schemaVersion:'1.0',id:'operator-pause',runId:f.plan.run.id,expectedRevision:f.store.get('run',f.plan.run.id).revision,command:'pause'};
+ f.store.pauseRun(pause,context);
+ const w=worker(f,{sessions:new Map([[f.session.providerId,{async observe(){reads++;return observation(f.session);}}]])});
+ await w.tick();f.advance();await w.tick();
+ assert.ok(reads>=2);assert.equal(f.external.count(),0);assert.equal(f.store.delivery('projection:projection-test').attempts,0);
+ f.store.resumeRun({...pause,id:'operator-resume',command:'resume',expectedRevision:f.store.get('run',f.plan.run.id).revision},context);
+ await w.tick();assert.equal(f.external.count(),1);
+});

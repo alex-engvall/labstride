@@ -122,6 +122,13 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   CREATE TABLE operation_scheduling (operation_id TEXT PRIMARY KEY REFERENCES operations(id),
     capacity_class TEXT NOT NULL CHECK(capacity_class IN ('development','ciReview')));
   INSERT INTO operation_scheduling SELECT operation_id,'development' FROM execution_bindings;
+` }, { version: 7, sql: `
+  CREATE TABLE run_controls (run_id TEXT PRIMARY KEY REFERENCES runs(id), operator_paused INTEGER NOT NULL DEFAULT 0,
+    cancel_requested INTEGER NOT NULL DEFAULT 0);
+  INSERT INTO run_controls SELECT id,json_extract(payload,'$.paused'),0 FROM runs;
+  CREATE TABLE control_requests (id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES runs(id),payload TEXT NOT NULL);
+  CREATE TABLE cancellations (operation_id TEXT PRIMARY KEY REFERENCES operations(id),control_id TEXT NOT NULL REFERENCES control_requests(id),
+    state TEXT NOT NULL CHECK(state IN ('pending','submitted','requested','unsupported','outcome_unknown','observed')));
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

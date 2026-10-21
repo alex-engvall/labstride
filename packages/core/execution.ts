@@ -28,6 +28,7 @@ export interface RetryPolicy { maxAttempts: number; baseMs: number; capMs: numbe
 export const defaultRetryPolicy: RetryPolicy = { maxAttempts: 5, baseMs: 1000, capMs: 60000 };
 export interface ActionAdapter {
   // The embedding application enrolls reviewed adapters; payloads cannot load code.
+  cancel?(operation: RecordOf<'operation'>['request'], handle: string, controlId: string): Promise<BoundResult>;
   validate(operation: RecordOf<'operation'>['request']): Promise<void>;
   start(operation: RecordOf<'operation'>['request'], claim: Claim): Promise<BoundResult>;
   reconcile(operation: RecordOf<'operation'>['request'], handle: string | null): Promise<BoundResult>;
@@ -39,6 +40,7 @@ export interface ExecutionPort extends InboxStore {
   claim(operationId: string, executorId: string, attemptId: string): Claim;
   beginEffect(claim: Claim): void;
   acceptResult(result: BoundResult, claim: Claim | null, expectedRevision: number, projections?: RecordOf<'projection'>[], observedEpoch?: number): boolean;
+  validateResult(result: BoundResult): BoundResult;
   recoveryEpoch(): number;
   markUnknown(operationId: string): void;
   retryRead(id: string, policy: RetryPolicy, random: number): void;

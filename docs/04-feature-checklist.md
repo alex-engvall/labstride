@@ -99,7 +99,7 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 - Pause prevents new effects; cancellation reports actual/unknown target state rather than assumed rollback.
 - A human interruption or takeover cannot be reversed by hook-driven continuation; stale automated sends are rejected or safely blocked when guards are unsupported.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W01.3-controls-2026-10-21.md
 
 Implementation issue: [#16](https://github.com/alex-engvall/labstride/issues/16).
 

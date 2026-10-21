@@ -161,7 +161,9 @@
         "A human interruption or takeover cannot be reversed by hook-driven continuation; stale automated sends are rejected or safely blocked when guards are unsupported."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W01.3-controls-2026-10-21.md"
+      ],
       "github_issue": 16,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/16"
     },

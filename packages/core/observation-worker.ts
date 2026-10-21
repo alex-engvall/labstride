@@ -39,7 +39,7 @@ export function createObservationWorker(store: ObservationPort, options: Observa
             const view = await adapter.read(structuredClone(projection), store.projectionToken(id));
             const decision = store.inspectProjection(id, delivery.revision, view);
             if (decision === 'finished') continue;
-            if (decision === 'wait') { store.retryRead(delivery.id, policy, random()); continue; }
+            if (decision === 'wait') { if (store.projectionAllowed(projection.runId)) store.retryRead(delivery.id, policy, random()); continue; }
             if (!adapter.atomicPrecondition) { store.block(delivery.id, 'unsupported_capability'); continue; }
             const token = store.beginProjection(id, delivery.revision, view);
             try { await adapter.write(structuredClone(projection), token); }

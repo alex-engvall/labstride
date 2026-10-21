@@ -1,4 +1,5 @@
 import { startCoordinator } from './main.ts';
+import { createControlWorker } from '../../packages/core/control-worker.ts';
 import { createWorker } from '../../packages/core/worker.ts';
 import type { WorkerOptions } from '../../packages/core/worker.ts';
 import { createObservationWorker } from '../../packages/core/observation-worker.ts';
@@ -14,6 +15,7 @@ export function startExecution(dataDir: string, options: {
   try {
     if (options.restore) runtime.store.enterRestore(options.restore);
     const actions = createWorker(runtime.store, options.actions);
+    const controls = createControlWorker(runtime.store, options.actions);
     const observations = createObservationWorker(runtime.store, options.observations);
     let observationJob: Promise<void> | undefined;
     let observationError: unknown;
@@ -23,15 +25,15 @@ export function startExecution(dataDir: string, options: {
         if (closed) return;
         if (!observationJob) observationJob = observations.tick().catch(error => { observationError = error; })
           .finally(() => { observationJob = undefined; });
-        await actions.tick();
+        await controls.tick(); await actions.tick();
       },
       async drain(): Promise<void> {
-        await observationJob; await actions.drain();
+        await observationJob; await controls.drain(); await actions.drain();
         if (observationError) { const error = observationError; observationError = undefined; throw error; }
       },
       async close(): Promise<void> {
         closed = true;
-        try { await this.drain(); await actions.close(); } finally { runtime.store.close(); }
+        try { await this.drain(); await controls.close(); await actions.close(); } finally { runtime.store.close(); }
       },
     };
   } catch (error) { runtime.store.close(); throw error; }
