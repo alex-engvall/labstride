@@ -51,3 +51,13 @@ Pause forbids new effects while observation continues. Cancel requests stop thro
 Design defaults: a 24-hour unattended-run limit and at most three automatic CI repair attempts. Repeated identical failures or unclear outcomes pause earlier. Plan approval has no forced timeout into implementation.
 
 Agent turn-stop and session-end observations are not run completion. An explicit human interruption cannot be undone by a hook requesting automatic continuation. Automatic continuation uses the session provider's current human/turn guards and installation budgets, not an unbounded hook loop. Missing atomic guards must pause/report the unsupported guarantee.
+
+## W01.3 capacity implementation
+
+The trusted start plan optionally declares `capacityClass` (`development` by default or `ciReview`). `configureScheduling` accepts a versioned policy with `activeRuns`, `development` and `ciReview`, all positive bounded integers. The installation schema permits the two optional class limits; its compiler must inherit `activeRuns` when absent. The initial standalone store policy is two for all three limits. Only trusted installation composition configures this policy, never issue facts.
+
+Admission uses one SQLite write transaction, durable queue order and a persistent reservation per run. Paused/waiting admitted runs retain global capacity; finishing an individual operation does not complete its run. Active/uncertain claims retain class capacity. Only terminal runs with no unresolved operations stop consuming global capacity. Lower limits drain existing reservations and admit no new conflicting work. One active forward operation per run is permitted. Two issues cannot share workspace locator/path or repository branch.
+
+An issue key uses provider, repository and canonical issue identity across installation snapshots. Identical start delivery returns its original run; another generation while a prior run is live/uncertain returns `issue_busy`. The database migration preserves legacy conflicts and the inspector; neither conflicting run acquires a new effect permission. No expiry unlocks a claim.
+
+Action `tick` pumps a bounded set of jobs and returns without waiting for long-running effects; `drain` waits for the current jobs and `close` prevents new jobs before draining. The embedding application continues to invoke ticks. Observations are composed alongside action ticks. There is no background service or forced remote shutdown. Capacity waits remain pending without spending retry attempts. Local checkout evidence does not qualify SSH AC08.

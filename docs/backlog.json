@@ -105,7 +105,7 @@
       "title": "Bound concurrency and preserve separate workspaces",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W01",
       "depends_on_work_packages": [
@@ -116,7 +116,9 @@
         "Two issues run independently within configured limits; a second active run for the same issue is rejected or queued."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W01.3-capacity-2026-10-21.md"
+      ],
       "github_issue": 16,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/16"
     },
@@ -147,7 +149,7 @@
       "title": "Pause and cancel truthfully",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W01",
       "depends_on_work_packages": [

@@ -64,13 +64,13 @@ Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W01 |
+| MVP | P0 | in_progress | W01 |
 
 Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 - Two issues run independently within configured limits; a second active run for the same issue is rejected or queued.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W01.3-capacity-2026-10-21.md
 
 Implementation issue: [#16](https://github.com/alex-engvall/labstride/issues/16).
 
@@ -92,7 +92,7 @@ Implementation issue: [#14](https://github.com/alex-engvall/labstride/issues/14)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W01 |
+| MVP | P0 | in_progress | W01 |
 
 Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 

@@ -112,6 +112,16 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
     blocked INTEGER NOT NULL DEFAULT 0 CHECK(blocked IN (0,1)));
   CREATE TABLE projection_attempts (projection_id TEXT PRIMARY KEY REFERENCES projections(id),
     token TEXT NOT NULL UNIQUE, state TEXT NOT NULL CHECK(state IN ('started','not_applied','applied')));
+` }, { version: 6, sql: `
+  CREATE TABLE scheduling_policy (id INTEGER PRIMARY KEY CHECK(id=1), payload TEXT NOT NULL CHECK(json_valid(payload)));
+  INSERT INTO scheduling_policy VALUES (1,'{"schemaVersion":"1.0","activeRuns":2,"development":2,"ciReview":2}');
+  CREATE TABLE run_admissions (run_id TEXT PRIMARY KEY REFERENCES runs(id), admitted_at TEXT);
+  INSERT INTO run_admissions SELECT r.id, CASE WHEN r.state!='queued' OR EXISTS
+    (SELECT 1 FROM operations o JOIN claims c ON c.operation_id=o.id WHERE o.run_id=r.id)
+    THEN json_extract(r.payload,'$.createdAt') ELSE NULL END FROM runs r;
+  CREATE TABLE operation_scheduling (operation_id TEXT PRIMARY KEY REFERENCES operations(id),
+    capacity_class TEXT NOT NULL CHECK(capacity_class IN ('development','ciReview')));
+  INSERT INTO operation_scheduling SELECT operation_id,'development' FROM execution_bindings;
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

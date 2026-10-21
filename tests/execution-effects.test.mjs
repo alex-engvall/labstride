@@ -34,7 +34,8 @@ function bound(plan, status = 'succeeded') {
     result: { status, handle: 'original-handle', resources: [], outputs: {}, evidenceRefs: ['test:effect'], error: null } };
 }
 function worker(store, plan, adapter, extra = {}) {
-  return createWorker(store, { executorId: 'worker', nextAttempt: () => 'attempt', adapters: new Map([[actionKey(plan.operation.request.actionId, plan.operation.request.actionVersion), adapter]]), ...extra });
+  const worker = createWorker(store, { executorId: 'worker', nextAttempt: () => 'attempt', adapters: new Map([[actionKey(plan.operation.request.actionId, plan.operation.request.actionVersion), adapter]]), ...extra });
+  return { ...worker, async tick() { await worker.tick(); await worker.drain(); } };
 }
 test('AC01: committed intent executes once after a new coordinator process starts', async t => {
   const { root, state, store, plan } = fixture(t, {}, false);
@@ -110,7 +111,7 @@ test('restore of an older consistent database observes the external effect befor
 test('conflicting resource claims remain locked until evidence, with monotonically increasing fences', async t => {
   const { nextGeneration } = await import('./helpers/execution-fixture.mjs');
   const { store, plan } = fixture(t); const first = store.claim(plan.operation.id, 'one', 'one'); store.beginEffect(first);
-  const next = nextGeneration(store);
+  const next = (await import('./helpers/execution-fixture.mjs')).nextIssue(store,2,'development',plan.resourceKey);
   assert.throws(() => store.claim(next.operation.id, 'two', 'two'), fail('resource_busy'));
   store.markUnknown(plan.operation.id);
   assert.throws(() => store.claim(next.operation.id, 'two', 'two'), fail('resource_busy'));
@@ -118,10 +119,11 @@ test('conflicting resource claims remain locked until evidence, with monotonical
   const second = store.claim(next.operation.id, 'two', 'two'); assert.equal(second.fencingNumber, first.fencingNumber + 1);
   assert.throws(() => store.beginEffect(first), fail('effect_consumed'));
 });
-test('later generation blocks an old unconsumed claim even with unchanged operation revision', async t => {
+test('later generation is rejected without invalidating the original unconsumed claim', async t => {
   const { nextGeneration } = await import('./helpers/execution-fixture.mjs');
-  const { store, plan } = fixture(t); const claim = store.claim(plan.operation.id, 'one', 'one'); nextGeneration(store);
-  assert.throws(() => store.beginEffect(claim), fail('effect_blocked'));
+  const { store, plan } = fixture(t); const claim = store.claim(plan.operation.id, 'one', 'one');
+  assert.throws(() => nextGeneration(store), fail('issue_busy'));
+  store.beginEffect(claim); assert.equal(store.get('operation',plan.operation.id).state,'running');
 });
 test('adapter input mutation cannot alter persisted requests; post-boundary exceptions remain unknown', async t => {
   const { store, plan } = fixture(t); let starts = 0;
@@ -145,7 +147,7 @@ test('malformed result and invalid follow-up projection roll back result and pre
 test('reconciliation cannot apply a result for a different operation with the same revision', async t => {
   const { nextGeneration } = await import('./helpers/execution-fixture.mjs');
   const { store, plan } = fixture(t); store.markUnknown(plan.operation.id);
-  const next = nextGeneration(store); store.markUnknown(next.operation.id);
+  const next = (await import('./helpers/execution-fixture.mjs')).nextIssue(store); store.markUnknown(next.operation.id);
   const wrong = bound(next);
   const adapter = { async validate() {}, async start() { throw Error(); }, async reconcile(request) {
     if (request.operationId === plan.operation.id) return wrong;
