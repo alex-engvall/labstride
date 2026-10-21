@@ -1,3 +1,4 @@
+import { canonicalPath } from './paths.ts';
 import { SqliteStore } from './store.ts';
 import { validated } from './validation.ts';
 import { LifecycleError } from '../core/lifecycle.ts';
@@ -16,8 +17,9 @@ export class SchedulingStore extends SqliteStore {
   schedulingPolicy(): SchedulingPolicy {
     return validated('scheduling-policy', JSON.parse(String(this.db.prepare('SELECT payload FROM scheduling_policy WHERE id=1').get()!.payload)));
   }
-  configureScheduling(input: SchedulingPolicy, context: AuditContext): void {
-    const policy = validated('scheduling-policy', input);
+  configureScheduling(input: Omit<SchedulingPolicy, 'development' | 'ciReview'> & Partial<Pick<SchedulingPolicy, 'development' | 'ciReview'>>, context: AuditContext): void {
+    if (!input || typeof input !== 'object') throw new LifecycleError('invalid_payload');
+    const policy = validated<SchedulingPolicy>('scheduling-policy', { ...input, development: input.development === undefined ? input.activeRuns : input.development, ciReview: input.ciReview === undefined ? input.activeRuns : input.ciReview });
     this.transaction(() => {
       const safe = controlContext(context);
       this.db.prepare('INSERT INTO execution_log(operation_id,at,kind,payload) VALUES (NULL,?,?,?)')
@@ -26,7 +28,7 @@ export class SchedulingStore extends SqliteStore {
     });
   }
   protected unresolved(runId: string): boolean {
-    return !!this.db.prepare("SELECT 1 FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled')").get(runId);
+    return !!this.db.prepare("SELECT 1 FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled') UNION ALL SELECT 1 FROM deliveries d JOIN operations o ON o.id=d.operation_id WHERE o.run_id=? AND d.state='conflict'").get(runId, runId);
   }
   protected liveRun(run: RecordOf<'run'>): boolean {
     return !['completed','failed','cancelled'].includes(run.state) || this.unresolved(run.id);
@@ -37,8 +39,19 @@ export class SchedulingStore extends SqliteStore {
       .all(request.providerId, request.issueId, run.repositoryId, run.id)
       .map(row => this.get('run', String(row.id))).filter(other => this.liveRun(other));
   }
+  protected assertWorkspaceExclusive(workspaceId: string): void {
+    const workspace = this.get('workspace', workspaceId), run = this.get('run', workspace.runId);
+    for (const row of this.db.prepare("SELECT id FROM workspaces WHERE id!=? AND state!='deleted'").all(workspace.id)) {
+      const other = this.get('workspace', String(row.id));
+      if ((other.targetId === workspace.targetId && other.locator === workspace.locator) ||
+        (other.localPath !== null && workspace.localPath !== null && canonicalPath(other.localPath) === canonicalPath(workspace.localPath)) ||
+        (other.branch === workspace.branch && this.get('run', other.runId).repositoryId === run.repositoryId))
+        throw new LifecycleError('identity_conflict');
+    }
+  }
   protected reserve(operationId: string): void {
     const op = this.get('operation', operationId), run = this.get('run', op.runId);
+    this.assertWorkspaceExclusive(op.workspaceId);
     if (this.issuePeers(run).length) throw new LifecycleError('issue_busy');
     const policy = this.schedulingPolicy();
     const admission = this.db.prepare('SELECT admitted_at FROM run_admissions WHERE run_id=?').get(run.id);
@@ -62,8 +75,9 @@ export class SchedulingStore extends SqliteStore {
     const entry = this.db.prepare('SELECT capacity_class FROM operation_scheduling WHERE operation_id=?').get(op.id);
     if (!entry) throw new LifecycleError('effect_blocked');
     const capacityClass = entry.capacity_class as 'development' | 'ciReview';
-    const count = this.db.prepare(`SELECT count(*) AS n FROM claims c JOIN operation_scheduling s ON s.operation_id=c.operation_id
-      WHERE c.active=1 AND s.capacity_class=?`).get(capacityClass)!.n as number;
+    const count = this.db.prepare(`SELECT count(*) AS n FROM operation_scheduling s WHERE s.capacity_class=? AND (EXISTS
+      (SELECT 1 FROM claims c WHERE c.operation_id=s.operation_id AND c.active=1) OR EXISTS
+      (SELECT 1 FROM deliveries d WHERE d.operation_id=s.operation_id AND d.state='conflict'))`).get(capacityClass)!.n as number;
     if (count >= policy[capacityClass]) throw new LifecycleError('capacity_wait');
   }
   schedulingStatus(runId: string) {
@@ -71,6 +85,10 @@ export class SchedulingStore extends SqliteStore {
     const admission = this.db.prepare('SELECT admitted_at FROM run_admissions WHERE run_id=?').get(runId);
     return { schemaVersion: '1.0' as const, runId, admittedAt: admission?.admitted_at as string | null ?? null,
       reserved: !!admission?.admitted_at && this.liveRun(run), issueConflict: this.issuePeers(run).length > 0,
-      policy: this.schedulingPolicy(), activeOperations: this.db.prepare('SELECT c.operation_id FROM claims c JOIN operations o ON o.id=c.operation_id WHERE o.run_id=? AND c.active=1').all(runId).map(row => String(row.operation_id)) };
+      policy: this.schedulingPolicy(), usage: {
+        activeRuns: this.db.prepare('SELECT run_id FROM run_admissions WHERE admitted_at IS NOT NULL').all().filter(row => this.liveRun(this.get('run', String(row.run_id)))).length,
+        development: Number(this.db.prepare("SELECT count(*) AS n FROM operation_scheduling s WHERE s.capacity_class='development' AND (EXISTS (SELECT 1 FROM claims c WHERE c.operation_id=s.operation_id AND c.active=1) OR EXISTS (SELECT 1 FROM deliveries d WHERE d.operation_id=s.operation_id AND d.state='conflict'))").get()!.n),
+        ciReview: Number(this.db.prepare("SELECT count(*) AS n FROM operation_scheduling s WHERE s.capacity_class='ciReview' AND (EXISTS (SELECT 1 FROM claims c WHERE c.operation_id=s.operation_id AND c.active=1) OR EXISTS (SELECT 1 FROM deliveries d WHERE d.operation_id=s.operation_id AND d.state='conflict'))").get()!.n),
+      }, activeOperations: this.db.prepare('SELECT c.operation_id FROM claims c JOIN operations o ON o.id=c.operation_id WHERE o.run_id=? AND c.active=1').all(runId).map(row => String(row.operation_id)) };
   }
 }

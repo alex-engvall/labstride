@@ -24,7 +24,8 @@
       "Kill/restart a real process around each effect boundary.",
       "Apply the completed W00.1 discovery to atomic observation/checkpoint and intent/outbox persistence; preserve original operation identities and uncertain outcomes across actual coordinator crashes.",
       "Persist session observation and projection identity; prove missing/duplicate/late hook recovery and outbox retries without stale human-state overwrites.",
-      "In W01.4 / #17, apply W00.3's pinned loading/profile contracts and session capability limits; preserve handle ownership, reject effects requiring unsupported atomic guards and complete AC31 plus production AC22 coverage with W07. Define/validate provider-specific question/answer payloads and verify actual client correlation/recovery."
+      "In W01.4 / #17, apply W00.3's pinned loading/profile contracts and session capability limits; preserve handle ownership, reject effects requiring unsupported atomic guards and complete AC31 plus production AC22 coverage with W07. Define/validate provider-specific question/answer payloads and verify actual client correlation/recovery.",
+      "Apply W01.3 durable issue/global/class admission, truthful run controls, human-priority guards and persisted repair budgets; retain live integration gates with their owning packages."
     ],
     "first_verifiable_outcome": "A queued synthetic operation resumes with its original ID after restart.",
     "status": "in_progress",

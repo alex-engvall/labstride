@@ -129,6 +129,16 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   CREATE TABLE control_requests (id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES runs(id),payload TEXT NOT NULL);
   CREATE TABLE cancellations (operation_id TEXT PRIMARY KEY REFERENCES operations(id),control_id TEXT NOT NULL REFERENCES control_requests(id),
     state TEXT NOT NULL CHECK(state IN ('pending','submitted','requested','unsupported','outcome_unknown','observed')));
+` }, { version: 8, sql: `
+  ALTER TABLE run_controls ADD COLUMN human_hold INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE run_controls ADD COLUMN max_repairs INTEGER NOT NULL DEFAULT 3;
+  ALTER TABLE run_controls ADD COLUMN unattended_ms INTEGER NOT NULL DEFAULT 86400000;
+  ALTER TABLE run_controls ADD COLUMN budget_anchor TEXT;
+  ALTER TABLE run_controls ADD COLUMN repairs INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE run_controls ADD COLUMN failure_count INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE run_controls ADD COLUMN last_failure TEXT;
+  ALTER TABLE run_controls ADD COLUMN budget_hold TEXT;
+  ALTER TABLE operation_scheduling ADD COLUMN automation TEXT NOT NULL DEFAULT '{"schemaVersion":"1.0"}';
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

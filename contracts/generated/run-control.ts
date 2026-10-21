@@ -5,5 +5,5 @@ export interface RunControl {
   id: string;
   runId: string;
   expectedRevision: number;
-  command: "pause" | "resume" | "cancel";
+  command: "pause" | "resume" | "cancel" | "takeover";
 }

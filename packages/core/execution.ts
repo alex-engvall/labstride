@@ -1,3 +1,4 @@
+import type { AutomationContext } from '../../contracts/generated/automation-context.ts';
 import type { ExecutionInboxInput } from '../../contracts/generated/execution-inbox.ts';
 import type { AuditContext, RecordOf } from './lifecycle.ts';
 export type InboxInput = ExecutionInboxInput;
@@ -7,11 +8,13 @@ export interface StartPlan {
   operation: RecordOf<'operation'>; outbox: RecordOf<'outbox'>; projections: RecordOf<'projection'>[];
   resourceKey: string;
   capacityClass?: 'development' | 'ciReview';
+  automation?: AutomationContext;
 }
 // Only a trusted policy adapter constructs plans/context. These are not event payload fields.
 export interface InboxStore {
   receive(input: InboxInput): { id: string; duplicate: boolean };
   pendingEvents(): InboxEntry[];
+  scheduleOperation(plan: Pick<StartPlan, 'operation' | 'outbox' | 'resourceKey' | 'capacityClass' | 'automation'>, authorization: AuditContext): string;
   scheduleStart(id: string, plan: StartPlan, authorization: AuditContext): string;
 }
 
@@ -26,11 +29,14 @@ export interface Delivery {
 }
 export interface RetryPolicy { maxAttempts: number; baseMs: number; capMs: number }
 export const defaultRetryPolicy: RetryPolicy = { maxAttempts: 5, baseMs: 1000, capMs: 60000 };
+export type SessionGuard = NonNullable<AutomationContext['sessionGuard']>;
 export interface ActionAdapter {
+  requiresSessionGuard?: boolean;
+  atomicSessionGuards?: boolean;
   // The embedding application enrolls reviewed adapters; payloads cannot load code.
   cancel?(operation: RecordOf<'operation'>['request'], handle: string, controlId: string): Promise<BoundResult>;
   validate(operation: RecordOf<'operation'>['request']): Promise<void>;
-  start(operation: RecordOf<'operation'>['request'], claim: Claim): Promise<BoundResult>;
+  start(operation: RecordOf<'operation'>['request'], claim: Claim, guard?: SessionGuard): Promise<BoundResult>;
   reconcile(operation: RecordOf<'operation'>['request'], handle: string | null): Promise<BoundResult>;
 }
 export interface ExecutionPort extends InboxStore {
@@ -38,7 +44,8 @@ export interface ExecutionPort extends InboxStore {
   dueOperations(): Delivery[];
   delivery(id: string): Delivery;
   claim(operationId: string, executorId: string, attemptId: string): Claim;
-  beginEffect(claim: Claim): void;
+  sessionGuard(operationId: string): SessionGuard | undefined;
+  beginEffect(claim: Claim, atomicSessionGuards?: boolean): void;
   acceptResult(result: BoundResult, claim: Claim | null, expectedRevision: number, projections?: RecordOf<'projection'>[], observedEpoch?: number): boolean;
   validateResult(result: BoundResult): BoundResult;
   recoveryEpoch(): number;

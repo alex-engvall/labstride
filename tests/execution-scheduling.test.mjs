@@ -4,9 +4,10 @@ import {mkdtempSync,rmSync,mkdirSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {requestDigest} from '../packages/storage-sqlite/execution.ts';
 import {startCoordinator} from '../apps/coordinator/main.ts';
 import {createWorker,actionKey} from '../packages/core/worker.ts';
-import {seed,schedule,nextIssue,nextGeneration,context} from './helpers/execution-fixture.mjs';
+import {seed,schedule,nextIssue,nextGeneration,context,startPlan,eventInput} from './helpers/execution-fixture.mjs';
 export const fail=code=>e=>e.code===code;
 export function fixture(t) {
  const root=mkdtempSync(join(tmpdir(),'labstride-scheduling-'));
@@ -25,6 +26,8 @@ test('two independent effects overlap; global capacity queues the third and surv
  const reboot=startCoordinator(join(root,'state'));t.after(()=>reboot.store.close());
  assert.equal(reboot.store.schedulingStatus(plan.run.id).reserved,true);assert.equal(reboot.store.schedulingStatus(two.run.id).reserved,true);
  finish.forEach(r=>r());await worker.drain();await worker.tick();await turn();assert.equal(starts.length,2); // run reservations outlive individual actions
+ for(const state of ['preparing','ready','active','completed']) {const run=store.get('run',plan.run.id);store.commit([{record:{...run,state,revision:run.revision+1},expectedRevision:run.revision}],context);}
+ await worker.tick();await turn();assert.equal(starts.length,3);finish.at(-1)();await worker.drain();
  await worker.close();
 });
 test('distinct development and CI/review limits do not share operation permits',async t=>{
@@ -63,4 +66,27 @@ test('v5 upgrade retains legacy conflicting identities and blocks both effect pa
  assert.equal(reboot.store.get('operation',two.operation.id).id,two.operation.id);
  assert.equal(reboot.store.schedulingStatus(plan.run.id).issueConflict,true);
  for(const p of [plan,two])assert.throws(()=>reboot.store.claim(p.operation.id,'new','new'),e=>['issue_busy','effect_blocked'].includes(e.code));
+});
+test('omitted class limits inherit the configured global limit and malformed policy has no effect',t=>{
+ const {store}=fixture(t);store.configureScheduling({schemaVersion:'1.0',activeRuns:1},context);
+ assert.deepEqual(store.schedulingPolicy(),{schemaVersion:'1.0',activeRuns:1,development:1,ciReview:1});
+ assert.throws(()=>store.configureScheduling({schemaVersion:'1.0',activeRuns:1,ciReview:null},context),fail('invalid_payload'));
+ assert.equal(store.schedulingPolicy().ciReview,1);
+});
+test('a different installation/configuration snapshot cannot bypass the live issue key',t=>{
+ const {store,plan}=fixture(t);store.commit([{record:{schemaVersion:'1.0',kind:'installation',id:'second-config',configRevision:'config-2',revision:1,createdAt:plan.run.createdAt,updatedAt:plan.run.updatedAt},expectedRevision:null}],context);
+ const next=startPlan();for(const kind of ['request','run','workspace','operation','outbox'])next[kind].id+=':config2';
+ next.request.installationId='second-config';next.run.requestId=next.request.id;next.run.configRevision='config-2';next.workspace.runId=next.run.id;
+ Object.assign(next.operation,{runId:next.run.id,workspaceId:next.workspace.id});Object.assign(next.operation.request,{operationId:next.operation.id,runId:next.run.id,workspaceId:next.workspace.id});
+ next.operation.request.requestDigest=requestDigest(next.operation.request);next.outbox.runId=next.run.id;next.outbox.operationId=next.operation.id;next.outbox.intentKey+=':config2';next.outbox.payload.operationId=next.operation.id;next.projections=[];
+ const event=eventInput();event.checkpoint=null;event.event.installationId='second-config';event.event.externalId+=':config2';event.event.eventId+=':config2';
+ assert.throws(()=>store.scheduleStart(store.receive(event).id,next,context),fail('issue_busy'));
+ assert.equal(store.snapshot().records.filter(r=>r.kind==='run').length,1);
+});
+test('conflicting terminal evidence retains the class permit without rewriting the terminal result',t=>{
+ const {store,plan}=fixture(t);store.configureScheduling({schemaVersion:'1.0',activeRuns:2,development:1,ciReview:1},context);
+ const claim=store.claim(plan.operation.id,'one','one');store.beginEffect(claim);store.acceptResult(result(plan),claim,1);
+ const conflict=result(plan);conflict.result.outputs={different:true};assert.equal(store.acceptResult(conflict,claim,1),false);
+ const two=nextIssue(store);assert.throws(()=>store.claim(two.operation.id,'two','two'),fail('capacity_wait'));
+ assert.equal(store.controlStatus(plan.run.id).usage.development,1);assert.equal(store.get('operation',plan.operation.id).state,'succeeded');
 });

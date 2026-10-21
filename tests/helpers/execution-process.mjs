@@ -1,9 +1,9 @@
 import { startCoordinator } from '../../apps/coordinator/main.ts';
 import { createWorker, actionKey } from '../../packages/core/worker.ts';
 import { startPlan } from './execution-fixture.mjs';
-const [mode, directory, url] = process.argv.slice(2);
+const [mode, directory, url, operationId, testNow] = process.argv.slice(2);
 const barrier = stage => { process.send({ stage }); Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0); };
-const { store } = startCoordinator(directory);
+const { store } = startCoordinator(directory, testNow ? { clock: { now: () => testNow } } : {});
 if (mode === 'after-claim') {
   const claim = store.claim.bind(store); store.claim = (...args) => { const result = claim(...args); barrier('after-claim'); return result; };
 }
@@ -18,7 +18,7 @@ const adapter = {
   },
   async reconcile(operation) { return send('/observe', operation); },
 };
-const operation = startPlan().operation;
+const operation = operationId ? store.get('operation', operationId) : startPlan().operation;
 const worker = createWorker(store, { executorId: 'test-executor', nextAttempt: () => 'test-attempt', adapters: new Map([[actionKey(operation.request.actionId, operation.request.actionVersion), adapter]]) });
 process.on('message', async () => {
   try { if (mode === 'claim-race') { const claim = store.claim(operation.id, `executor:${process.pid}`, 'attempt'); process.send({ stage:'claimed', claimId:claim.id }); store.close(); process.disconnect(); return; } await worker.tick(); await worker.drain(); process.send({ stage: 'done', state: store.get('operation', operation.id).state }); }
