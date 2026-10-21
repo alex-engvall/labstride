@@ -5,6 +5,7 @@ import { runClient } from '../tools/oidc-probe/runner-client.mjs';
 const options = {
   endpoint: 'https://probe.example.invalid/v1/discovery/oidc-probe', audience: 'urn:example:probe',
   renewalDelayMs: 0,
+  sleep: async () => {},
   env: { ACTIONS_ID_TOKEN_REQUEST_URL: 'https://oidc.example.invalid/idtoken?api-version=2.0',
     ACTIONS_ID_TOKEN_REQUEST_TOKEN: 'fixture_runner_secret', GITHUB_RUN_ID: '123', GITHUB_RUN_ATTEMPT: '1' },
 };
@@ -21,8 +22,8 @@ function fixture({ same = false, change = result => result } = {}) {
       return Response.json({ value: same || ++issued === 1 ? 'first.fixture.jwt' : 'second.fixture.jwt' });
     }
     const body = JSON.parse(init.body);
-    assert.deepEqual(Object.keys(body).sort(), ['probeId', 'schemaVersion']);
-    if (init.headers.Authorization === 'Bearer wrong.audience.jwt') {
+    assert.deepEqual(Object.keys(body).sort(), ['case', 'probeId', 'schemaVersion']);
+    if (body.case !== 'positive' || body.probeId.endsWith('-expired') || init.headers.Authorization === 'Bearer wrong.audience.jwt') {
       return Response.json({ schemaVersion: '1.0', error: 'identity_rejected' }, { status: 403 });
     }
     return Response.json(change({ schemaVersion: '1.0', result: 'verified_discovery_identity',
@@ -35,13 +36,21 @@ function fixture({ same = false, change = result => result } = {}) {
 test('runner fixture requests signed identity three times and reports only bounded evidence', async () => {
   const f = fixture();
   const result = await runClient({ ...options, ...f });
-  assert.equal(f.calls.length, 6);
+  assert.equal(f.calls.length, 10);
   assert.equal(result.wrongAudience.status, 403);
   assert.equal(result.renewal.sameToken, false);
   assert.equal(result.renewal.issuedAtAdvanced, true);
   assert.ok(!JSON.stringify(result).includes('jwt'));
   assert.ok(!JSON.stringify(result).includes('private remote'));
   assert.ok(!JSON.stringify(result).includes('secret'));
+});
+
+test('runner verifies old-token expiry before requesting a fresh token', async () => {
+  const delays = [];
+  const result = await runClient({ ...options, ...fixture(), renewAfterExpiry: true, clock: () => 1000,
+    sleep: async ms => delays.push(ms) });
+  assert.equal(result.expiredToken.status, 403);
+  assert.deepEqual(delays, [600, 600, 600, 600, 302000]);
 });
 
 test('same token on second request is preserved as an observation, not invented renewal', async () => {

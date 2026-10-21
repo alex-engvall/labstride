@@ -16,7 +16,7 @@ const MAX_TOKEN = 16384;
  * @typedef {{schemaVersion:'1.0', audience:string, repository:string, repositoryId:string,
  * ownerId:string, workflowPath:string, ref:string, workflowSha:string, runId:string,
  * runAttempt:string, eventName:'push'}} ProbePolicy
- * @typedef {{schemaVersion:'1.0', probeId:string}} ProbeRequest
+ * @typedef {{schemaVersion:'1.0', probeId:string, case?:'positive'|'wrong-repository'|'wrong-workflow'|'wrong-run'|'wrong-attempt'}} ProbeRequest
  */
 
 /**
@@ -42,12 +42,25 @@ const forbidden = () => new ProbeError('identity_rejected', 403);
  * @param {{getKey?: Function, readRun: Function, currentDate?: Date}} dependencies
  */
 export function createVerifier(policyValue, { getKey, readRun, currentDate } = {}) {
-  const policy = validatePolicy(policyValue);
+  const baseline = validatePolicy(policyValue);
+  // Fixed negative profiles are evaluated only after baseline authorization.
+  // A request cannot use a deliberately mismatching profile to gain admission.
+  const policies = {
+    positive: baseline,
+    'wrong-repository': { ...baseline, repositoryId: baseline.repositoryId === '1' ? '2' : '1' },
+    'wrong-workflow': { ...baseline, workflowPath: baseline.workflowPath === '.github/workflows/denied.yml'
+      ? '.github/workflows/other-denied.yml' : '.github/workflows/denied.yml' },
+    'wrong-run': { ...baseline, runId: baseline.runId === '1' ? '2' : '1' },
+    'wrong-attempt': { ...baseline, runAttempt: baseline.runAttempt === '1' ? '2' : '1' },
+  };
   if (typeof readRun !== 'function') throw new Error('missing_run_reader');
   const key = getKey ?? createRemoteJWKSet(new URL(`${ISSUER}/.well-known/jwks`), {
     timeoutDuration: 5000, cooldownDuration: 30000,
   });
-  return async token => {
+  return async function verify(token, probeCase = 'positive') {
+    if (!Object.hasOwn(policies, probeCase)) throw new ProbeError('invalid_payload', 400);
+    if (probeCase !== 'positive') await verify(token, 'positive');
+    const policy = policies[probeCase];
     if (typeof token !== 'string' || token.length > MAX_TOKEN || !/^[\w-]+\.[\w-]+\.[\w-]+$/.test(token)) {
       throw forbidden();
     }
@@ -111,7 +124,9 @@ export function createVerifier(policyValue, { getKey, readRun, currentDate } = {
 
 /** Fixed GitHub origin, no redirect or request-controlled repository/run URL. */
 export function createRunReader(token, fetcher = fetch) {
-  if (typeof token !== 'string' || !/^[A-Za-z0-9_]+$/.test(token)) throw new Error('missing_or_invalid_read_token');
+  // Provider credentials are opaque; do not assume a historical GitHub prefix
+  // or alphabet. Exclude whitespace/control bytes before constructing a header.
+  if (typeof token !== 'string' || !/^[!-~]{1,8192}$/.test(token)) throw new Error('missing_or_invalid_read_token');
   return async policy => {
     const url = `https://api.github.com/repos/${policy.repository}/actions/runs/${policy.runId}/attempts/${policy.runAttempt}`;
     const response = await fetcher(url, {
@@ -170,7 +185,7 @@ export function createProbeServer(verify) {
       if (!checkRequest(body)) throw new ProbeError('invalid_payload', 400);
       const match = /^Bearer ([\w.-]+)$/.exec(request.headers.authorization ?? '');
       if (!match || match[1].length > MAX_TOKEN) throw forbidden();
-      reply(200, { ...(await verify(match[1])), probeId: body.probeId });
+      reply(200, { ...(await verify(match[1], body.case ?? 'positive')), probeId: body.probeId });
     } catch (error) {
       if (error instanceof ProbeError) reply(error.status, { error: error.code });
       else reply(503, { error: 'probe_unavailable' });

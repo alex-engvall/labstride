@@ -9,7 +9,7 @@ permissions: {}
 jobs:
   probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write
@@ -26,4 +26,5 @@ jobs:
         env:
           LABSTRIDE_PROBE_ENDPOINT: ${{ vars.LABSTRIDE_PROBE_ENDPOINT }}
           LABSTRIDE_PROBE_AUDIENCE: ${{ vars.LABSTRIDE_PROBE_AUDIENCE }}
+          LABSTRIDE_PROBE_RENEW_AFTER_EXPIRY: '1'
         run: node tools/oidc-probe/runner-client.mjs

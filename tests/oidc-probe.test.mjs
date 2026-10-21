@@ -68,6 +68,21 @@ test('reissued same-run token is safe to observe twice; there are no operation e
   assert.deepEqual(first, second);
 });
 
+test('negative profiles require baseline identity and reject the same genuine fixture token', async () => {
+  let calls = 0;
+  const verify = verifier(async () => { calls++; return run(); });
+  const token = await sign();
+  for (const name of ['wrong-repository', 'wrong-workflow', 'wrong-run', 'wrong-attempt']) {
+    await assert.rejects(verify(token, name), isError('identity_rejected', 403));
+  }
+  await assert.rejects(verify(token, 'unknown'), isError('invalid_payload', 400));
+  assert.equal(calls, 4);
+  // A token matching the deliberately wrong run cannot gain admission through it.
+  calls = 0;
+  await assert.rejects(verify(await sign({ run_id: '1' }), 'wrong-run'), isError('identity_rejected', 403));
+  assert.equal(calls, 0);
+});
+
 for (const [field, bad] of Object.entries({ iss: 'https://attacker.invalid', aud: 'wrong-audience',
   repository: 'other/repository', repository_id: '99', repository_owner_id: '99',
   workflow_ref: 'other/workflow@refs/heads/oidc-discovery', workflow_sha: '2'.repeat(40),
@@ -121,6 +136,10 @@ test('JWKS outage is distinguishable from a rejected identity', async () => {
 });
 
 test('live run reader uses exact attempt, fixed HTTPS API, timeout and no redirects', async () => {
+  assert.doesNotThrow(() => createRunReader('opaque-v2.token+suffix/with=padding'));
+  for (const credential of ['', 'contains space', 'contains\r\nheader', 'x'.repeat(8193)]) {
+    assert.throws(() => createRunReader(credential), /missing_or_invalid_read_token/);
+  }
   const read = createRunReader('fixture_read_token', async (url, options) => {
     assert.equal(url, `https://api.github.com/repos/${policy.repository}/actions/runs/${policy.runId}/attempts/1`);
     assert.equal(options.redirect, 'error');
@@ -153,6 +172,14 @@ test('real loopback HTTP success, health and lack of operation/command endpoints
     assert.equal(response.status, 200);
     assert.equal(response.headers.get('cache-control'), 'no-store');
     assert.equal((await response.json()).probeId, body.probeId);
+    const token = await sign();
+    for (const probeCase of ['wrong-repository', 'wrong-workflow', 'wrong-run', 'wrong-attempt']) {
+      const denied = await fetch(`${base}/v1/discovery/oidc-probe`, { method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ ...body, case: probeCase }) });
+      assert.equal(denied.status, 403);
+      assert.equal((await denied.json()).error, 'identity_rejected');
+    }
   });
 });
 
