@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Trusted normalized field observation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "event": {
+      "$ref": "event.schema.json"
+    },
+    "initialSync": {
+      "type": "boolean"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "current": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "present": {
+                "const": false
+              }
+            },
+            "required": [
+              "present"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "present": {
+                "const": true
+              },
+              "value": {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "null",
+                  "array"
+                ],
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "present",
+              "value"
+            ]
+          }
+        ]
+      }
+    },
+    "previous": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "present": {
+                "const": false
+              }
+            },
+            "required": [
+              "present"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "present": {
+                "const": true
+              },
+              "value": {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "null",
+                  "array"
+                ],
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "present",
+              "value"
+            ]
+          }
+        ]
+      }
+    },
+    "configDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "event",
+    "initialSync",
+    "generation",
+    "current",
+    "previous",
+    "configDigest"
+  ]
+}

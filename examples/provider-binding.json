@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "providerId": "example.provider",
+  "credentialRef": "secret:project-access",
+  "source": "project_v2",
+  "scopeId": "example-project-id",
+  "fieldId": "example-request-field-id",
+  "type": "single-select",
+  "optionIds": [
+    "example-start-option-id",
+    "example-wait-option-id"
+  ],
+  "operators": [
+    "equals",
+    "exists",
+    "changedTo"
+  ],
+  "readable": true,
+  "writable": false,
+  "history": true,
+  "actorAttribution": true,
+  "evidenceRefs": [
+    "example:synthetic-qualified-binding"
+  ]
+}

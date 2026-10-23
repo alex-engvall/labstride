@@ -1,0 +1,175 @@
+{
+  "schemaVersion": "1.0",
+  "configuration": {
+    "schemaVersion": "1.0",
+    "installationId": "example-installation",
+    "enabled": false,
+    "broker": {
+      "url": "https://coordinator.example.invalid",
+      "oidcAudience": "labstride:example-installation"
+    },
+    "github": {
+      "repositories": [
+        "example-owner/example-app"
+      ],
+      "actorIds": [
+        "example-operator-id"
+      ],
+      "credentialRef": "secret:repository-access",
+      "projectCredentialRef": "secret:project-access",
+      "pollIntervalSeconds": 60
+    },
+    "fields": {
+      "request": {
+        "source": "project_v2",
+        "scopeId": "example-project-id",
+        "fieldId": "example-request-field-id",
+        "type": "single-select",
+        "options": {
+          "start": "example-start-option-id",
+          "wait": "example-wait-option-id"
+        }
+      }
+    },
+    "targets": {
+      "development": {
+        "connector": "example.connector",
+        "configuration": {
+          "root": "/srv/example/workspaces"
+        }
+      }
+    },
+    "extensions": [
+      {
+        "id": "example.provider",
+        "version": "1.0.0",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "id": "example.connector",
+        "version": "1.0.0",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "id": "example.action",
+        "version": "1.0.0",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ],
+    "limits": {
+      "activeRuns": 2,
+      "perIssue": 1,
+      "perDeploymentTarget": 1,
+      "metadataRetentionDays": 90
+    },
+    "rules": [
+      {
+        "id": "start",
+        "event": "field.changed",
+        "condition": {
+          "field": "request",
+          "op": "changedTo",
+          "value": "start"
+        },
+        "workflow": "prepare"
+      }
+    ],
+    "workflows": {
+      "prepare": [
+        {
+          "id": "record",
+          "action": "example.action",
+          "inputs": {
+            "target": "development",
+            "source": {
+              "binding": "context",
+              "context": "source"
+            },
+            "literalNote": {
+              "binding": "literal",
+              "value": "context.source"
+            }
+          }
+        }
+      ]
+    },
+    "projections": [],
+    "extensionConfiguration": {},
+    "controls": {}
+  },
+  "bindings": {
+    "request": {
+      "schemaVersion": "1.0",
+      "providerId": "example.provider",
+      "credentialRef": "secret:project-access",
+      "source": "project_v2",
+      "scopeId": "example-project-id",
+      "fieldId": "example-request-field-id",
+      "type": "single-select",
+      "optionIds": [
+        "example-start-option-id",
+        "example-wait-option-id"
+      ],
+      "operators": [
+        "equals",
+        "exists",
+        "changedTo"
+      ],
+      "readable": true,
+      "writable": false,
+      "history": true,
+      "actorAttribution": true,
+      "evidenceRefs": [
+        "example:synthetic-qualified-binding"
+      ]
+    }
+  },
+  "extensionLock": {
+    "schemaVersion": "1.0",
+    "extensions": [
+      {
+        "id": "example.provider",
+        "version": "1.0.0",
+        "kind": "provider",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+        "artifactPath": "/opt/labstride/extensions/example.provider.artifact.json",
+        "configuration": {},
+        "permissions": [
+          "network.github"
+        ],
+        "capabilities": [
+          "example.provider.v1"
+        ]
+      },
+      {
+        "id": "example.connector",
+        "version": "1.0.0",
+        "kind": "connector",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+        "artifactPath": "/opt/labstride/extensions/example.connector.artifact.json",
+        "configuration": {},
+        "permissions": [
+          "network.ssh"
+        ],
+        "capabilities": [
+          "example.connector.v1"
+        ]
+      },
+      {
+        "id": "example.action",
+        "version": "1.0.0",
+        "kind": "action",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+        "artifactPath": "/opt/labstride/extensions/example.action.artifact.json",
+        "configuration": {},
+        "permissions": [
+          "filesystem.workspace"
+        ],
+        "capabilities": [
+          "example.action.v1"
+        ]
+      }
+    ]
+  },
+  "digest": "c478c2366c5236a524798a9a0215278abc96be29d30ddb74355ab947792e0333"
+}

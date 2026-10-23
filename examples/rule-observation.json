@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "configDigest": "c478c2366c5236a524798a9a0215278abc96be29d30ddb74355ab947792e0333",
+  "event": {
+    "schemaVersion": "1.0",
+    "eventId": "example-transition-1",
+    "installationId": "example-installation",
+    "provider": "example.provider",
+    "kind": "field.changed",
+    "origin": "human",
+    "externalId": "example-transition-1",
+    "subjectId": "example-issue-id",
+    "actorId": "example-operator-id",
+    "occurredAt": "2026-10-23T10:00:00Z",
+    "observedAt": "2026-10-23T10:00:01Z",
+    "sourceVersion": "example:opaque-v1",
+    "facts": {}
+  },
+  "initialSync": false,
+  "generation": 1,
+  "current": {
+    "request": {
+      "present": true,
+      "value": "example-start-option-id"
+    }
+  },
+  "previous": {
+    "request": {
+      "present": true,
+      "value": "example-wait-option-id"
+    }
+  }
+}

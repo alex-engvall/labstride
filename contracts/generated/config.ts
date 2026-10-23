@@ -4,7 +4,7 @@ export type Condition =
   | {
       field: string;
       op: "equals" | "notEquals" | "contains" | "changedTo";
-      value: string | number | boolean | null;
+      value: FieldValue;
     }
   | {
       field: string;
@@ -25,6 +25,37 @@ export type Condition =
   | {
       not: Condition;
     };
+/**
+ * @maxItems 1024
+ */
+export type FieldValue = string | number | boolean | null | string[];
+export type InputBinding =
+  | (string | number | boolean | null)
+  | InputBinding[]
+  | {
+      [k: string]: InputBinding;
+    }
+  | {
+      binding: "field";
+      field: string;
+    }
+  | {
+      binding: "context";
+      context: "source" | "mergeSha" | "workspaceId";
+    }
+  | {
+      binding: "literal";
+      value: JsonValue;
+    };
+export type JsonValue =
+  | {
+      [k: string]: JsonValue;
+    }
+  | JsonValue[]
+  | string
+  | number
+  | boolean
+  | null;
 
 export interface LabstrideInstallationConfigurationV1 {
   schemaVersion: "1.0";
@@ -117,14 +148,14 @@ export interface LabstrideInstallationConfigurationV1 {
         id: string;
         action: string;
         inputs: {
-          [k: string]: unknown;
+          [k: string]: InputBinding;
         };
       },
       ...{
         id: string;
         action: string;
         inputs: {
-          [k: string]: unknown;
+          [k: string]: InputBinding;
         };
       }[]
     ];
@@ -135,7 +166,7 @@ export interface LabstrideInstallationConfigurationV1 {
   projections: {
     fact: string;
     field: string;
-    value: string | number | boolean | null;
+    value: FieldValue;
   }[];
   extensionConfiguration: {
     [k: string]: {
@@ -148,11 +179,11 @@ export interface LabstrideInstallationConfigurationV1 {
       /**
        * @minItems 1
        */
-      enabledValues: [string, ...string[]];
+      enabledValues: [FieldValue, ...FieldValue[]];
       /**
        * @minItems 1
        */
-      disabledValues: [string, ...string[]];
+      disabledValues: [FieldValue, ...FieldValue[]];
     };
   };
 }

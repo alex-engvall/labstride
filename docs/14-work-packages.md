@@ -64,6 +64,8 @@ Tracker: [#5](https://github.com/alex-engvall/labstride/issues/5).
 
 **Requirements:** LS-CFG-001, LS-CFG-002, LS-CFG-003, LS-CFG-004, LS-CFG-005, LS-GH-002, LS-GH-003, LS-GH-004, LS-GH-005
 
+**W02.1 progress:** LS-CFG-001/002/003/005 have [compiler/admission implementation evidence](evidence/W02.1-configuration-2026-10-23.md): two mappings, typed rules/inputs, pinned preflight, transactional snapshots, inert initial observations, conflicts and actual process-loss recovery. This trusted local slice is ready for scoped review. Actor/policy authority remains with #19; actual GitHub polling, binding refresh, bootstrap classification and projection reconciliation remain with #20. Full AC04/AC06/AC26 and AC35/AC36 retain their documented integration gates.
+
 ## W03 — SSH and independent workspace action
 
 Tracker: [#6](https://github.com/alex-engvall/labstride/issues/6).

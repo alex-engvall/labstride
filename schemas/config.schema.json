@@ -9,7 +9,8 @@
     },
     "installationId": {
       "type": "string",
-      "pattern": "^[A-Za-z0-9_.:-]+$"
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "maxLength": 256
     },
     "enabled": {
       "type": "boolean"
@@ -142,6 +143,10 @@
           "connector",
           "configuration"
         ]
+      },
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9_.:-]+$",
+        "maxLength": 256
       }
     },
     "extensions": {
@@ -267,7 +272,10 @@
               "minLength": 1
             },
             "inputs": {
-              "type": "object"
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/inputBinding"
+              }
             }
           },
           "required": [
@@ -277,6 +285,10 @@
           ]
         },
         "minItems": 1
+      },
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9_.:-]+$",
+        "maxLength": 256
       }
     },
     "projections": {
@@ -294,12 +306,7 @@
             "minLength": 1
           },
           "value": {
-            "type": [
-              "string",
-              "number",
-              "boolean",
-              "null"
-            ]
+            "$ref": "#/$defs/fieldValue"
           }
         },
         "required": [
@@ -329,16 +336,14 @@
           "enabledValues": {
             "type": "array",
             "items": {
-              "type": "string",
-              "minLength": 1
+              "$ref": "#/$defs/fieldValue"
             },
             "minItems": 1
           },
           "disabledValues": {
             "type": "array",
             "items": {
-              "type": "string",
-              "minLength": 1
+              "$ref": "#/$defs/fieldValue"
             },
             "minItems": 1
           }
@@ -387,12 +392,7 @@
               ]
             },
             "value": {
-              "type": [
-                "string",
-                "number",
-                "boolean",
-                "null"
-              ]
+              "$ref": "#/$defs/fieldValue"
             }
           },
           "required": [
@@ -460,6 +460,121 @@
           },
           "required": [
             "not"
+          ]
+        }
+      ]
+    },
+    "fieldValue": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": "string",
+        "maxLength": 4096
+      },
+      "uniqueItems": true,
+      "maxLength": 4096,
+      "maxItems": 1024
+    },
+    "jsonValue": {
+      "type": [
+        "object",
+        "array",
+        "string",
+        "number",
+        "boolean",
+        "null"
+      ],
+      "additionalProperties": {
+        "$ref": "#/$defs/jsonValue"
+      },
+      "items": {
+        "$ref": "#/$defs/jsonValue"
+      }
+    },
+    "inputBinding": {
+      "oneOf": [
+        {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/inputBinding"
+          }
+        },
+        {
+          "type": "object",
+          "not": {
+            "required": [
+              "binding"
+            ]
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/inputBinding"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "binding": {
+              "const": "field"
+            },
+            "field": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            }
+          },
+          "required": [
+            "binding",
+            "field"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "binding": {
+              "const": "context"
+            },
+            "context": {
+              "enum": [
+                "source",
+                "mergeSha",
+                "workspaceId"
+              ]
+            }
+          },
+          "required": [
+            "binding",
+            "context"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "binding": {
+              "const": "literal"
+            },
+            "value": {
+              "$ref": "#/$defs/jsonValue"
+            }
+          },
+          "required": [
+            "binding",
+            "value"
           ]
         }
       ]

@@ -107,13 +107,13 @@ Implementation issue: [#16](https://github.com/alex-engvall/labstride/issues/16)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W02 |
+| MVP | P0 | implemented | W02 |
 
 Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - Unknown keys, missing bindings and incompatible capabilities fail preflight; enabled runs retain a configuration digest.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W02.1-configuration-2026-10-23.md
 
 Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18).
 
@@ -121,13 +121,13 @@ Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W02 |
+| MVP | P0 | implemented | W02 |
 
 Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - Two installations use different field/option names and IDs without core edits; type mismatches are rejected.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W02.1-configuration-2026-10-23.md
 
 Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18).
 
@@ -135,13 +135,13 @@ Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W02 |
+| MVP | P0 | implemented | W02 |
 
 Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - Shell syntax and executable text remain literal data and cannot select uninstalled operations.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W02.1-configuration-2026-10-23.md
 
 Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18).
 
@@ -163,13 +163,13 @@ Implementation issue: [#19](https://github.com/alex-engvall/labstride/issues/19)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W02 |
+| MVP | P0 | implemented | W02 |
 
 Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - Conflicting start rules block effects; initial sync does not automatically start historical matching issues.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W02.1-configuration-2026-10-23.md
 
 Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18).
 

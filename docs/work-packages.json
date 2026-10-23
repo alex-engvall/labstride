@@ -46,7 +46,7 @@
       "Apply W00.3's session observation boundary to authorized, generation-bound projections; optional hooks cannot grant human intent or replace backend reconciliation."
     ],
     "first_verifiable_outcome": "A test Project field transition creates exactly one queued run.",
-    "status": "planned",
+    "status": "in_progress",
     "github_issue": 5,
     "github_issue_url": "https://github.com/alex-engvall/labstride/issues/5"
   },

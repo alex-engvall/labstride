@@ -1,6 +1,6 @@
 # Labstride documentation
 
-Specification version 0.1.0. Application runtime is not implemented. W00.1 GitHub access discovery (#11) is complete; its provider evidence is distinguished from remaining runtime acceptance in W01/W02/W06 and other open W00 gates.
+Specification version 0.1.0. W01 persistence/execution/session slices and W02.1 configuration compilation have scoped implementations; the product and live integrations remain incomplete. W00.1 GitHub access discovery (#11) is complete; its provider evidence is distinguished from remaining runtime acceptance in W01/W02/W06 and other open W00 gates.
 
 W00.3 toolchain/contract and client-capability discovery (#13) is complete for the examined environment: #13 is closed as completed and PR #41 merged the foundation. This closeout records the remaining implementation owners. Unsupported atomic guards and the initial hooks-disabled profile remain explicit integration limits.
 
@@ -57,3 +57,5 @@ Keep the current specification coherent. Do not append contradictory historical 
 - [28 — Durable coordinator store](28-durable-coordinator-store.md)
 
 [Installed extensions and durable sessions](29-installed-sessions.md) documents W01.4 runtime behavior, explicit probe use and remaining live gates.
+
+[Installation configuration compiler and admission](30-installation-configuration.md) documents W02.1 typed fields/rules, immutable snapshots and recovery boundaries.

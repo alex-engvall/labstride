@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Qualified provider field binding",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "credentialRef": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "source": {
+      "enum": [
+        "project_v2",
+        "organization_issue_field",
+        "native_issue",
+        "label",
+        "issue_form"
+      ]
+    },
+    "scopeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "fieldId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "type": {
+      "enum": [
+        "string",
+        "boolean",
+        "number",
+        "date",
+        "single-select",
+        "multi-select"
+      ]
+    },
+    "optionIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+      },
+      "uniqueItems": true,
+      "maxItems": 1024
+    },
+    "operators": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "equals",
+          "notEquals",
+          "contains",
+          "exists",
+          "changedTo"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "readable": {
+      "type": "boolean"
+    },
+    "writable": {
+      "type": "boolean"
+    },
+    "history": {
+      "type": "boolean"
+    },
+    "actorAttribution": {
+      "type": "boolean"
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+      },
+      "minItems": 1,
+      "maxItems": 128
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "providerId",
+    "credentialRef",
+    "source",
+    "scopeId",
+    "fieldId",
+    "type",
+    "optionIds",
+    "operators",
+    "readable",
+    "writable",
+    "history",
+    "actorAttribution",
+    "evidenceRefs"
+  ]
+}

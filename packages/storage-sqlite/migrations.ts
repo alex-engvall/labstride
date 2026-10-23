@@ -150,6 +150,20 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   CREATE UNIQUE INDEX session_start_enrollment ON session_commands(json_extract(payload,'$.enrollmentId'))
     WHERE json_extract(payload,'$.request.command')='start';
   CREATE TABLE session_handoffs (id TEXT PRIMARY KEY, payload TEXT NOT NULL CHECK(json_valid(payload)));
+` }, { version: 10, sql: `
+  CREATE TABLE configuration_snapshots (
+    digest TEXT PRIMARY KEY CHECK(length(digest)=64), installation_id TEXT NOT NULL REFERENCES installations(id),
+    payload TEXT NOT NULL CHECK(json_valid(payload) AND length(CAST(payload AS BLOB))<=262144));
+  CREATE TRIGGER configuration_snapshot_no_update BEFORE UPDATE ON configuration_snapshots BEGIN SELECT RAISE(ABORT,'immutable_configuration'); END;
+  CREATE TRIGGER configuration_snapshot_no_delete BEFORE DELETE ON configuration_snapshots BEGIN SELECT RAISE(ABORT,'immutable_configuration'); END;
+  CREATE TABLE active_configurations (
+    installation_id TEXT PRIMARY KEY REFERENCES installations(id), digest TEXT NOT NULL REFERENCES configuration_snapshots(digest));
+  ALTER TABLE runs ADD COLUMN config_digest TEXT REFERENCES configuration_snapshots(digest);
+  CREATE TABLE rule_evaluations (
+    inbox_id TEXT PRIMARY KEY REFERENCES inbox(id), config_digest TEXT NOT NULL REFERENCES configuration_snapshots(digest),
+    payload TEXT NOT NULL CHECK(json_valid(payload)), run_id TEXT REFERENCES runs(id));
+  CREATE TRIGGER rule_evaluation_no_update BEFORE UPDATE ON rule_evaluations BEGIN SELECT RAISE(ABORT,'immutable_rule_evaluation'); END;
+  CREATE TRIGGER rule_evaluation_no_delete BEFORE DELETE ON rule_evaluations BEGIN SELECT RAISE(ABORT,'immutable_rule_evaluation'); END;
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

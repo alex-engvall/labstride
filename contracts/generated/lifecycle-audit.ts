@@ -145,7 +145,7 @@ export type LabstrideLifecycleRecord =
       payload: {
         schemaVersion: "1.0";
         expectedFingerprint: string;
-        value: string | null;
+        value: FieldValue;
       };
     }
   | {
@@ -183,6 +183,10 @@ export type LabstrideLifecycleRecord =
       tombstoneRef: string | null;
       correctsId: string | null;
     };
+/**
+ * @maxItems 1024
+ */
+export type FieldValue = string | number | boolean | null | string[];
 
 export interface LabstrideLifecycleAudit {
   schemaVersion: "1.0";
