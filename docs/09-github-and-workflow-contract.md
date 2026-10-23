@@ -71,3 +71,5 @@ If dispatch acknowledgement is lost, find the matching run and claim. Multiple m
 GitHub workflow concurrency complements coordinator locks but does not replace operation identity or establish exactly-once execution. A manually rerun job still goes through the claim gate.
 
 Official references are in 17-sources.md. API/claim coverage must be checked against the actual GitHub version and permission model during W00.
+
+Native organization issue fields use the separate [repository-scoped binding and history contract](35-native-issue-fields.md). The selected permanent source profile does not depend on similarly named Project fields or a disposable verification Project.

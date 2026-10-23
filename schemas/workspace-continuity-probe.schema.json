@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Owned workspace continuity probe v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "stateDirectory": {
+      "type": "string",
+      "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+      "maxLength": 4096
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "repositoryId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "issueIds": {
+      "type": "array",
+      "items": {
+        "$ref": "contract-common.schema.json#/$defs/id"
+      },
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true
+    },
+    "actorId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "installationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "rootId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "sourceRoot": {
+      "type": "string",
+      "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+      "maxLength": 4096
+    },
+    "codingUid": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "coordinatorUser": {
+      "type": "string",
+      "pattern": "^[a-z_][a-z0-9_-]{0,31}$"
+    },
+    "coordinatorUid": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "nodePath": {
+      "type": "string",
+      "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+      "maxLength": 4096
+    },
+    "probeScript": {
+      "type": "string",
+      "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+      "maxLength": 4096
+    },
+    "targetRegistry": {
+      "type": "string",
+      "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+      "maxLength": 4096
+    },
+    "sessionEnrollmentFile": {
+      "type": "string",
+      "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+      "maxLength": 4096
+    },
+    "connectorPin": {
+      "$ref": "extension-lock.schema.json#/properties/extensions/items"
+    },
+    "actionPin": {
+      "$ref": "extension-lock.schema.json#/properties/extensions/items"
+    },
+    "sessionActionPin": {
+      "$ref": "extension-lock.schema.json#/properties/extensions/items"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "stateDirectory",
+    "repository",
+    "repositoryId",
+    "issueIds",
+    "actorId",
+    "installationId",
+    "targetId",
+    "rootId",
+    "sourceRoot",
+    "codingUid",
+    "coordinatorUser",
+    "coordinatorUid",
+    "nodePath",
+    "probeScript",
+    "targetRegistry",
+    "sessionEnrollmentFile",
+    "connectorPin",
+    "actionPin",
+    "sessionActionPin"
+  ]
+}

@@ -108,8 +108,12 @@
       "precondition": "Two independent issues",
       "action": "Start two different issues on the same host.",
       "expected": "Distinct checkouts/branches and optional runtime namespaces; no shared worktree.",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed",
+      "evidence": [
+        "evidence/W03.2-workspaces-2026-10-23.md",
+        "evidence/W03.2-continuity-2026-10-23.md",
+        "evidence/W03.2-live-continuity-receipt-2026-10-23.json"
+      ]
     },
     {
       "id": "AC09",
@@ -120,9 +124,12 @@
       "precondition": "Workspace exists but reply lost",
       "action": "Drop the SSH connection after creation before receipt.",
       "expected": "Reconciliation adopts the exact registered directory, not a second one.",
-      "status": "not_run",
+      "status": "passed",
       "evidence": [
-        "evidence/W01.2-effects-2026-10-21.md"
+        "evidence/W01.2-effects-2026-10-21.md",
+        "evidence/W03.2-workspaces-2026-10-23.md",
+        "evidence/W03.2-continuity-2026-10-23.md",
+        "evidence/W03.2-live-continuity-receipt-2026-10-23.json"
       ]
     },
     {
@@ -472,7 +479,7 @@
       "precondition": "First integrated issue/workspace/session continuity proof after W00 and W01 prerequisites",
       "action": "Use one owned test issue, one isolated SSH workspace and the actual enrolled interactive client. Duplicate the start, lose the SSH reply, omit a hook, fail a GitHub write and restart the coordinator; then perform a human turn before an automated continuation.",
       "expected": "The same recorded operation/workspace/session is adopted without duplicate effects; the existing client can resume it, stale automated continuation is rejected and unsupported atomic guards are reported without inventing a guarantee.",
-      "status": "not_run",
+      "status": "passed",
       "evidence": [
         "evidence/W01.1-lifecycles-2026-10-21.md",
         "evidence/W01.1-retention-2026-10-21.md",
@@ -480,7 +487,10 @@
         "evidence/W01.2-observations-2026-10-21.md",
         "evidence/W01.4-installed-sessions-2026-10-23.md",
         "evidence/W01.4-client-continuity-2026-10-23.md",
-        "evidence/W02.3-reconciliation-2026-10-23.md"
+        "evidence/W02.3-reconciliation-2026-10-23.md",
+        "evidence/W03.2-workspaces-2026-10-23.md",
+        "evidence/W03.2-continuity-2026-10-23.md",
+        "evidence/W03.2-live-continuity-receipt-2026-10-23.json"
       ]
     }
   ]

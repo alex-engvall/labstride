@@ -51,7 +51,7 @@ export class GitHubStore extends ConfigurationStore {
   registerGitHub(compiled: CompiledConfiguration, providerId: string, scopeId: string): GitHubProject {
     const snapshot = compiledSnapshot(compiled), installationId = snapshot.configuration.installationId;
     if (this.get('installation',installationId).configRevision !== snapshot.digest ||
-      !Object.values(snapshot.bindings).some(binding => binding.providerId === providerId && binding.scopeId === scopeId && binding.source === 'project_v2'))
+      !Object.values(snapshot.bindings).some(binding => binding.providerId === providerId && binding.scopeId === scopeId && ['project_v2','organization_issue_field'].includes(binding.source)))
       throw new LifecycleError('effect_blocked');
     const key = projectKey(installationId,providerId,scopeId,snapshot.digest);
     return this.transaction(() => {
@@ -111,7 +111,9 @@ export class GitHubStore extends ConfigurationStore {
         this.db.prepare('UPDATE github_items SET removed=1,baseline=0,dirty=0,revision=revision+1,last_error=? WHERE key=?').run('item_unavailable',job.key); return;
       }
       if (item.itemId !== job.itemId || item.subjectId !== job.subjectId || item.scopeId !== project.scopeId) throw new LifecycleError('identity_conflict');
-      for (const event of page.events.filter(event => event.scopeId === project.scopeId)) {
+      const binding=this.configurationSnapshot(project.configDigest).bindings[statusField];
+      for (const event of page.events.filter(event => event.scopeId === project.scopeId &&
+        (binding.source!=='organization_issue_field'||event.fieldId===binding.fieldId))) {
         const old = this.db.prepare('SELECT payload FROM github_history WHERE item_key=? AND event_id=?').get(job.key,event.id);
         if (old && old.payload !== canonical(event)) throw new LifecycleError('identity_conflict');
         this.db.prepare('INSERT OR IGNORE INTO github_history(item_key,event_id,payload) VALUES (?,?,?)').run(job.key,event.id,canonical(event));
@@ -220,13 +222,37 @@ export class GitHubStore extends ConfigurationStore {
       if(!changed.changes)throw new LifecycleError('revision_conflict');
     });
   }
+  private githubProgressValue(runId:string,mapping:ReturnType<typeof compiledSnapshot>['configuration']['projections'][number]):unknown{
+    if(!mapping.valueFrom)return mapping.value;
+    const run=this.get('run',runId),source=mapping.valueFrom;
+    if(source.kind==='session-id'){
+      const rows=this.db.prepare('SELECT id FROM sessions WHERE run_id=?').all(runId);
+      const sessions=rows.map(row=>this.get('session',String(row.id))).filter(session=>{
+        const binding=this.binding(session.id);
+        return binding.status==='attached'&&binding.runId===runId&&binding.workspaceId===session.workspaceId&&binding.sessionId===session.sessionId;
+      });
+      if(sessions.length!==1)throw new LifecycleError('effect_blocked');return sessions[0].sessionId;
+    }
+    const rows=this.db.prepare('SELECT id FROM workspaces WHERE run_id=?').all(run.id);
+    const workspaces=rows.map(row=>this.get('workspace',String(row.id))).filter(workspace=>workspace.targetId===source.targetId&&['ready','in_use','retained'].includes(workspace.state));
+    if(workspaces.length!==1)throw new LifecycleError('effect_blocked');const workspace=workspaces[0];
+    const results=this.db.prepare("SELECT e.payload FROM execution_results e JOIN operations o ON o.id=e.operation_id WHERE o.workspace_id=? AND json_extract(o.payload,'$.request.actionId')='labstride.workspace-create'").all(workspace.id);
+    const receipts=results.map(row=>validated('execution-record',JSON.parse(String(row.payload)) as import('../../contracts/generated/execution-record.ts').ExecutionRecord))
+      .filter(result=>result.kind==='result'&&result.result.status==='succeeded'&&result.result.outputs.workspace)
+      .map(result=>{if(result.kind!=='result')throw new LifecycleError('invalid_payload');return validated('ssh-workspace-receipt',result.result.outputs.workspace as import('../../contracts/generated/ssh-workspace-receipt.ts').OwnedWorkspaceCreationReceiptV1);});
+    if(receipts.length!==1)throw new LifecycleError('effect_blocked');const receipt=receipts[0],operation=this.get('operation',receipt.operationId);
+    if(operation.state!=='succeeded'||operation.workspaceId!==workspace.id||operation.request.actionVersion!=='1.0.0'||receipt.requestDigest!==operation.request.requestDigest||canonical(receipt.source)!==canonical(operation.request.source))throw new LifecycleError('identity_conflict');
+    if(receipt.workspaceId!==workspace.id||receipt.runId!==runId||receipt.targetId!==source.targetId||receipt.rootId!==source.rootId||receipt.locator!==workspace.locator||receipt.ownershipRef!==workspace.ownershipRef||
+      !this.db.prepare("SELECT 1 FROM resources WHERE created_by_operation=? AND workspace_id=? AND json_extract(payload,'$.locator')=?").get(receipt.operationId,workspace.id,receipt.handle))throw new LifecycleError('identity_conflict');
+    return source.rootPath+'/'+receipt.locator+'/source';
+  }
   githubProjectionContext(projection:RecordOf<'projection'>):{
     configuration:ReturnType<typeof compiledSnapshot>['configuration'];logical:string;scopeId:string;itemId:string;generation:number;
   }{
     const run=this.get('run',projection.runId),request=this.get('request',run.requestId),snapshot=this.runConfiguration(run.id);
     if(!snapshot||projection.generation!==request.generation)throw new LifecycleError('effect_blocked');
-    const field=Object.entries(snapshot.bindings).find(([,field])=>field.providerId===projection.providerId&&field.fieldId===projection.fieldId&&field.source==='project_v2');
-    if(!field||!snapshot.configuration.projections.some(mapping=>mapping.field===field[0]&&canonical(fieldValue(snapshot.configuration.fields[mapping.field],mapping.value,true))===canonical(projection.payload.value)))throw new LifecycleError('effect_blocked');
+    const field=Object.entries(snapshot.bindings).find(([,field])=>field.providerId===projection.providerId&&field.fieldId===projection.fieldId&&['project_v2','organization_issue_field'].includes(field.source));
+    if(!field||!snapshot.configuration.projections.some(mapping=>mapping.field===field[0]&&canonical(fieldValue(snapshot.configuration.fields[mapping.field],this.githubProgressValue(run.id,mapping) as import('../configuration/values.ts').Value,true))===canonical(projection.payload.value)))throw new LifecycleError('effect_blocked');
     const project=projectKey(request.installationId,projection.providerId,field[1].scopeId,snapshot.digest);
     if(!projection.providerTarget||projection.providerTarget.scopeId!==field[1].scopeId)throw new LifecycleError('identity_conflict');
     const member=this.db.prepare('SELECT subject_id,removed FROM github_items WHERE project_key=? AND item_id=?').get(project,projection.providerTarget.resourceId);
@@ -243,13 +269,13 @@ export class GitHubStore extends ConfigurationStore {
       const ids:string[]=[];
       for(const mapping of snapshot.configuration.projections.filter(mapping=>mapping.fact===fact)){
         const binding=snapshot.bindings[mapping.field],state=item.fields[mapping.field];
-        if(!binding||binding.source!=='project_v2'||binding.scopeId!==item.scopeId||!state)throw new LifecycleError('effect_blocked');
-        const id=`github-progress:${digest([runId,fact,binding.fieldId,mapping.value])}`;
+        if(!binding||!['project_v2','organization_issue_field'].includes(binding.source)||binding.scopeId!==item.scopeId||!state)throw new LifecycleError('effect_blocked');
+        const id=`github-progress:${digest([runId,fact,binding.fieldId,mapping.valueFrom??mapping.value])}`;
         if(this.db.prepare('SELECT 1 FROM projections WHERE id=?').get(id)){ids.push(id);continue;}
         const record:RecordOf<'projection'>={schemaVersion:'1.0',kind:'projection',id,revision:1,createdAt:this.clock.now(),updatedAt:this.clock.now(),
           runId,providerId:binding.providerId,subjectId:item.subjectId,fieldId:binding.fieldId,generation:request.generation,
           providerTarget:{schemaVersion:'1.0',scopeId:item.scopeId,resourceId:item.itemId},
-          payload:{schemaVersion:'1.0',expectedFingerprint:githubFingerprint(item,mapping.field),value:fieldValue(snapshot.configuration.fields[mapping.field],mapping.value,true)}};
+          payload:{schemaVersion:'1.0',expectedFingerprint:githubFingerprint(item,mapping.field),value:fieldValue(snapshot.configuration.fields[mapping.field],this.githubProgressValue(run.id,mapping) as import('../configuration/values.ts').Value,true)}};
         this.githubProjectionContext(record);
         const context:AuditContext={actorId:'coordinator',reason:'Mapped operational progress',evidenceRefs:[`run:${runId}`,`fact:${fact}`]};
         this.write([{record,expectedRevision:null}],context);this.enqueue('projection',id);ids.push(id);
@@ -268,7 +294,7 @@ export class GitHubStore extends ConfigurationStore {
       for(const workspace of this.db.prepare('SELECT id FROM workspaces WHERE run_id=?').all(run.id))facts.add(`workspace.${this.get('workspace',String(workspace.id)).state}`);
       for(const session of this.db.prepare('SELECT id FROM sessions WHERE run_id=?').all(run.id))facts.add(`session.${this.get('session',String(session.id)).state}`);
       for(const mapping of snapshot.configuration.projections)if(facts.has(mapping.fact)){
-        const id=`github-progress:${digest([run.id,mapping.fact,snapshot.bindings[mapping.field].fieldId,mapping.value])}`;
+        const id=`github-progress:${digest([run.id,mapping.fact,snapshot.bindings[mapping.field].fieldId,mapping.valueFrom??mapping.value])}`;
         if(!this.db.prepare('SELECT 1 FROM projections WHERE id=?').get(id))result.push({runId:run.id,itemId:String(row.item_id),fact:mapping.fact});
       }
     }

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0",
+  "workspaceId": "workspace-example",
+  "pin": {
+    "id": "example.session.codex",
+    "version": "0.1.0",
+    "kind": "session-provider",
+    "artifactPath": "/opt/labstride-example/example.session.codex.artifact.json",
+    "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+    "permissions": [
+      "session.manage",
+      "filesystem.workspace"
+    ],
+    "capabilities": [
+      "session.lifecycle.v1"
+    ],
+    "configuration": {
+      "providerId": "example.session.codex",
+      "backendIdentity": "coding-backend-example",
+      "databasePath": "/var/lib/labstride-example/session.sqlite",
+      "socketPath": "/var/lib/labstride-example/session-relay.sock",
+      "sessionId": "operator-selected-existing-session",
+      "workspaceId": "workspace-example",
+      "workspacePath": "/srv/labstride-example/workspaces/registered-locator/source"
+    }
+  },
+  "backendPid": 3456,
+  "backendUid": 2345,
+  "backendExecutableDigest": "0000000000000000000000000000000000000000000000000000000000000000"
+}

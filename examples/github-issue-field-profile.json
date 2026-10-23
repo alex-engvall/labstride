@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0",
+  "repositoryId": "repository-example",
+  "repository": "example/source",
+  "workflow": "prepare",
+  "targetId": "target-example",
+  "rootId": "source",
+  "sourceRoot": "/srv/labstride/workspaces",
+  "fields": {
+    "request": {
+      "source": "organization_issue_field",
+      "scopeId": "repository-example",
+      "fieldId": "field-request",
+      "type": "single-select",
+      "options": {
+        "approved": "request-approved",
+        "provisioning": "request-provisioning",
+        "ready": "request-ready"
+      }
+    },
+    "aiMode": {
+      "source": "organization_issue_field",
+      "scopeId": "repository-example",
+      "fieldId": "field-aiMode",
+      "type": "single-select",
+      "options": {
+        "selected": "aiMode-selected"
+      }
+    },
+    "model": {
+      "source": "organization_issue_field",
+      "scopeId": "repository-example",
+      "fieldId": "field-model",
+      "type": "single-select",
+      "options": {
+        "selected": "model-selected"
+      }
+    },
+    "reasoning": {
+      "source": "organization_issue_field",
+      "scopeId": "repository-example",
+      "fieldId": "field-reasoning",
+      "type": "single-select",
+      "options": {
+        "selected": "reasoning-selected"
+      }
+    },
+    "session": {
+      "source": "organization_issue_field",
+      "scopeId": "repository-example",
+      "fieldId": "field-session",
+      "type": "string"
+    },
+    "path": {
+      "source": "organization_issue_field",
+      "scopeId": "repository-example",
+      "fieldId": "field-path",
+      "type": "string"
+    }
+  },
+  "runtimeValues": {
+    "aiMode": {
+      "aiMode-selected": "plan"
+    },
+    "model": {
+      "model-selected": "example-model"
+    },
+    "reasoning": {
+      "reasoning-selected": "medium"
+    }
+  }
+}

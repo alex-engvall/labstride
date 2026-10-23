@@ -8,7 +8,8 @@ const server=createServer({key:readFileSync(spec.key),cert:readFileSync(spec.cer
   const expected=url.pathname==='/api'?`Bearer ${spec.secret}`:`Basic ${Buffer.from(`x-access-token:${spec.secret}`).toString('base64')}`;
   if(spec.secret&&request.headers.authorization!==expected){rejected++;response.writeHead(401,{'WWW-Authenticate':'Basic realm="fixture"'});response.end();return;}
   if(url.pathname==='/api'){api++;response.setHeader('content-type','application/json');response.end(JSON.stringify({node_id:spec.repositoryId,full_name:spec.repository,clone_url:`https://${request.headers.host}/source.git`}));return;}
-  if(!url.pathname.startsWith('/source.git/')){response.writeHead(404);response.end();return;}
+  if(!['/source.git/info/refs','/source.git/git-upload-pack'].includes(url.pathname)){response.writeHead(404);response.end();return;}
+  if(url.pathname==='/source.git/info/refs'&&url.searchParams.get('service')!=='git-upload-pack'){rejected++;response.writeHead(403);response.end();return;}
   if(url.pathname.endsWith('/git-upload-pack'))fetches++;
   const child=spawn('/usr/bin/git',['http-backend'],{env:{PATH:'/usr/bin:/bin',HOME:'/',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null',
     GIT_PROJECT_ROOT:spec.root,GIT_HTTP_EXPORT_ALL:'1',PATH_INFO:url.pathname,QUERY_STRING:url.search.slice(1),REQUEST_METHOD:request.method,

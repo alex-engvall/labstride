@@ -1,4 +1,12 @@
-import type { GitHubAdapter } from './adapter.ts';
+import type { GitHubItem } from '../core/github.ts';
+import type { LabstrideInstallationConfigurationV1 as Configuration } from '../../contracts/generated/config.ts';
+import type { ProviderDescription } from '../configuration/compiler.ts';
+interface ProjectionProvider {
+  withConfiguration(configuration:Configuration):ProjectionProvider;
+  item(id:string):Promise<GitHubItem|null>;
+  describeField(field:Configuration['fields'][string],credentialRef:string):Promise<ProviderDescription>;
+  setField(scopeId:string,itemId:string,fieldId:string,type:string,value:unknown,token:string):Promise<void>;
+}
 import type { GitHubStore } from '../storage-sqlite/github.ts';
 import { githubFingerprint } from '../storage-sqlite/github.ts';
 import type { ProjectionAdapter, ProjectionView } from '../core/observations.ts';
@@ -8,7 +16,7 @@ import { PreEffectTransient } from '../core/worker.ts';
 import { same } from '../configuration/values.ts';
 import { GitHubError } from '../core/github.ts';
 
-export function createGitHubProjection(store:GitHubStore,adapter:GitHubAdapter):ProjectionAdapter{
+export function createGitHubProjection(store:GitHubStore,adapter:ProjectionProvider):ProjectionAdapter{
   const read=async(projection:RecordOf<'projection'>):Promise<ProjectionView>=>{
     const context=store.githubProjectionContext(projection),scoped=adapter.withConfiguration(context.configuration);
     const item=await scoped.item(context.itemId);
@@ -30,7 +38,7 @@ export function createGitHubProjection(store:GitHubStore,adapter:GitHubAdapter):
           throw new PreEffectTransient('Projection precondition rejected before mutation');
         context=store.githubProjectionContext(projection);field=context.configuration.fields[context.logical];
         scoped=adapter.withConfiguration(context.configuration);
-        const descriptor=await scoped.describeField(field,context.configuration.github.projectCredentialRef);
+        const descriptor=await scoped.describeField(field,field.source==='project_v2'?context.configuration.github.projectCredentialRef:context.configuration.github.credentialRef);
         if(!descriptor.writable)throw new PreEffectTransient('Projection binding is not writable');
       }catch{throw new PreEffectTransient('Read-only preflight failed before mutation');}
       // No remote observation after the final policy/generation check and before

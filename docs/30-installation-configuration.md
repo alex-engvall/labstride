@@ -24,6 +24,8 @@ Logical select keys resolve to configured external option IDs. Unknown, deleted,
 | `{"binding":"literal","value":"context.source"}` | Literal JSON, including reserved tokens/objects |
 | Other JSON strings/objects/arrays | Literal structure with recursively compiled bindings |
 
+Single-select field bindings may include an explicit option-ID-to-string `mapping`. Unmapped choices block binding; runtime model/reasoning choices have no implicit fallback. Registered path/session projection outputs use the [native field contract](35-native-issue-fields.md).
+
 Unknown `context.*` tokens fail compilation. Data retrieved from fields is never interpreted again as a binding, code, extension URL or shell expression. Actions are selected by trusted workflow IDs and exact installed versions. A step's `target`, when supplied, is a configured literal target ID. Paths and action-specific root enforcement remain connector/action responsibilities.
 
 `bindStep(workflow, stepId, fields, recordedContext)` resolves one step and validates its complete inputs against the original pinned action schema. It rechecks artifact integrity before binding. `bindWorkflow` does the same for all steps when all required context already exists. Static preflight catches known type/reference/shape mismatches; context-dependent and other schema constraints are enforced on the fully materialized input before scheduling. Later steps retain their binding descriptors until their context is recorded. W04 owns ordered advancement and effects for those steps.

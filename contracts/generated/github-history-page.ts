@@ -17,4 +17,5 @@ export interface GitHubHistoryEvent {
   occurredAt: string;
   previousStatus: string | null;
   status: string | null;
+  fieldId?: string;
 }

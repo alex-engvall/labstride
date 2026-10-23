@@ -80,6 +80,9 @@ def main():
         'ssh-workspace-response': 'ssh-workspace-response',
         'ssh-workspace-receipt': 'ssh-workspace-receipt',
         'workspace-probe': 'workspace-probe',
+        'workspace-continuity-probe': 'workspace-continuity-probe',
+        'workspace-continuity-session': 'workspace-continuity-session',
+        'github-issue-field-profile': 'github-issue-field-profile',
     }
     validators, examples = validators_for(ROOT / 'schemas'), {}
     for name, example in pairs.items():

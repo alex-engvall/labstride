@@ -213,24 +213,37 @@ export async function compileConfiguration(input: unknown, dependencies: Compile
     try {
       const field = own(config.fields, projection.field), binding = own(bindings, projection.field);
       if (!field || !binding?.writable) throw new ConfigurationError('unsupported_capability', `/projections/${index}`, 'Qualify the configured writable projection field.');
-      fieldValue(field, projection.value, true);
+      if(projection.valueFrom){
+        if(field.type!=='string')invalid(`/projections/${index}`,'Registered resource outputs require a text field.');
+        const source=projection.valueFrom;
+        if(source.kind==='workspace-source-path'&&(!own(config.targets,source.targetId)||source.rootPath.split('/').some(part=>part==='.'||part==='..')||projection.fact!=='workspace.ready'))
+          invalid(`/projections/${index}`,'Bind the ready workspace output to a configured target and exact protected root.');
+        if(source.kind==='session-id'&&projection.fact!=='session.ready')invalid(`/projections/${index}`,'Project session IDs only from an attached ready session.');
+      }else fieldValue(field,projection.value!,true);
       const key = canonical([projection.fact, binding.providerId, binding.source, binding.scopeId, binding.fieldId]);
       if (projected.has(key)) invalid(`/projections/${index}`, 'Use one mapping per fact and external projection field.');
       projected.add(key);
     } catch (error) { capture(`/projections/${index}`, error); }
   }
-  // Alias mappings cannot let the managed writer also own a human start/control field.
-  const humanFields = new Set<string>();
-  function startFields(c: Condition): void {
-    if ('field' in c) { humanFields.add(c.field); return; }
-    if ('not' in c) startFields(c.not); else ('all' in c ? c.all : c.any).forEach(startFields);
+  // A selected request field may also show disjoint managed progress. Every
+  // alias and every rule predicate is checked; control fields cannot opt in.
+  const predicates:{condition:Condition;positive:boolean}[]=[];
+  function collectPredicates(c:Condition,positive=true):void {
+    if ('field' in c) {predicates.push({condition:c,positive});return;}
+    if ('not' in c) collectPredicates(c.not,false);else ('all' in c?c.all:c.any).forEach(child=>collectPredicates(child,positive));
   }
-  config.rules.filter(r => r.event === 'field.changed').forEach(r => startFields(r.condition));
-  Object.values(config.controls).forEach(c => humanFields.add(c.field));
-  for (const p of config.projections) for (const name of humanFields) {
-    const human = own(bindings, name), technical = own(bindings, p.field);
-    if (human && technical && sameConfiguration([human.providerId,human.source,human.scopeId,human.fieldId], [technical.providerId,technical.source,technical.scopeId,technical.fieldId]))
-      capture('/projections', new ConfigurationError('configuration_invalid', '/projections', 'Keep managed technical fields separate from human request/control fields, including aliases.'));
+  config.rules.filter(rule=>rule.event==='field.changed').forEach(rule=>collectPredicates(rule.condition));
+  const identity=(name:string)=>{const b=own(bindings,name);return b&&canonical([b.providerId,b.source,b.scopeId,b.fieldId]);};
+  for(const projection of config.projections){
+    const key=identity(projection.field);if(!key)continue;
+    const controls=Object.values(config.controls).some(control=>identity(control.field)===key);
+    const conditions=predicates.filter(({condition})=>'field' in condition&&identity(condition.field)===key);
+    if(!controls&&!conditions.length)continue;
+    const field=config.fields[projection.field];
+    const safe=!controls&&field.allowManagedProgress===true&&field.type==='single-select'&&!projection.valueFrom&&conditions.every(({condition,positive})=>
+      positive&&'field' in condition&&condition.op==='changedTo'&&canonical(fieldValue(config.fields[condition.field],condition.value,true))!==canonical(fieldValue(field,projection.value!,true)));
+    if(!safe)capture('/projections',new ConfigurationError('configuration_invalid','/projections',
+      'Keep controls separate; explicitly opt in to disjoint single-select request/progress values.'));
   }
   if (diagnostics.length) return failure();
   const contents = { schemaVersion: '1.0' as const, configuration: config, bindings, extensionLock: lock };

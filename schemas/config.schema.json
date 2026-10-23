@@ -114,6 +114,10 @@
               "type": "string",
               "minLength": 1
             }
+          },
+          "allowManagedProgress": {
+            "type": "boolean",
+            "description": "Opt in to disjoint managed progress values on a single-select request field; controls remain human-owned."
           }
         },
         "required": [
@@ -307,12 +311,77 @@
           },
           "value": {
             "$ref": "#/$defs/fieldValue"
+          },
+          "valueFrom": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "workspace-source-path"
+                  },
+                  "targetId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "rootId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "rootPath": {
+                    "type": "string",
+                    "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+                    "maxLength": 4000
+                  }
+                },
+                "required": [
+                  "kind",
+                  "targetId",
+                  "rootId",
+                  "rootPath"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "session-id"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              }
+            ]
           }
         },
         "required": [
           "fact",
-          "field",
-          "value"
+          "field"
+        ],
+        "oneOf": [
+          {
+            "required": [
+              "value"
+            ],
+            "not": {
+              "required": [
+                "valueFrom"
+              ]
+            }
+          },
+          {
+            "required": [
+              "valueFrom"
+            ],
+            "not": {
+              "required": [
+                "value"
+              ]
+            }
+          }
         ]
       },
       "minItems": 0
@@ -534,6 +603,15 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 4096
+            },
+            "mapping": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
             }
           },
           "required": [

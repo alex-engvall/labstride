@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Operator-attested continuity session v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "workspaceId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "pin": {
+      "$ref": "extension-lock.schema.json#/properties/extensions/items"
+    },
+    "backendPid": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "backendUid": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "backendExecutableDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "workspaceId",
+    "pin",
+    "backendPid",
+    "backendUid",
+    "backendExecutableDigest"
+  ]
+}
