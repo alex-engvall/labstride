@@ -28,12 +28,13 @@ function bundled(name) {
 }
 const connector = manifest.kind === 'connector';
 if (connector && manifest.id !== 'labstride.connector.ssh') throw Error('Provide reviewed schemas for this connector');
+const workspace = manifest.kind === 'action' && manifest.id === 'labstride.workspace-create';
 const artifact = validate('extension-artifact', { schemaVersion: '1.0',
   manifest,
   module: readFileSync(join(directory, 'index.mjs'), 'utf8'), schemas: {
     configuration: JSON.parse(readFileSync(join(directory, 'configuration.schema.json'), 'utf8')),
-    input: connector ? bundled('ssh-helper-request') : JSON.parse(readFileSync(new URL('../schemas/session-request.schema.json', import.meta.url), 'utf8')),
-    output: connector ? bundled('ssh-helper-response') : JSON.parse(readFileSync(new URL('../schemas/session-observation.schema.json', import.meta.url), 'utf8')),
+    input: connector ? { anyOf: [bundled('ssh-helper-request'),bundled('ssh-workspace-request')] } : workspace ? bundled('workspace-create-input') : JSON.parse(readFileSync(new URL('../schemas/session-request.schema.json', import.meta.url), 'utf8')),
+    output: connector ? { anyOf: [bundled('ssh-helper-response'),bundled('ssh-workspace-response')] } : workspace ? bundled('execution-record') : JSON.parse(readFileSync(new URL('../schemas/session-observation.schema.json', import.meta.url), 'utf8')),
   } });
 const bytes = Buffer.from(JSON.stringify(artifact));
 if (bytes.length > 262144) throw new Error('Artifact exceeds 256 KiB');

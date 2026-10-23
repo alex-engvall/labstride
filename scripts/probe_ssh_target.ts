@@ -18,7 +18,7 @@ try {
   };
   const bytes = readFileSync(spec.artifactPath), integrity = createHash('sha256').update(bytes).digest('hex');
   const host = { protocol: { major: 1, minor: 0 }, capabilities: [], permissions: ['network.ssh'] };
-  const pin = { id: 'labstride.connector.ssh', version: '1.0.0', kind: 'connector' as const, artifactPath: spec.artifactPath,
+  const pin = { id: 'labstride.connector.ssh', version: JSON.parse(readFileSync(spec.artifactPath, 'utf8')).manifest.version, kind: 'connector' as const, artifactPath: spec.artifactPath,
     integrity, configuration: { ...spec.configuration }, permissions: ['network.ssh'], capabilities: ['target.probe.v1','target.reserve.v1','target.inspect.v1'] };
   const operation = validated('operation', spec.operation);
   if (operation.requestDigest !== requestDigest(operation) || operation.targetId !== spec.configuration.targetId) throw new Error();

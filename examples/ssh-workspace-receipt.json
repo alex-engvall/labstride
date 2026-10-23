@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "targetRevision": 1,
+  "runId": "run-example-001",
+  "workspaceId": "ws-example-001",
+  "operationId": "op-example-001",
+  "requestDigest": "3a841cf5bde1ce76b72fac7bce356d267a669ac6fc82097ff25bd84e6d1ffa1e",
+  "rootId": "source",
+  "locator": "ws-8797fdf711ccd31aaf1563156fe8ec6705489a2d",
+  "branch": "labstride/ws-8797fdf711ccd31aaf1563156fe8ec6705489a2d",
+  "ownershipRef": "workspace:ws-8797fdf711ccd31aaf1563156fe8ec6705489a2d",
+  "handle": "op-example-001",
+  "source": {
+    "repositoryId": "repo-example",
+    "repository": "example/source",
+    "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "directoryIdentity": {
+    "device": 1,
+    "inode": 2,
+    "mountId": 3,
+    "uid": 1234
+  },
+  "checkoutIdentity": {
+    "device": 1,
+    "inode": 9002,
+    "mountId": 3,
+    "uid": 1234
+  },
+  "state": "ready"
+}

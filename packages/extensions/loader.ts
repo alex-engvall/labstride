@@ -91,16 +91,16 @@ export function freezeProfile(runId: string, configRevision: string, pin: Pin, h
   return validated<Profile>('extension-profile', { schemaVersion: '1.0', runId, configRevision, pin: structuredClone(pin),
     protocol: inspected.protocol, capabilities: inspected.capabilities });
 }
-export async function loadExtension(profile: Profile, host: HostProfile) {
+export async function loadExtension(profile: Profile, host: HostProfile, services?: object) {
   profile = validated('extension-profile', profile);
   const inspected = inspectExtension(profile.pin, host);
   if (digest(inspected.protocol) !== digest(profile.protocol) || digest(inspected.capabilities) !== digest(profile.capabilities))
     throw new ExtensionError('identity_mismatch');
   const url = `data:text/javascript;base64,${Buffer.from(inspected.artifact.module).toString('base64')}`;
   sources.add(url);
-  const module = await import(url) as { createExtension?: (configuration: object) => unknown };
+  const module = await import(url) as { createExtension?: (configuration: object, services?: object) => unknown };
   if (typeof module.createExtension !== 'function') throw new ExtensionError('validation_failed');
   return { profile, checkInput: (input: unknown) => inspected.check(inspected.artifact.manifest.inputSchema, input),
     checkOutput: (output: unknown) => inspected.check(inspected.artifact.manifest.outputSchema, output),
-    instance: module.createExtension(structuredClone(profile.pin.configuration)) };
+    instance: module.createExtension(structuredClone(profile.pin.configuration), services) };
 }

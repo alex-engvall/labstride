@@ -1,0 +1,9 @@
+{
+  "target": "target-example",
+  "rootId": "source",
+  "source": {
+    "repositoryId": "repo-example",
+    "repository": "example/source",
+    "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}

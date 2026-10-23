@@ -42,7 +42,7 @@ export function createWorker(store: ExecutionPort, options: WorkerOptions) {
       try {
         const result = await adapter.reconcile(structuredClone(op.request), store.operationHandle(id));
         if (result.operationId !== id || result.requestDigest !== op.request.requestDigest) throw new LifecycleError('identity_conflict');
-        store.acceptResult(result, null, op.revision, options.projections?.(result), epoch);
+        store.acceptResult(result, null, op.revision, options.projections?.(result), epoch, adapter.createsWorkspace);
         if (store.delivery(delivery.id).state === 'reconcile') store.retryRead(delivery.id, retry(), (options.random ?? Math.random)());
       } catch { store.retryRead(delivery.id, retry(), (options.random ?? Math.random)()); }
       return;
@@ -57,7 +57,7 @@ export function createWorker(store: ExecutionPort, options: WorkerOptions) {
     let claim: Claim;
     try {
       claim = store.claim(id, options.executorId, options.nextAttempt());
-      store.beginEffect(claim, adapter.atomicSessionGuards === true);
+      store.beginEffect(claim, adapter.atomicSessionGuards === true, adapter.createsWorkspace);
     } catch (error) {
       if (error instanceof LifecycleError && ['unsupported_capability','stale_revision'].includes(error.code)) { store.block(delivery.id, error.code); return; }
       if (error instanceof LifecycleError && ['resource_busy','effect_consumed','revision_conflict','capacity_wait','issue_busy','effect_blocked'].includes(error.code)) return;
@@ -66,7 +66,7 @@ export function createWorker(store: ExecutionPort, options: WorkerOptions) {
     // No automatic retry can cross this boundary, even if the adapter throws a transport error.
     try {
       const result = await adapter.start(structuredClone(store.get('operation', id).request), structuredClone(claim), store.sessionGuard(id));
-      store.acceptResult(result, claim, op.revision, options.projections?.(result));
+      store.acceptResult(result, claim, op.revision, options.projections?.(result), 0, adapter.createsWorkspace);
     } catch { store.markUnknown(id); }
   }
   return {

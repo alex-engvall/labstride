@@ -1,3 +1,5 @@
+import { configuredWorkspaceAction } from '../../packages/connector-ssh/workspaces.ts';
+import { workspaceAction, workspaceVersion } from '../../packages/target-helper/workspace-contracts.ts';
 import { startCoordinator } from './main.ts';
 import { createControlWorker } from '../../packages/core/control-worker.ts';
 import { createWorker } from '../../packages/core/worker.ts';
@@ -29,6 +31,7 @@ export function startExecution(dataDir: string, options: {
     if (options.restore) runtime.store.enterRestore(options.restore);
     const actionOptions = { ...options.actions, adapters: new Map(options.actions.adapters) };
     if (options.installedTargets) actionOptions.adapters.set(actionKey(reserveAction, reserveVersion), configuredTargetAction(runtime.store, options.installedTargets.host));
+    if (options.installedTargets) actionOptions.adapters.set(actionKey(workspaceAction, workspaceVersion), configuredWorkspaceAction(runtime.store, options.installedTargets.host));
     const observationOptions = { ...options.observations, sessions: new Map(options.observations.sessions),projections:new Map(options.observations.projections) };
     if(options.github?.adapter.projection)observationOptions.projections.set(options.github.adapter.providerId,options.github.adapter.projection(runtime.store));
     if (resolver) {

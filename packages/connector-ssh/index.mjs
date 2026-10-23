@@ -56,14 +56,15 @@ function enrollment(configuration) {
 }
 function checkRequest(e, request) {
   const common = ['schemaVersion','requestId','installationId','targetId','targetRevision','method'];
-  if (!request || !['probe','reserve','inspect'].includes(request.method)) fail('unsupported_capability');
-  if (!keys(request, request.method === 'probe' ? common : [...common, 'operation']) || request.schemaVersion !== '1.0' ||
+  const workspace = request?.schemaVersion === '2.0';
+  if (!request || !(workspace ? ['probe','create','inspect'] : ['probe','reserve','inspect']).includes(request.method)) fail('unsupported_capability');
+  if (!keys(request, request.method === 'probe' ? common : [...common, 'operation']) || !['1.0','2.0'].includes(request.schemaVersion) ||
     !/^[A-Za-z0-9_.:-]{1,256}$/.test(request.requestId) || request.installationId !== e.installationId ||
     request.targetId !== e.targetId || request.targetRevision !== e.revision) fail('identity_mismatch');
   if (request.method !== 'probe') {
     const op = request.operation;
-    if (!op || op.operationId !== request.requestId || op.targetId !== e.targetId || op.actionId !== 'labstride.target-reserve' || op.actionVersion !== '1.0.0' ||
-      !keys(op.inputs, ['rootId']) || !e.rootIds.includes(op.inputs.rootId)) fail('validation_failed');
+    if (!op || op.operationId !== request.requestId || op.targetId !== e.targetId || op.actionId !== (workspace ? 'labstride.workspace-create' : 'labstride.target-reserve') || op.actionVersion !== '1.0.0' ||
+      !keys(op.inputs, workspace ? ['target','rootId','source'] : ['rootId']) || workspace && (op.inputs.target !== op.targetId || hash(op.inputs.source) !== hash(op.source)) || !e.rootIds.includes(op.inputs.rootId)) fail('validation_failed');
     const { requestDigest, ...contents } = op;
     if (hash(contents) !== requestDigest) fail('validation_failed');
   }
@@ -102,12 +103,12 @@ export function createExtension(configuration) {
             if (code === 0 && !exceeded) { resolve(Buffer.concat(output).toString('utf8')); return; }
             const stderr = Buffer.concat(errors).toString('utf8');
             reject(new Error(/Host key verification failed|REMOTE HOST IDENTIFICATION HAS CHANGED/.test(stderr) ? 'identity_mismatch' :
-              /Permission denied/.test(stderr) ? 'authentication_failed' : request.method === 'reserve' ? 'outcome_unknown' : 'transient_unavailable'));
+              /Permission denied/.test(stderr) ? 'authentication_failed' : ['reserve','create'].includes(request.method) ? 'outcome_unknown' : 'transient_unavailable'));
           });
           child.stdin.end(bytes);
         });
         let reply;
-        try { reply = JSON.parse(raw); } catch { fail(request.method === 'reserve' ? 'outcome_unknown' : 'validation_failed'); }
+        try { reply = JSON.parse(raw); } catch { fail(['reserve','create'].includes(request.method) ? 'outcome_unknown' : 'validation_failed'); }
         for (const key of ['schemaVersion','requestId','installationId','targetId','targetRevision','method'])
           if (reply[key] !== request[key]) fail('identity_mismatch');
         return reply;

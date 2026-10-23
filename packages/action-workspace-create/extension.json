@@ -1,0 +1,5 @@
+{
+  "schemaVersion":"1.0", "id":"labstride.workspace-create", "version":"1.0.0", "kind":"action",
+  "protocol":{"major":1,"minor":0}, "entrypoint":"module", "capabilities":["workspace.create.v1"],
+  "requiredCapabilities":[], "permissions":["filesystem.workspace"], "inputSchema":"input", "outputSchema":"output"
+}

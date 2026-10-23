@@ -1,13 +1,25 @@
 {
   "schemaVersion": "1.0",
   "id": "labstride.connector.ssh",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "kind": "connector",
-  "protocol": { "major": 1, "minor": 0 },
+  "protocol": {
+    "major": 1,
+    "minor": 0
+  },
   "entrypoint": "module",
-  "capabilities": ["target.probe.v1", "target.reserve.v1", "target.inspect.v1"],
+  "capabilities": [
+    "target.probe.v1",
+    "target.reserve.v1",
+    "target.inspect.v1",
+    "workspace.probe.v1",
+    "workspace.create.v1",
+    "workspace.inspect.v1"
+  ],
   "requiredCapabilities": [],
-  "permissions": ["network.ssh"],
+  "permissions": [
+    "network.ssh"
+  ],
   "inputSchema": "input",
   "outputSchema": "output"
 }

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Workspace operator probe v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "installationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enrollmentDirectory": {
+          "type": "string",
+          "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+          "maxLength": 4096
+        },
+        "targetId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "maxLength": 256,
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "enrollmentDirectory",
+        "targetId",
+        "revision",
+        "digest"
+      ]
+    },
+    "artifactPath": {
+      "type": "string",
+      "pattern": "^/"
+    },
+    "artifactIntegrity": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "stateDirectory": {
+      "type": "string",
+      "pattern": "^/"
+    },
+    "operation": {
+      "$ref": "operation.schema.json"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "installationId",
+    "configuration",
+    "artifactPath",
+    "artifactIntegrity",
+    "stateDirectory",
+    "operation"
+  ]
+}

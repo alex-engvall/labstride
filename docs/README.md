@@ -63,3 +63,5 @@ Keep the current specification coherent. Do not append contradictory historical 
 - [Request authorization and trusted policy changes](31-authorization-and-policy.md)
 - [GitHub observation, generation recovery and checked projections](32-github-reconciliation.md)
 - [Enrolled SSH targets and trusted helper](33-ssh-target-boundary.md)
+
+- [Exact-revision workspaces and creation recovery](34-exact-revision-workspaces.md)

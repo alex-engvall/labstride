@@ -81,3 +81,21 @@ export function assertPrivateDatabase(directory: string, basename: string): void
     } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
   }
 }
+
+// Bounded, held root descriptor for workspace publication. All child names are
+// generated locally; the coding identity cannot rename the enrolled parent.
+export function withWorkspaceRoot<T>(path: string, expected: PathIdentity, work: (directory: string, check: () => void) => T): T {
+  protectedPath(path, true, expected.uid);
+  const fd = openSync(path, constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW);
+  try {
+    const check = () => { if (!sameIdentity(identity(fd), expected) || !sameIdentity(rootIdentity(path, expected.uid), expected)) fail(); };
+    check(); const result = work(`/proc/self/fd/${fd}`, check); check(); return result;
+  } finally { closeSync(fd); }
+}
+
+// For a child beneath an already held protected root. Unlike rootIdentity this
+// intentionally permits group-writable checkout content, but follows no link.
+export function directoryIdentity(path: string): PathIdentity {
+  const fd = openSync(path, constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW);
+  try { return identity(fd); } finally { closeSync(fd); }
+}

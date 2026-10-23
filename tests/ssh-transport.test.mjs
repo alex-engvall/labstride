@@ -5,6 +5,7 @@ import { join, resolve } from 'node:path';
 import { execFileSync, spawn, fork } from 'node:child_process';
 import { createServer } from 'node:net';
 import { once } from 'node:events';
+import { freezeProfile } from '../packages/extensions/loader.ts';
 import { targetFixture, enrollFixture, installedConnector } from './helpers/ssh-fixture.mjs';
 import { requestDigest } from '../packages/storage-sqlite/execution.ts';
 import { startCoordinator } from '../apps/coordinator/main.ts';
@@ -17,14 +18,14 @@ const skip=!existsSync(sshd)||process.getuid()!==0?'Requires an isolated root-op
 const key=path=>{execFileSync('ssh-keygen',['-q','-t','ed25519','-N','','-f',path]);return readFileSync(path+'.pub','utf8').split(' ').slice(0,2).join(' ');};
 const probe=f=>({schemaVersion:'1.0',requestId:'probe',installationId:f.policy.installationId,targetId:f.policy.targetId,targetRevision:f.policy.targetRevision,method:'probe'});
 const code=value=>error=>error.message===value||error.code===value;
-async function transport(t){
+async function transport(t,provided){
   // sshd StrictModes rejects /tmp even when sticky. /run has protected ancestry;
   // only this new test-owned directory is removed at teardown.
-  const f=targetFixture(t,'/run'),a=key(join(f.root,'host-a')),b=key(join(f.root,'host-b'));
+  const f=provided??targetFixture(t,'/run'),a=key(join(f.root,'host-a')),b=key(join(f.root,'host-b'));
   const socket=createServer();socket.listen(0,'127.0.0.1');await once(socket,'listening');const port=socket.address().port;await new Promise(r=>socket.close(r));
   const e=enrollFixture(f,{port,hostKey:a,helperCommand:'/usr/local/bin/labstride-target-helper',timeoutMs:6000});t.after(()=>e.store.close());
   const marker=join(f.root,'executed'),behavior=join(f.root,'behavior.json');writeFileSync(behavior,JSON.stringify({mode:'normal'}),{mode:0o600});
-  const command=['/usr/bin/env','-i','PATH=/usr/bin:/bin','NODE_NO_WARNINGS=1',realpathSync(process.execPath),resolve('tests/helpers/ssh-helper-sentinel.mjs'),f.policyFile,marker,behavior].join(' ');
+  const command=['/usr/bin/env','-i','PATH=/usr/bin:/bin','NODE_NO_WARNINGS=1',...(f.certificate?[`NODE_EXTRA_CA_CERTS=${f.certificate}`]:[]),realpathSync(process.execPath),resolve('tests/helpers/ssh-helper-sentinel.mjs'),f.policyFile,marker,behavior].join(' ');
   assert.match(command,/^[A-Za-z0-9_./=: -]+$/);
   const configuration=join(f.root,'sshd.conf');
   writeFileSync(configuration,`Port ${port}\nListenAddress 127.0.0.1\nHostKey ${f.root}/host-a\nPidFile ${f.root}/sshd.pid\nAuthorizedKeysFile ${e.enrollment.identityFile}.pub\nStrictModes yes\nPermitRootLogin prohibit-password\nPasswordAuthentication no\nKbdInteractiveAuthentication no\nUsePAM yes\nAllowUsers ${e.enrollment.user}\nAuthenticationMethods publickey\nPermitUserEnvironment no\nDisableForwarding yes\nPermitTTY no\nLogLevel ERROR\nForceCommand ${command}\n`,{mode:0o600});
@@ -101,4 +102,36 @@ for(const stage of ['after-boundary','after-reply'])test(`SIGKILL coordinator ${
   const db=new DatabaseSync(join(f.policy.stateDir,'target.sqlite'),{readOnly:true});
   try{assert.equal(db.prepare('SELECT count(*) AS n FROM reservations').get().n,stage==='after-reply'?1:0);}finally{db.close();}
   assert.equal(reboot.store.snapshot().records.filter(row=>row.kind==='workspace').length,1);
+});
+test('AC09 real SSH and authenticated HTTPS source recover the same checkout after lost creation reply',{skip},async t=>{
+  const {workspaceFixture,httpsSource}=await import('./helpers/workspace-fixture.mjs');
+  const {workspaceTargetResolver}=await import('../packages/connector-ssh/workspaces.ts');
+  const base=workspaceFixture(t,'/run'),https=await httpsSource(t,base);
+  const f=await transport(t,{...base,certificate:https.certificate});
+  const {configurationFixture}=await import('./helpers/configuration-fixture.mjs');
+  const {configuredWorkspaceAction}=await import('../packages/connector-ssh/workspaces.ts');
+  const configuration=configurationFixture(f.root);configuration.config.installationId=f.policy.installationId;
+  const artifactPath=join(f.root,'workspace-action.artifact.json');execFileSync(process.execPath,['scripts/package_extension.mjs','packages/action-workspace-create',artifactPath]);
+  const actionPin={id:'labstride.workspace-create',version:'1.0.0',kind:'action',artifactPath,integrity:(await import('node:crypto')).createHash('sha256').update(readFileSync(artifactPath)).digest('hex'),configuration:{},permissions:['filesystem.workspace'],capabilities:['workspace.create.v1']};
+  const connectorPin={...f.pin,capabilities:['workspace.probe.v1','workspace.create.v1','workspace.inspect.v1']};
+  configuration.dependencies.lock.extensions=[configuration.dependencies.lock.extensions.find(pin=>pin.kind==='provider'),connectorPin,actionPin];
+  configuration.config.targets={[f.policy.targetId]:{connector:connectorPin.id,configuration:f.e.configuration}};
+  configuration.config.workflows={prepare:[{id:'checkout',action:actionPin.id,inputs:{target:f.policy.targetId,rootId:'source',source:'context.source'}}]};
+  const compilation=await configuration.compile();assert.equal(compilation.ok,true,JSON.stringify(compilation));
+  const snapshot=compilation.configuration.snapshot;f.operation.configDigest=snapshot.digest;f.operation.requestDigest=requestDigest(f.operation);
+  const host={protocol:{major:1,minor:0},permissions:['network.ssh','filesystem.workspace'],capabilities:[]};
+  const action=configuredWorkspaceAction({runConfiguration:()=>snapshot},host);
+  const connector=await workspaceTargetResolver(host).resolve(freezeProfile(f.operation.runId,f.operation.configDigest,connectorPin,host));
+  await action.validate(f.operation);
+  writeFileSync(f.behavior,JSON.stringify({mode:'drop-reply'}));
+  await assert.rejects(action.start(f.operation,{}),code('outcome_unknown'));
+  writeFileSync(f.behavior,JSON.stringify({mode:'normal'}));
+  const result=await action.reconcile(f.operation,f.operation.operationId);assert.equal(result.result.status,'succeeded');
+  const recovered={outcome:'ok',workspace:result.result.outputs.workspace};
+  const path=f.sourcePath(recovered.workspace);assert.equal(execFileSync('/usr/bin/git',['-C',path,'rev-parse','HEAD'],{encoding:'utf8'}).trim(),f.operation.source.sha);
+  writeFileSync(join(path,'hello.txt'),'human changes survive\n');
+  assert.deepEqual((await connector.invoke({...f.request,method:'inspect'})).workspace,recovered.workspace);
+  assert.equal(readFileSync(join(path,'hello.txt'),'utf8'),'human changes survive\n');
+  assert.equal(f.calls(),4);
+  const db=new DatabaseSync(join(f.policy.stateDir,'target.sqlite'),{readOnly:true});try{assert.equal(db.prepare('SELECT count(*) n FROM workspace_creations').get().n,1);}finally{db.close();}
 });
