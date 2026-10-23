@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0",
+  "requestId": "op-example-001",
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "targetRevision": 1,
+  "method": "reserve",
+  "outcome": "ok",
+  "reservation": {
+    "schemaVersion": "1.0",
+    "installationId": "installation-example",
+    "targetId": "target-example",
+    "targetRevision": 1,
+    "runId": "run-example-001",
+    "workspaceId": "ws-example-001",
+    "operationId": "op-example-001",
+    "requestDigest": "3a841cf5bde1ce76b72fac7bce356d267a669ac6fc82097ff25bd84e6d1ffa1e",
+    "rootId": "source",
+    "locator": "ws-8797fdf711ccd31aaf1563156fe8ec6705489a2d",
+    "state": "reserved"
+  },
+  "capabilities": [
+    "target.probe.v1",
+    "target.reserve.v1",
+    "target.inspect.v1"
+  ],
+  "error": null
+}

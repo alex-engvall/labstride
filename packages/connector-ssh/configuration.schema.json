@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "enrollmentDirectory": { "type": "string", "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$", "maxLength": 4096 },
+    "targetId": { "type": "string", "pattern": "^[A-Za-z0-9_.:-]+$", "maxLength": 256, "minLength": 1 },
+    "revision": { "type": "integer", "minimum": 1 },
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["enrollmentDirectory", "targetId", "revision", "digest"]
+}

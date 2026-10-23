@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Trusted target helper request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "requestId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "installationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "targetId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "targetRevision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "method": {
+      "enum": [
+        "probe",
+        "reserve",
+        "inspect"
+      ]
+    },
+    "operation": {
+      "$ref": "operation.schema.json"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "requestId",
+    "installationId",
+    "targetId",
+    "targetRevision",
+    "method"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "method": {
+            "const": "probe"
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "type": "object",
+          "properties": {
+            "operation": {}
+          },
+          "required": [
+            "operation"
+          ]
+        }
+      },
+      "else": {
+        "required": [
+          "operation"
+        ]
+      }
+    }
+  ]
+}
