@@ -536,7 +536,7 @@
       "title": "Verify SSH host identity",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W03",
       "depends_on_work_packages": [
@@ -546,8 +546,10 @@
       "acceptance_criteria": [
         "A host-key mismatch fails before any command; explicit enrollment/rotation is documented."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/engshort/labstride/pull/57",
+      "verification_evidence": [
+        "[Enrolled SSH/helper boundary, actual pilot identity separation and crash/transport recovery](evidence/W03.1-ssh-boundary-2026-10-23.md)"
+      ],
       "github_issue": 21,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/21"
     },
@@ -556,7 +558,7 @@
       "title": "Use a fixed helper with structured input",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W03",
       "depends_on_work_packages": [
@@ -566,8 +568,10 @@
       "acceptance_criteria": [
         "Host, path and issue metacharacters cannot escape enrolled targets or create injected commands."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/engshort/labstride/pull/57",
+      "verification_evidence": [
+        "[Enrolled SSH/helper boundary, actual pilot identity separation and crash/transport recovery](evidence/W03.1-ssh-boundary-2026-10-23.md)"
+      ],
       "github_issue": 21,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/21"
     },
@@ -982,7 +986,7 @@
       "title": "Separate policy and workspace identities",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W03",
       "depends_on_work_packages": [
@@ -993,8 +997,10 @@
         "The coding/workspace user cannot change trusted target ownership or coordinator policy.",
         "Agent-writable hook reports cannot change trusted policy/ownership, obtain privileged projection/deploy credentials or grant approval/completion authority."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/engshort/labstride/pull/57",
+      "verification_evidence": [
+        "[Enrolled SSH/helper boundary, actual pilot identity separation and crash/transport recovery](evidence/W03.1-ssh-boundary-2026-10-23.md)"
+      ],
       "github_issue": 21,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/21"
     },

@@ -336,13 +336,13 @@ Implementation issue: [#33](https://github.com/alex-engvall/labstride/issues/33)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W03 |
+| MVP | P0 | implemented | W03 |
 
 Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 - A host-key mismatch fails before any command; explicit enrollment/rotation is documented.
 
-Verification evidence: None; not implemented.
+Verification evidence: [Enrolled SSH/helper boundary, actual pilot identity separation and crash/transport recovery](evidence/W03.1-ssh-boundary-2026-10-23.md)
 
 Implementation issue: [#21](https://github.com/alex-engvall/labstride/issues/21).
 
@@ -350,13 +350,13 @@ Implementation issue: [#21](https://github.com/alex-engvall/labstride/issues/21)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W03 |
+| MVP | P0 | implemented | W03 |
 
 Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 - Host, path and issue metacharacters cannot escape enrolled targets or create injected commands.
 
-Verification evidence: None; not implemented.
+Verification evidence: [Enrolled SSH/helper boundary, actual pilot identity separation and crash/transport recovery](evidence/W03.1-ssh-boundary-2026-10-23.md)
 
 Implementation issue: [#21](https://github.com/alex-engvall/labstride/issues/21).
 
@@ -632,14 +632,14 @@ Implementation issue: [#32](https://github.com/alex-engvall/labstride/issues/32)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W03 |
+| MVP | P0 | implemented | W03 |
 
 Specification: [11-security-and-trust.md](11-security-and-trust.md).
 
 - The coding/workspace user cannot change trusted target ownership or coordinator policy.
 - Agent-writable hook reports cannot change trusted policy/ownership, obtain privileged projection/deploy credentials or grant approval/completion authority.
 
-Verification evidence: None; not implemented.
+Verification evidence: [Enrolled SSH/helper boundary, actual pilot identity separation and crash/transport recovery](evidence/W03.1-ssh-boundary-2026-10-23.md)
 
 Implementation issue: [#21](https://github.com/alex-engvall/labstride/issues/21).
 

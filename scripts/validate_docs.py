@@ -72,6 +72,9 @@ def main():
         'rule-observation': 'rule-observation', 'rule-evaluation': 'rule-evaluation',
         'authorization-policy': 'authorization-policy', 'policy-change': 'policy-change',
         'actor-evidence': 'actor-evidence', 'authorization-decision': 'authorization-decision',
+        'ssh-enrollment': 'ssh-enrollment', 'ssh-helper-policy': 'ssh-helper-policy',
+        'ssh-helper-request': 'ssh-helper-request', 'ssh-helper-response': 'ssh-helper-response',
+        'ssh-reservation': 'ssh-reservation',
     }
     validators, examples = validators_for(ROOT / 'schemas'), {}
     for name, example in pairs.items():

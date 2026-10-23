@@ -27,6 +27,11 @@ The JSON schemas are proposed normative v1 contracts for implementation. They ar
 | [Codex question](../schemas/codex-question.schema.json) | [question](../examples/codex-question.json) | Correlated bounded observation |
 | [Codex answer](../schemas/codex-answer.schema.json) | [answer](../examples/codex-answer.json) | Client answer validation only |
 | [session probe](../schemas/session-probe.schema.json) | [probe template](../examples/session-probe.json) | Explicit existing-session probe |
+| [SSH enrollment](../schemas/ssh-enrollment.schema.json) | [synthetic target](../examples/ssh-enrollment.json) | Local operator/enrollment store |
+| [helper policy](../schemas/ssh-helper-policy.schema.json) | [protected policy template](../examples/ssh-helper-policy.json) | Installed target helper |
+| [helper request](../schemas/ssh-helper-request.schema.json) | [reservation request](../examples/ssh-helper-request.json) | SSH stdin boundary |
+| [helper response](../schemas/ssh-helper-response.schema.json) | [reservation result](../examples/ssh-helper-response.json) | Validated SSH response |
+| [target reservation](../schemas/ssh-reservation.schema.json) | [registry descriptor](../examples/ssh-reservation.json) | Durable protected target registry |
 
 ## Validation layers
 
@@ -61,6 +66,8 @@ Control endpoints are local and operator-authenticated in the MVP. Authorization
 The separate [W00.2 discovery endpoint](27-oidc-discovery-probe.md) has its own versioned policy/request/response schemas and supplies no operation authority. It is outside the proposed operation API above. Its local fixture coverage does not establish an installed broker or pass the workflow/receipt acceptance cases.
 
 ## Limits
+
+[W03.1](33-ssh-target-boundary.md) implements the local enrollment and SSH/helper contracts above. The helper protocol is version `1.0`, separate from the unchanged public connector envelopes. The public facade supports probe/execute/inspect and rejects upload/download/cancel. Registry reservation is not source-workspace creation, a workflow receipt or completion authority. Private endpoints, key references and root identities never enter the synthetic examples.
 
 Design defaults: 256 KiB broker bodies, 1 MiB webhook bodies, bounded provider pagination and sanitized error messages. Reject unsupported protocol majors. API version, extension protocol version and package version are independent.
 

@@ -84,6 +84,8 @@ Tracker: [#6](https://github.com/alex-engvall/labstride/issues/6).
 
 **Requirements:** LS-SSH-001, LS-SSH-002, LS-SSH-003, LS-SSH-004, LS-SSH-005, LS-SEC-001
 
+**W03.1 progress:** LS-SSH-001/002 and LS-SEC-001 have [installed SSH/helper and pilot evidence](evidence/W03.1-ssh-boundary-2026-10-23.md): explicit audited enrollment/rotation, strict host identity, structured forced-command requests, separate protected identities and durable reservation recovery after actual SSH reply loss/coordinator death. AC06/AC07 passed for the tested Linux profile. #21's boundary delivery is ready for scoped review and closure on merge. #22/#23 still own source workspaces/runtime resources; full AC19 and AC35/AC36 remain open with W05 and workspace/session integration. W03 stays `in_progress`.
+
 ## W04 — Workflow broker, CI and delivery action
 
 Tracker: [#7](https://github.com/alex-engvall/labstride/issues/7).

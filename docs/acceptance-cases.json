@@ -81,8 +81,10 @@
       "precondition": "Hostile field content",
       "action": "Supply shell metacharacters, traversal and extension URL text.",
       "expected": "No command injection, new extension or out-of-root access occurs.",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed",
+      "evidence": [
+        "evidence/W03.1-ssh-boundary-2026-10-23.md"
+      ]
     },
     {
       "id": "AC07",
@@ -92,8 +94,10 @@
       "precondition": "Different SSH host key",
       "action": "Connect to an endpoint presenting a different enrolled key.",
       "expected": "Fail before command execution.",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed",
+      "evidence": [
+        "evidence/W03.1-ssh-boundary-2026-10-23.md"
+      ]
     },
     {
       "id": "AC08",
@@ -233,7 +237,9 @@
       "action": "Replace directory with symlink/mount/foreign owner during cleanup.",
       "expected": "Trusted helper refuses deletion and unrelated paths survive.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W03.1-ssh-boundary-2026-10-23.md"
+      ]
     },
     {
       "id": "AC20",
@@ -446,7 +452,8 @@
         "evidence/W01.4-installed-sessions-2026-10-23.md",
         "evidence/W01.4-client-continuity-2026-10-23.md",
         "evidence/W02.2-authorization-2026-10-23.md",
-        "evidence/W02.3-reconciliation-2026-10-23.md"
+        "evidence/W02.3-reconciliation-2026-10-23.md",
+        "evidence/W03.1-ssh-boundary-2026-10-23.md"
       ]
     },
     {

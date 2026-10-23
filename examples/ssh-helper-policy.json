@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "targetRevision": 1,
+  "helperUid": 1234,
+  "codingUid": 2345,
+  "stateDir": "/var/lib/labstride-example/helper",
+  "roots": [
+    {
+      "id": "source",
+      "path": "/srv/labstride-example/workspaces",
+      "identity": {
+        "device": 1,
+        "inode": 2,
+        "mountId": 3,
+        "uid": 1234
+      }
+    }
+  ]
+}

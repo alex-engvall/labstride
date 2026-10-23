@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SSH target enrollment v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "installationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "targetId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "host": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 253,
+      "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9.-]*|[0-9A-Fa-f]*:[0-9A-Fa-f:.]+)$"
+    },
+    "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535
+    },
+    "user": {
+      "type": "string",
+      "pattern": "^[a-z_][a-z0-9_-]{0,31}$"
+    },
+    "hostKey": {
+      "type": "string",
+      "pattern": "^ssh-ed25519 [A-Za-z0-9+/]{68}$"
+    },
+    "identityFile": {
+      "type": "string",
+      "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+      "maxLength": 4096
+    },
+    "helperCommand": {
+      "type": "string",
+      "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+      "maxLength": 4096
+    },
+    "rootIds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_.:-]+$",
+        "minLength": 1,
+        "maxLength": 256
+      }
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 60000
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "installationId",
+    "targetId",
+    "revision",
+    "host",
+    "port",
+    "user",
+    "hostKey",
+    "identityFile",
+    "helperCommand",
+    "rootIds",
+    "timeoutMs"
+  ]
+}

@@ -13,18 +13,22 @@ import { pinnedSessionObserver } from '../../packages/core/session-runtime.ts';
 import { actionKey } from '../../packages/core/worker.ts';
 import { createGitHubWorker } from '../../packages/core/github-worker.ts';
 import type { GitHubOptions } from '../../packages/core/github.ts';
+import { configuredTargetAction } from '../../packages/connector-ssh/runtime.ts';
+import { reserveAction, reserveVersion } from '../../packages/target-helper/registry.ts';
 
 // Trusted embedding API only. No listener, code loader, default adapters or background timer.
 export function startExecution(dataDir: string, options: {
   actions: WorkerOptions; observations: ObservationOptions; restore?: AuditContext; dependencies?: StoreDependencies;
   installedSessions?: { host: HostProfile; providerIds: string[] };
   github?: GitHubOptions;
+  installedTargets?: { host: HostProfile };
 }) {
   const runtime = startCoordinator(dataDir, options.dependencies);
   const resolver = options.installedSessions && sessionResolver(options.installedSessions.host);
   try {
     if (options.restore) runtime.store.enterRestore(options.restore);
     const actionOptions = { ...options.actions, adapters: new Map(options.actions.adapters) };
+    if (options.installedTargets) actionOptions.adapters.set(actionKey(reserveAction, reserveVersion), configuredTargetAction(runtime.store, options.installedTargets.host));
     const observationOptions = { ...options.observations, sessions: new Map(options.observations.sessions),projections:new Map(options.observations.projections) };
     if(options.github?.adapter.projection)observationOptions.projections.set(options.github.adapter.providerId,options.github.adapter.projection(runtime.store));
     if (resolver) {

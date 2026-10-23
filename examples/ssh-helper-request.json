@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0",
+  "requestId": "op-example-001",
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "targetRevision": 1,
+  "method": "reserve",
+  "operation": {
+    "schemaVersion": "1.0",
+    "operationId": "op-example-001",
+    "runId": "run-example-001",
+    "workspaceId": "ws-example-001",
+    "actionId": "labstride.target-reserve",
+    "actionVersion": "1.0.0",
+    "configDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+    "source": {
+      "repositoryId": "1001",
+      "repository": "example-owner/example-app",
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "targetId": "target-example",
+    "deadline": "2099-01-01T00:00:00Z",
+    "inputs": {
+      "rootId": "source"
+    },
+    "requestDigest": "3a841cf5bde1ce76b72fac7bce356d267a669ac6fc82097ff25bd84e6d1ffa1e"
+  }
+}

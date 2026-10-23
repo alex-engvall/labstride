@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "revision": 1,
+  "host": "target.example.invalid",
+  "port": 22,
+  "user": "labstride_helper",
+  "hostKey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "identityFile": "/etc/labstride-example/keys/target_ed25519",
+  "helperCommand": "/usr/local/bin/labstride-target-helper",
+  "rootIds": [
+    "source"
+  ],
+  "timeoutMs": 15000
+}

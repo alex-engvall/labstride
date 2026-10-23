@@ -17,6 +17,7 @@
     "contracts/generated/*.ts",
     "tests/types/*.ts",
     "packages/**/*.ts",
-    "apps/**/*.ts"
+    "apps/**/*.ts",
+    "scripts/*.ts"
   ]
 }
