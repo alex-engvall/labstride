@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0",
+  "kind": "w031-pilot-evidence",
+  "runtime": "v24.22.0",
+  "systemRuntimeRetained": true,
+  "distinctOsIdentities": true,
+  "helperRunsWithoutRoot": true,
+  "helperKeyRestricted": true,
+  "connectorDigest": "29adef1de869cb298373c401d7ada4126dca8d7112e045fdb7467c662d3fd3de",
+  "runtimeDigest": "67ca5783febb8bf85736c79fcdd92c8d6d465a0eb2a082672bcdfa76a506751c",
+  "reservationCount": 1,
+  "reservationState": "reserved",
+  "sourceCheckoutCreated": false,
+  "operationDigest": "1132e3160b8e3a8cab3df539b629d298ea5ff51b08dec0f085b0e41456f1e078",
+  "repeatedProbeRetainedIdentity": true,
+  "probes": [
+    {
+      "schemaVersion": "1.0",
+      "outcome": "ok",
+      "connectorDigest": "29adef1de869cb298373c401d7ada4126dca8d7112e045fdb7467c662d3fd3de",
+      "operationDigest": "1132e3160b8e3a8cab3df539b629d298ea5ff51b08dec0f085b0e41456f1e078",
+      "reservationState": "reserved",
+      "originalIdentityRetained": true,
+      "capabilities": [
+        "target.probe.v1",
+        "target.reserve.v1",
+        "target.inspect.v1"
+      ]
+    },
+    {
+      "schemaVersion": "1.0",
+      "outcome": "ok",
+      "connectorDigest": "29adef1de869cb298373c401d7ada4126dca8d7112e045fdb7467c662d3fd3de",
+      "operationDigest": "1132e3160b8e3a8cab3df539b629d298ea5ff51b08dec0f085b0e41456f1e078",
+      "reservationState": "reserved",
+      "originalIdentityRetained": true,
+      "capabilities": [
+        "target.probe.v1",
+        "target.reserve.v1",
+        "target.inspect.v1"
+      ]
+    }
+  ],
+  "isolation": {
+    "schemaVersion": "1.0",
+    "outcome": "ok",
+    "deniedReads": 7,
+    "deniedWrites": 11,
+    "deniedDirectories": 4,
+    "environmentClean": true,
+    "directHelperDenied": true,
+    "protectedBytesUnchanged": true
+  },
+  "sourceCommit": "a682da8640c1ba4348649dfdbbcb6d72ba5e4db8",
+  "recordedDate": "2026-10-23",
+  "environment": {
+    "distribution": "Debian 13",
+    "architecture": "x86_64",
+    "transport": "OpenSSH over operator-selected VPN"
+  },
+  "verification": {
+    "sourceBytesMatched": true,
+    "sourceFilesChecked": 209,
+    "nodeTests": {
+      "total": 441,
+      "passed": 441,
+      "failed": 0,
+      "skipped": 0
+    },
+    "generatedTypesChecked": 48,
+    "pythonTestsPassed": 4,
+    "schemaExamplePairsValidated": 34
+  },
+  "bootstrap": {
+    "temporaryAccessRevoked": true,
+    "originalAccessEntriesPreserved": true,
+    "revokedKeyLoginRejected": true,
+    "localTemporaryKeyFilesRemoved": true,
+    "persistentRestrictedHelperKeyRetained": true
+  },
+  "remainingGates": [
+    "AC19 guarded deletion (W05)",
+    "AC35/AC36 complete GitHub/workspace/session integration",
+    "LS-SSH-003/004 source creation/recovery (#22)",
+    "LS-SSH-005 runtime/resource namespaces (#23)"
+  ]
+}

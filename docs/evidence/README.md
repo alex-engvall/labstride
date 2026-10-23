@@ -8,6 +8,8 @@ For W00.3 / #13, see the separate [toolchain/session capability matrix and disco
 
 The later [W02.3 implementation evidence](W02.3-reconciliation-2026-10-23.md) now records actual coordinator polling/admission, checked Project writes and recovery on owned GitHub fixtures. AC04/AC05 passed for that tested profile; full AC02/AC29/AC35/AC36 retain their named integration gates. Historical discovery limits and unexecuted statuses below describe W00.1's examined scope, not a replacement for the canonical current acceptance file.
 
+The [W03.1 SSH/helper evidence](W03.1-ssh-boundary-2026-10-23.md) adds explicit target enrollment, a protected helper registry, real SSH/coordinator crash recovery and actual coding-user isolation on a retained pilot. AC06/AC07 passed for that Linux profile. Source creation, guarded deletion and full workspace/session/projection integration remain with #22/#23, W05 and AC35/AC36.
+
 ## Verified provider capabilities and limits
 
 The operator selected public `alex-engvall/fortnox-mcp` as the sole dedicated App test repository and personal Project #8 as the Project target. Those are evidence fixtures, not product defaults. In the dedicated-credential probes, repository effects used downscoped App installation tokens and Project effects used a separate user PAT reporting only `project`. The earlier broad-credential discovery is recorded separately below.

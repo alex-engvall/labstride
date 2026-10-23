@@ -62,7 +62,7 @@
       "Qualify W00.3's observed SSH prerequisite through real enrolled target/workspace effects and direct results without fabricated workflow identity."
     ],
     "first_verifiable_outcome": "Two issues have separate branches/directories and recover after connection loss.",
-    "status": "planned",
+    "status": "in_progress",
     "github_issue": 6,
     "github_issue_url": "https://github.com/alex-engvall/labstride/issues/6"
   },
