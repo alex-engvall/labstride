@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "installationId": "installation-example",
+  "actorIds": [
+    "actor-example"
+  ],
+  "repositories": [
+    {
+      "id": "repository-example",
+      "name": "example/source"
+    }
+  ],
+  "grants": [
+    {
+      "repositoryId": "repository-example",
+      "targetId": "target-example",
+      "actionId": "example.workspace",
+      "actionVersion": "1.0.0",
+      "effects": [
+        "execute",
+        "cancel"
+      ]
+    }
+  ]
+}

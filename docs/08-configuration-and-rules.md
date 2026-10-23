@@ -8,7 +8,7 @@ Parse against config.schema.json, reject unknown core keys, resolve secrets by r
 
 Every new run snapshots effective configuration and extension digests. Ordinary edits apply to new runs. Emergency deny/revoke/pause controls apply immediately to active runs and are audited. Expanding active-run permissions requires an explicit new authorized policy revision.
 
-W02.1 implements the [compiler, typed bindings and transactional admission API](30-installation-configuration.md). Compilation accepts an explicit installed lock and trusted provider/secret interfaces; it inspects pinned artifacts without evaluating their modules. Failures report stable diagnostic codes/paths. The immutable snapshot includes qualified bindings and exact extension pins; activation and new-run admission remain trusted local embedding operations. Authenticated actor/policy changes and actual GitHub synchronization remain W02.2/W02.3 work.
+W02.1 implements the [compiler, typed bindings and transactional admission API](30-installation-configuration.md). Compilation accepts an explicit installed lock and trusted provider/secret interfaces; it inspects pinned artifacts without evaluating their modules. Failures report stable diagnostic codes/paths. The immutable snapshot includes qualified bindings and exact extension pins; activation and new-run admission remain trusted local embedding operations. W02.2 adds [request authorization, trusted policy changes and immediate restrictions](31-authorization-and-policy.md). Actual GitHub synchronization remains W02.3 work.
 
 ## Fields
 

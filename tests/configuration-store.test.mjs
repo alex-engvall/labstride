@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { DatabaseSync } from 'node:sqlite';
 import { fork } from 'node:child_process';
 import { once } from 'node:events';
-import { configurationFixture, observation, planFor, context } from './helpers/configuration-fixture.mjs';
+import { configurationFixture, observation, planFor, context, localAuthority, policyDependencies, publishFixturePolicy } from './helpers/configuration-fixture.mjs';
 import { startCoordinator } from '../apps/coordinator/main.ts';
 import { createWorker, actionKey } from '../packages/core/worker.ts';
 import { freezeProfile, loadExtension } from '../packages/extensions/loader.ts';
@@ -19,10 +19,10 @@ import { requestDigest } from '../packages/storage-sqlite/execution.ts';
 
 const failure = code => e => e.code === code;
 function root(t){const path=mkdtempSync(join(tmpdir(),'labstride-config-store-'));t.after(()=>rmSync(path,{recursive:true,force:true}));return path;}
-function open(t,path){const runtime=startCoordinator(path);t.after(()=>runtime.store.close());return runtime.store;}
+function open(t,path){const runtime=startCoordinator(path,policyDependencies);t.after(()=>runtime.store.close());return runtime.store;}
 async function setup(t,mutate=()=>{}){
  const path=root(t),f=configurationFixture(path,'a');mutate(f);const result=await f.compile();assert.equal(result.ok,true,JSON.stringify(result.diagnostics));
- const compiled=result.configuration,store=open(t,join(path,'state'));store.activateConfiguration(compiled,null,context);
+ const compiled=result.configuration,store=open(t,join(path,'state'));store.activateConfiguration(compiled,null,context,localAuthority);publishFixturePolicy(store,f,compiled);
  return {path,f,compiled,store,observed:observation(f,compiled),bindings:{source:f.source}};
 }
 function request(x,observed=x.observed,builder=planFor(x.f,x.compiled)) {return x.store.requestConfiguredStart(x.compiled,observed,x.bindings,builder,context);}
@@ -36,10 +36,10 @@ async function actionWorker(x,store=x.store){
 
 test('preflight activation is audited and idempotent; arbitrary snapshots cannot activate an installation',async t=>{
  const x=await setup(t);assert.equal(x.store.get('installation',x.f.config.installationId).revision,1);
- assert.equal(x.store.activateConfiguration(x.compiled,null,context),x.compiled.snapshot.digest);
+ assert.equal(x.store.activateConfiguration(x.compiled,null,context,localAuthority),x.compiled.snapshot.digest);
  assert.equal(x.store.get('installation',x.f.config.installationId).revision,1);
- assert.throws(()=>x.store.activateConfiguration({snapshot:x.compiled.snapshot},1,context),e=>e.code==='configuration_invalid');
- assert.throws(()=>x.store.activateConfiguration(x.compiled,99,context),failure('revision_conflict'));
+ assert.throws(()=>x.store.activateConfiguration({snapshot:x.compiled.snapshot},1,context,localAuthority),e=>e.code==='configuration_invalid');
+ assert.throws(()=>x.store.activateConfiguration(x.compiled,99,context,localAuthority),failure('revision_conflict'));
  const installation=x.store.get('installation',x.f.config.installationId);
  assert.throws(()=>x.store.commit([{record:{...installation,configRevision:'forged',revision:2},expectedRevision:1}],context),failure('recovery_required'));
  assert.equal(x.store.schedulingPolicy().activeRuns,x.f.config.limits.activeRuns);
@@ -109,7 +109,7 @@ for(const value of [true,42,'2026-10-23',['option-two','option-one'],null])test(
 });
 test('new revisions affect new runs while an active run and its later state changes retain the original snapshot',async t=>{
  const x=await setup(t),original=request(x);const oldDigest=x.compiled.snapshot.digest;
- x.f.config.limits.activeRuns=3;const second=await x.f.compile();assert.equal(second.ok,true);x.store.activateConfiguration(second.configuration,1,context);
+ x.f.config.limits.activeRuns=3;const second=await x.f.compile();assert.equal(second.ok,true);x.store.activateConfiguration(second.configuration,1,context,localAuthority);
  const current=x.store.get('installation',x.f.config.installationId);assert.equal(current.configRevision,second.configuration.snapshot.digest);
  assert.equal(x.store.runConfiguration(original.runId).digest,oldDigest);
  const run=x.store.get('run',original.runId);x.store.commit([{expectedRevision:run.revision,record:{...run,revision:run.revision+1,state:'preparing'}}],context);
@@ -159,7 +159,7 @@ test('v9 migration preserves legacy runs and handles without inventing configura
  const checksums=db.prepare('SELECT * FROM schema_migrations').all();assert.equal(db.prepare('PRAGMA user_version').get().user_version,9);db.close();
  const reboot=open(t,state);assert.equal(reboot.get('operation',op.id).state,'outcome_unknown');assert.equal(reboot.runConfiguration(run.id),null);
  assert.equal(reboot.operationHandle(op.id),'original-legacy-handle');
- const direct=new DatabaseSync(join(state,'state.sqlite'));t.after(()=>direct.close());assert.equal(direct.prepare('PRAGMA user_version').get().user_version,10);
+ const direct=new DatabaseSync(join(state,'state.sqlite'));t.after(()=>direct.close());assert.equal(direct.prepare('PRAGMA user_version').get().user_version,11);
  assert.equal(direct.prepare('SELECT config_digest FROM runs WHERE id=?').get(run.id).config_digest,null);
  assert.deepEqual(direct.prepare('SELECT * FROM schema_migrations WHERE version<=9').all(),checksums);
 });

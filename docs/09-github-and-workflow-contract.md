@@ -24,7 +24,7 @@ Persist normalized observations, deduplication IDs and cursor advancement atomic
 
 The coordinator alone projects managed technical progress to GitHub after normalization and validation. Optional agent hooks report into that path; CI/workflow facts are independently refreshed from GitHub. Keep a failed projection in the durable outbox, coalesce superseded progress safely and preserve human edits, approvals and newer request generations. A turn-end hook is not a release-completion receipt.
 
-Authenticate webhook signatures before parsing effects. Record delivery IDs, reject oversized payloads and accept replayed deliveries without repeating effects. A valid signature proves delivery, not that an issue author may start a job.
+Authenticate webhook signatures before parsing effects. Record delivery IDs, reject oversized payloads and accept replayed deliveries without repeating effects. A valid signature proves delivery, not that an issue author may start a job. W02.2 implements the [enrolled actor-verifier and bounded-policy admission boundary](31-authorization-and-policy.md). A denied matching event has a durable authorization decision and no executable graph. W02.3 must supply actual credential-specific provider facts; normalized event fields and audit actor IDs alone are insufficient.
 
 ## Merge gate
 

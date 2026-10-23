@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "installationId": "installation-example",
+  "providerId": "github-example",
+  "externalId": "event-example",
+  "subjectId": "issue-example",
+  "actorId": "actor-example",
+  "repositoryId": "repository-example",
+  "repository": "example/source",
+  "configDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "generation": 1,
+  "observationDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "evidenceRefs": [
+    "example:independently-observed-actor"
+  ]
+}

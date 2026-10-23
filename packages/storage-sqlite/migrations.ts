@@ -164,6 +164,25 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
     payload TEXT NOT NULL CHECK(json_valid(payload)), run_id TEXT REFERENCES runs(id));
   CREATE TRIGGER rule_evaluation_no_update BEFORE UPDATE ON rule_evaluations BEGIN SELECT RAISE(ABORT,'immutable_rule_evaluation'); END;
   CREATE TRIGGER rule_evaluation_no_delete BEFORE DELETE ON rule_evaluations BEGIN SELECT RAISE(ABORT,'immutable_rule_evaluation'); END;
+` }, { version: 11, sql: `
+  CREATE TABLE policy_revisions (installation_id TEXT NOT NULL REFERENCES installations(id), revision INTEGER NOT NULL,
+    payload TEXT NOT NULL CHECK(json_valid(payload)), digest TEXT NOT NULL CHECK(length(digest)=64), PRIMARY KEY(installation_id,revision));
+  CREATE TABLE policy_state (installation_id TEXT PRIMARY KEY REFERENCES installations(id), revision INTEGER NOT NULL,
+    policy_revision INTEGER NOT NULL, FOREIGN KEY(installation_id,policy_revision) REFERENCES policy_revisions(installation_id,revision));
+  CREATE TABLE policy_changes (id TEXT PRIMARY KEY, installation_id TEXT NOT NULL REFERENCES installations(id),
+    payload TEXT NOT NULL CHECK(json_valid(payload)), receipt TEXT NOT NULL CHECK(json_valid(receipt)));
+  CREATE TABLE run_authorizations (run_id TEXT PRIMARY KEY REFERENCES runs(id), installation_id TEXT NOT NULL,
+    policy_revision INTEGER NOT NULL, actor_id TEXT NOT NULL,
+    FOREIGN KEY(installation_id,policy_revision) REFERENCES policy_revisions(installation_id,revision));
+  CREATE TABLE policy_restrictions (installation_id TEXT NOT NULL REFERENCES installations(id), scope TEXT NOT NULL,
+    payload TEXT NOT NULL CHECK(json_valid(payload)), PRIMARY KEY(installation_id,scope));
+  CREATE TABLE authorization_decisions (inbox_id TEXT PRIMARY KEY REFERENCES inbox(id), payload TEXT NOT NULL CHECK(json_valid(payload)));
+  CREATE TRIGGER policy_revision_no_update BEFORE UPDATE ON policy_revisions BEGIN SELECT RAISE(ABORT,'immutable_policy'); END;
+  CREATE TRIGGER policy_revision_no_delete BEFORE DELETE ON policy_revisions BEGIN SELECT RAISE(ABORT,'immutable_policy'); END;
+  CREATE TRIGGER policy_change_no_update BEFORE UPDATE ON policy_changes BEGIN SELECT RAISE(ABORT,'immutable_policy_change'); END;
+  CREATE TRIGGER policy_change_no_delete BEFORE DELETE ON policy_changes BEGIN SELECT RAISE(ABORT,'immutable_policy_change'); END;
+  CREATE TRIGGER authorization_decision_no_update BEFORE UPDATE ON authorization_decisions BEGIN SELECT RAISE(ABORT,'immutable_authorization_decision'); END;
+  CREATE TRIGGER authorization_decision_no_delete BEFORE DELETE ON authorization_decisions BEGIN SELECT RAISE(ABORT,'immutable_authorization_decision'); END;
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

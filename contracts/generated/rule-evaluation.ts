@@ -14,5 +14,6 @@ export type ConfigurationRuleEvaluation = {
     | "unchanged"
     | "invalid_observation"
     | "invalid_value"
-    | "rule_conflict";
+    | "rule_conflict"
+    | "authorization_denied";
 };

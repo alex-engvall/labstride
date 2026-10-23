@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0",
+  "repository": "alex-engvall/fortnox-mcp",
+  "repositoryId": "R_kgDOVN8Qwg",
+  "issueNumber": 80,
+  "issueId": "I_kwDOVN8Qws8AAAABYuOUYg",
+  "projectId": "PVT_kwHOCKCTA84Bn_dI",
+  "fieldId": "PVTSSF_lAHOCKCTA84Bn_dIzhmhio4",
+  "optionId": "f75ad846",
+  "event": {
+    "id": "PVTISC_lADOVN8Qws8AAAABYuOUYs8AAAAH6204_Q",
+    "createdAt": "2026-10-23T03:13:19Z",
+    "previousStatus": "",
+    "status": "New",
+    "project": {
+      "id": "PVT_kwHOCKCTA84Bn_dI"
+    },
+    "actor": {
+      "__typename": "User",
+      "login": "alex-engvall",
+      "id": "U_kgDOCKCTAw"
+    }
+  },
+  "observedCurrent": {
+    "field": {
+      "id": "PVTSSF_lAHOCKCTA84Bn_dIzhmhio4"
+    },
+    "optionId": "f75ad846",
+    "name": "New"
+  },
+  "authorization": {
+    "actorId": "U_kgDOCKCTAw",
+    "allowed": false,
+    "code": "actor_denied",
+    "policyRevision": 1,
+    "schemaVersion": "1.0"
+  },
+  "evaluation": {
+    "code": "authorization_denied",
+    "outcome": "blocked",
+    "ruleIds": [
+      "start"
+    ],
+    "schemaVersion": "1.0",
+    "workflow": null
+  },
+  "executionCounts": {
+    "requests": 0,
+    "runs": 0,
+    "workspaces": 0,
+    "operations": 0,
+    "outbox": 0,
+    "deliveries": 0
+  },
+  "receiptSurvivedReopen": true,
+  "cleanupVerified": true,
+  "limitations": [
+    "Existing configured GitHub CLI credential; not a minimal-permission credential qualification",
+    "One-shot trusted probe adapter and explicitly assigned local request generation; not the W02.3 polling/order/bootstrap implementation",
+    "Other compiler bindings and installed target action are local fixtures; no workspace or deploy action invoked"
+  ]
+}

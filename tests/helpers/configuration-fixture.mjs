@@ -110,3 +110,27 @@ export function planFor(f, compiled, suffix = '') {
     return plan;
   };
 }
+
+// Enrolled, synthetic provider for compiler/storage regression tests. Real
+// deployments must verify independent provider facts instead of echoing inputs.
+export const { createLocalPolicyAuthority } = await import('../../packages/core/policy.ts');
+export const localAuthority = createLocalPolicyAuthority();
+export const { authorizationObservationDigest } = await import('../../packages/storage-sqlite/policy.ts');
+export function fixtureActorEvidence(observed, source = startPlan().operation.request.source) {
+  return { schemaVersion:'1.0', installationId:observed.event.installationId, providerId:observed.event.provider,
+    externalId:observed.event.externalId, subjectId:observed.event.subjectId, actorId:observed.event.actorId,
+    repositoryId:source.repositoryId, repository:source.repository, configDigest:observed.configDigest,
+    generation:observed.generation, observationDigest:authorizationObservationDigest(observed), evidenceRefs:['test:enrolled-provider'] };
+}
+export const policyDependencies = { policyAuthority:localAuthority, actorVerifier:fixtureActorEvidence };
+export function policyFor(f, compiled) {
+  return { schemaVersion:'1.0', installationId:f.config.installationId, actorIds:[...f.config.github.actorIds],
+    repositories:[{id:f.source.repositoryId,name:f.source.repository}],
+    grants:Object.keys(f.config.targets).flatMap(targetId => compiled.snapshot.extensionLock.extensions.filter(pin=>pin.kind==='action').map(pin=>({
+      repositoryId:f.source.repositoryId,targetId,actionId:pin.id,actionVersion:pin.version,effects:['execute','cancel'],
+    }))) };
+}
+export function publishFixturePolicy(store, f, compiled) {
+  return store.applyPolicyChange({schemaVersion:'1.0',id:`initial:${f.config.installationId}`,installationId:f.config.installationId,expectedRevision:0,
+    change:{kind:'publish',policy:policyFor(f,compiled)}},localAuthority,context);
+}
