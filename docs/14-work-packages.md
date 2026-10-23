@@ -46,6 +46,8 @@ Tracker: [#4](https://github.com/alex-engvall/labstride/issues/4).
 
 **W01.3 progress:** LS-CORE-005/007 have local [capacity](evidence/W01.3-capacity-2026-10-21.md), [pause/cancel](evidence/W01.3-controls-2026-10-21.md) and [automation safety](evidence/W01.3-automation-2026-10-21.md) implementation evidence. Issue #16 closes only after all three scoped PRs merge. Full AC08/AC24/AC31/AC36 and W01's remaining session integration stay open.
 
+**W01.4 progress:** LS-EXT-003/005 are implemented with pinned loading, profile-bound session operations, an independent durable fixture and a public Codex example. After the [authorized backend upgrade](evidence/W01.4-backend-upgrade-2026-10-23.md), the [actual enrolled-client proof](evidence/W01.4-client-continuity-2026-10-23.md) retained the original identities through coordinator process death and transport loss, then observed the operator's same-client resumption and human turn. AC31 passed for the tested fixture/Codex profiles. #17's scoped implementation is ready for review and closure on merge. Full AC22 distribution and AC35/AC36 GitHub/SSH integration remain with W07/W02/W03; their full statuses remain `not_run`.
+
 ## W02 — Configuration and GitHub request/projection adapter
 
 Tracker: [#5](https://github.com/alex-engvall/labstride/issues/5).

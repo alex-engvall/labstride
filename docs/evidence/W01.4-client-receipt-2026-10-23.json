@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0",
+  "backendVersion": "0.163.0",
+  "artifactSha256": "b0c5f4b78a9d8ccaba75e7d98a1d507ce60ea4c3d74e91432bb54930564e0f1b",
+  "sessionSha256": "281fb0ef58caf0a390455921e351ea34deaca7dc3e1acb3b1b58204f90407d09",
+  "turnASha256": "f455422673affce3d0662baa1f814d58be07a77078be02f4a260e20c49ccb68e",
+  "turnBSha256": "b5115caac267159c05c672360e10dda073191f93e4791282f365c3ffd72d664c",
+  "humanRevisionBefore": 1,
+  "humanRevisionAfter": 2,
+  "humanHoldAfterRestartAndResume": true,
+  "owner": "human",
+  "binding": "attached",
+  "operations": [
+    {
+      "id": "w014-live:start",
+      "state": "succeeded",
+      "effectBoundary": "crossed",
+      "handle": "w014-live:enrollment",
+      "error": null
+    },
+    {
+      "id": "w014-live:resume",
+      "state": "succeeded",
+      "effectBoundary": "crossed",
+      "handle": "w014-live:enrollment",
+      "error": null
+    },
+    {
+      "id": "w014-live:observe",
+      "state": "succeeded",
+      "effectBoundary": "crossed",
+      "handle": "w014-live:enrollment",
+      "error": null
+    },
+    {
+      "id": "w014-live:before-effect",
+      "state": "succeeded",
+      "effectBoundary": "crossed",
+      "handle": "w014-live:enrollment",
+      "error": null
+    },
+    {
+      "id": "w014-live:after-effect",
+      "state": "succeeded",
+      "effectBoundary": "crossed",
+      "handle": "w014-live:enrollment",
+      "error": null
+    },
+    {
+      "id": "w014-live:unsupported-send",
+      "state": "prepared",
+      "effectBoundary": "not_crossed",
+      "handle": null,
+      "error": "unsupported_capability"
+    }
+  ],
+  "processCrashes": [
+    {
+      "stage": "before-effect",
+      "signal": "SIGKILL"
+    },
+    {
+      "stage": "after-effect",
+      "signal": "SIGKILL"
+    }
+  ],
+  "missingObservation": {
+    "sameIdentity": true,
+    "unchangedRevision": true,
+    "retryAttempts": 1
+  }
+}

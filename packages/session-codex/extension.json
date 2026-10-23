@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "id": "example.session.codex",
+  "version": "0.1.0",
+  "kind": "session-provider",
+  "protocol": {
+    "major": 1,
+    "minor": 0
+  },
+  "entrypoint": "module",
+  "capabilities": [
+    "session.lifecycle.v1"
+  ],
+  "requiredCapabilities": [],
+  "permissions": [
+    "session.manage",
+    "filesystem.workspace"
+  ],
+  "inputSchema": "input",
+  "outputSchema": "output"
+}

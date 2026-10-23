@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Extension lock",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Installed extension pin",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "kind": {
+            "enum": [
+              "provider",
+              "connector",
+              "action",
+              "session-provider"
+            ]
+          },
+          "integrity": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "artifactPath": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "configuration": {
+            "type": "object"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "uniqueItems": true,
+            "maxItems": 128
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "uniqueItems": true,
+            "maxItems": 128
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "kind",
+          "integrity",
+          "artifactPath",
+          "configuration",
+          "permissions",
+          "capabilities"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 128
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "extensions"
+  ]
+}

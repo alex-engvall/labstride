@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Registered session command",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "enrollmentId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "maxLength": 256
+    },
+    "backendIdentity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "profileDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "request": {
+      "$ref": "session-request.schema.json"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "enrollmentId",
+    "backendIdentity",
+    "profileDigest",
+    "request"
+  ]
+}

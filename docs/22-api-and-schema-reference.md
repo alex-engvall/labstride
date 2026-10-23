@@ -13,6 +13,16 @@ The JSON schemas are proposed normative v1 contracts for implementation. They ar
 | [contract result](../schemas/contract-result.schema.json) | [result](../examples/contract-result.json) | Extension caller |
 | [hook observation](../schemas/hook-observation.schema.json) | [observation](../examples/hook-observation.json) | Enrolled adapter/coordinator |
 | [hook acknowledgement](../schemas/hook-ack.schema.json) | [acknowledgement](../examples/hook-ack.json) | Durable observation boundary |
+| [extension artifact](../schemas/extension-artifact.schema.json) | [structural template](../examples/extension-artifact.json) | Installed ESM loader |
+| [extension lock](../schemas/extension-lock.schema.json) | [lock template](../examples/extension-lock.json) | Trusted installation composition |
+| [extension profile](../schemas/extension-profile.schema.json) | [frozen profile](../examples/extension-profile.json) | Active run/recovery |
+| [session binding](../schemas/session-binding.schema.json) | [binding](../examples/session-binding.json) | Durable enrollment |
+| [session command](../schemas/session-command.schema.json) | [registered command](../examples/session-command.json) | Immutable operation binding |
+| [session reply](../schemas/session-reply.schema.json) | [reply](../examples/session-reply.json) | Session adapter boundary |
+| [session handoff](../schemas/session-handoff.schema.json) | [handoff](../examples/session-handoff.json) | Explicit trusted human handoff |
+| [Codex question](../schemas/codex-question.schema.json) | [question](../examples/codex-question.json) | Correlated bounded observation |
+| [Codex answer](../schemas/codex-answer.schema.json) | [answer](../examples/codex-answer.json) | Client answer validation only |
+| [session probe](../schemas/session-probe.schema.json) | [probe template](../examples/session-probe.json) | Explicit existing-session probe |
 
 ## Validation layers
 
@@ -54,7 +64,7 @@ Design defaults: 256 KiB broker bodies, 1 MiB webhook bodies, bounded provider p
 
 A start operation returns/reconciles one session per operation ID. All later commands identify that session. A send must compare expectedLastTurnId and expectedHumanActivityRevision immediately before submission; mismatch is stale_revision. An observation can still race with human activity on the backend, so the provider must use supported atomic guards or pause/report the limitation rather than claim guaranteed race-free control.
 
-Optional provider hooks must normalize through this enrolled boundary and the [hook observation/acknowledgement contracts](26-contract-fixtures-and-toolchain.md). They bind provider/run/request-generation/workspace/session/turn and distinguish committed acceptance, duplicate and rejection. The SQLite fixture verifies commit-before-ack and restart deduplication; raw-hook mapping, an enrolled endpoint and the actual outbox remain unimplemented. Accepted runtime events must enqueue one coordinator-owned projection path. Hooks cannot substitute for workflow receipts, human approval or authoritative session observations.
+Optional provider hooks must normalize through this enrolled boundary and the [hook observation/acknowledgement contracts](26-contract-fixtures-and-toolchain.md). They bind provider/run/request-generation/workspace/session/turn and distinguish committed acceptance, duplicate and rejection. W01.2 implements committed enrollment observations and the coordinator outbox; W01.4 adds profile-bound session commands and hook capability checks. Raw-hook mapping and an authenticated enrolled endpoint remain integration work. See [installed session behavior](29-installed-sessions.md). Accepted runtime events must enqueue one coordinator-owned projection path. Hooks cannot substitute for workflow receipts, human approval or authoritative session observations.
 
 ## Boolean operator controls
 

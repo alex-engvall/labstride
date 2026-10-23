@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Session provider reply",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "outcome": {
+          "const": "ok"
+        },
+        "observation": {
+          "$ref": "session-observation.schema.json"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "outcome",
+        "observation"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "outcome": {
+          "const": "error"
+        },
+        "code": {
+          "enum": [
+            "stale_revision",
+            "unsupported_capability",
+            "identity_mismatch",
+            "validation_failed",
+            "forbidden"
+          ]
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "maxItems": 128
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "outcome",
+        "code",
+        "evidenceRefs"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "outcome": {
+          "const": "outcome_unknown"
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "maxItems": 128
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "outcome",
+        "evidenceRefs"
+      ]
+    }
+  ]
+}

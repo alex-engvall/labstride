@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0",
+  "extensions": [
+    {
+      "id": "example.session.fixture",
+      "version": "0.1.0",
+      "kind": "session-provider",
+      "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+      "artifactPath": "/opt/labstride/extensions/fixture.artifact.json",
+      "configuration": {
+        "providerId": "example.session.fixture",
+        "backendIdentity": "example-backend",
+        "databasePath": "/var/lib/labstride/example-backend.sqlite"
+      },
+      "permissions": [
+        "session.manage",
+        "filesystem.workspace"
+      ],
+      "capabilities": [
+        "session.lifecycle.v1",
+        "session.atomic-guards.v1",
+        "session.hooks.v1"
+      ]
+    }
+  ]
+}

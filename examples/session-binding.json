@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "enrollmentId": "enrollment-example",
+  "runId": "run-example",
+  "workspaceId": "workspace-example",
+  "providerId": "example.session.fixture",
+  "sessionId": "opaque-session-example",
+  "backendIdentity": "example-backend",
+  "profileDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "status": "attached"
+}

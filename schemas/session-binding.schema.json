@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Session binding",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "enrollmentId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "workspaceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "backendIdentity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "profileDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "status": {
+      "enum": [
+        "attached",
+        "detached"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "enrollmentId",
+    "runId",
+    "workspaceId",
+    "providerId",
+    "sessionId",
+    "backendIdentity",
+    "profileDigest",
+    "status"
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Opt-in session continuity probe configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "probeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "maxLength": 128
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dataDir": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "lockFile": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "backendIdentity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "actorId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "issueId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repositoryId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      },
+      "required": [
+        "repositoryId",
+        "repository",
+        "sha"
+      ]
+    },
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "targetId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "branch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "ownershipRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [
+        "id",
+        "targetId",
+        "locator",
+        "branch",
+        "ownershipRef"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "probeId",
+    "createdAt",
+    "dataDir",
+    "lockFile",
+    "providerId",
+    "backendIdentity",
+    "actorId",
+    "issueId",
+    "source",
+    "workspace"
+  ]
+}
