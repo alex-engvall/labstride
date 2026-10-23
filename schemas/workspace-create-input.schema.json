@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Workspace create inputs v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "target": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "rootId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repositoryId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      },
+      "required": [
+        "repositoryId",
+        "repository",
+        "sha"
+      ]
+    }
+  },
+  "required": [
+    "target",
+    "rootId",
+    "source"
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Owned workspace creation receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "installationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetRevision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "runId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "workspaceId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "operationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "requestDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "rootId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "locator": {
+      "type": "string",
+      "pattern": "^ws-[a-f0-9]{40}$"
+    },
+    "branch": {
+      "type": "string",
+      "pattern": "^labstride/ws-[a-f0-9]{40}$"
+    },
+    "ownershipRef": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "handle": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repositoryId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      },
+      "required": [
+        "repositoryId",
+        "repository",
+        "sha"
+      ]
+    },
+    "directoryIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "inode": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "mountId": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "uid": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "device",
+        "inode",
+        "mountId",
+        "uid"
+      ]
+    },
+    "checkoutIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "inode": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "mountId": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "uid": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "device",
+        "inode",
+        "mountId",
+        "uid"
+      ]
+    },
+    "state": {
+      "const": "ready"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "installationId",
+    "targetId",
+    "targetRevision",
+    "runId",
+    "workspaceId",
+    "operationId",
+    "requestDigest",
+    "rootId",
+    "locator",
+    "branch",
+    "ownershipRef",
+    "handle",
+    "source",
+    "directoryIdentity",
+    "checkoutIdentity",
+    "state"
+  ]
+}

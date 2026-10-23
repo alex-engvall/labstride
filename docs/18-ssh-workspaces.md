@@ -4,7 +4,7 @@
 
 A target supplies host/port/user references, enrolled host key, approved workspace root, authentication secret reference, permitted commands/capabilities and timeouts. A probe checks identity and required tools without provisioning resources.
 
-W03.1 implements [enrollment, the installed connector and trusted helper registry](33-ssh-target-boundary.md), with [Linux/SSH and identity-separation evidence](evidence/W03.1-ssh-boundary-2026-10-23.md). Probe and registry reservation are available; no clone, upload, runtime, cleanup or workspace-ready capability is advertised. Workspace creation below remains #22 work.
+W03.1 implements [enrollment, the installed connector and trusted helper registry](33-ssh-target-boundary.md), with [Linux/SSH and identity-separation evidence](evidence/W03.1-ssh-boundary-2026-10-23.md). Probe and registry reservation are available; no clone, upload, runtime, cleanup or workspace-ready capability is advertised. W03.2 adds the [exact-revision creation/recovery contract](34-exact-revision-workspaces.md); its [evidence and remaining client gates](evidence/W03.2-workspaces-2026-10-23.md) are tracked separately.
 
 Use the system SSH client or a reviewed library selected in W00. Enforce host-key checking. Do not use trust-on-first-use silently, disable host checks or copy private keys into the agent's repository.
 

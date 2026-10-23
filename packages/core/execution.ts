@@ -32,6 +32,7 @@ export interface RetryPolicy { maxAttempts: number; baseMs: number; capMs: numbe
 export const defaultRetryPolicy: RetryPolicy = { maxAttempts: 5, baseMs: 1000, capMs: 60000 };
 export type SessionGuard = NonNullable<AutomationContext['sessionGuard']>;
 export interface ActionAdapter {
+  createsWorkspace?: boolean;
   requiresSessionGuard?: boolean;
   atomicSessionGuards?: boolean;
   // The embedding application enrolls reviewed adapters; payloads cannot load code.
@@ -46,8 +47,8 @@ export interface ExecutionPort extends InboxStore {
   delivery(id: string): Delivery;
   claim(operationId: string, executorId: string, attemptId: string): Claim;
   sessionGuard(operationId: string): SessionGuard | undefined;
-  beginEffect(claim: Claim, atomicSessionGuards?: boolean): void;
-  acceptResult(result: BoundResult, claim: Claim | null, expectedRevision: number, projections?: RecordOf<'projection'>[], observedEpoch?: number): boolean;
+  beginEffect(claim: Claim, atomicSessionGuards?: boolean, createsWorkspace?: boolean): void;
+  acceptResult(result: BoundResult, claim: Claim | null, expectedRevision: number, projections?: RecordOf<'projection'>[], observedEpoch?: number, createsWorkspace?: boolean): boolean;
   validateResult(result: BoundResult): BoundResult;
   recoveryEpoch(): number;
   markUnknown(operationId: string): void;

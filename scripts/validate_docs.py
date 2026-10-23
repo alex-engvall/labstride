@@ -75,6 +75,11 @@ def main():
         'ssh-enrollment': 'ssh-enrollment', 'ssh-helper-policy': 'ssh-helper-policy',
         'ssh-helper-request': 'ssh-helper-request', 'ssh-helper-response': 'ssh-helper-response',
         'ssh-reservation': 'ssh-reservation',
+        'ssh-workspace-policy': 'ssh-workspace-policy',
+        'ssh-workspace-request': 'ssh-workspace-request',
+        'ssh-workspace-response': 'ssh-workspace-response',
+        'ssh-workspace-receipt': 'ssh-workspace-receipt',
+        'workspace-probe': 'workspace-probe',
     }
     validators, examples = validators_for(ROOT / 'schemas'), {}
     for name, example in pairs.items():

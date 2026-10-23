@@ -245,7 +245,7 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
     if (!row || canonical(JSON.parse(String(row.payload))) !== canonical(safe)) throw new LifecycleError('identity_conflict');
     return { consumed: Number(row.consumed), active: Number(row.active) };
   }
-  beginEffect(claim: Claim, atomicSessionGuards = false): void {
+  beginEffect(claim: Claim, atomicSessionGuards = false, createsWorkspace = false): void {
     this.refreshAutomation(this.get('operation', claim.operationId).runId);
     this.transaction(() => {
       const row = this.checkClaim(claim);
@@ -257,6 +257,7 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
       this.countRepair(claim.operationId);
       this.db.prepare('UPDATE claims SET consumed=1 WHERE id=?').run(claim.id);
       this.changeOperation(claim.operationId, 'running', true, []);
+      if (createsWorkspace) this.workspacePreparing(claim.operationId);
       this.log(claim.operationId, 'effect_boundary', claim);
     });
   }
@@ -284,7 +285,7 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
     if (bound.kind !== 'result') throw new LifecycleError('invalid_payload');
     return bound;
   }
-  acceptResult(input: BoundResult, claim: Claim | null, expectedRevision: number, projections: RecordOf<'projection'>[] = [], observedEpoch = 0): boolean {
+  acceptResult(input: BoundResult, claim: Claim | null, expectedRevision: number, projections: RecordOf<'projection'>[] = [], observedEpoch = 0, createsWorkspace = false): boolean {
     const bound = validated('execution-record', input);
     if (bound.kind !== 'result') throw new LifecycleError('invalid_payload');
     return this.transaction(() => {
@@ -314,6 +315,7 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
       } else if (bound.result.status !== 'accepted') {
         if (bound.result.evidenceRefs.length === 0) throw new LifecycleError('invalid_payload');
         this.changeOperation(op.id, bound.result.status, true, bound.result.evidenceRefs);
+        if (createsWorkspace && bound.result.status === 'succeeded') this.workspaceReady(op, bound);
         const workspace = this.get('workspace', op.workspaceId);
         for (let offset = 0; offset < bound.result.resources.length; offset += 64)
           this.write(bound.result.resources.slice(offset, offset + 64).map(resource => ({ expectedRevision: null, record: {
@@ -335,6 +337,27 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
       this.log(op.id, 'observation', bound);
       return true;
     });
+  }
+  private workspacePreparing(operationId: string): void {
+    const op=this.get('operation',operationId),workspace=this.get('workspace',op.workspaceId),run=this.get('run',op.runId);
+    if(workspace.state!=='requested')throw new LifecycleError('identity_conflict');
+    this.write([{expectedRevision:workspace.revision,record:{...workspace,state:'creating',revision:workspace.revision+1,updatedAt:this.clock.now()}}],
+      {actorId:'coordinator',reason:'Workspace creation crossed the effect boundary',evidenceRefs:[]});
+    if(run.state==='queued')this.write([{expectedRevision:run.revision,record:{...run,state:'preparing',revision:run.revision+1,updatedAt:this.clock.now()}}],
+      {actorId:'coordinator',reason:'Workspace preparation started',evidenceRefs:[]});
+  }
+  private workspaceReady(op: RecordOf<'operation'>,bound: BoundResult): void {
+    const receipt=validated('ssh-workspace-receipt',bound.result.outputs.workspace as import('../../contracts/generated/ssh-workspace-receipt.ts').OwnedWorkspaceCreationReceiptV1);
+    const workspace=this.get('workspace',op.workspaceId),run=this.get('run',op.runId);
+    if(receipt.operationId!==op.id || receipt.handle!==bound.result.handle || receipt.runId!==op.runId || receipt.workspaceId!==workspace.id ||
+      receipt.rootId!==op.request.inputs.rootId || receipt.installationId!==this.get('request',run.requestId).installationId || receipt.targetId!==op.request.targetId || receipt.requestDigest!==op.request.requestDigest || canonical(receipt.source)!==canonical(op.request.source) ||
+      receipt.locator!==workspace.locator || receipt.branch!==workspace.branch || receipt.ownershipRef!==workspace.ownershipRef ||
+      bound.result.resources.length!==1 || bound.result.resources[0].id!==receipt.handle || bound.result.resources[0].type!=='source-checkout' ||
+      bound.result.resources[0].state!=='ready')throw new LifecycleError('identity_conflict');
+    if(workspace.state!=='creating')throw new LifecycleError('recovery_required');
+    const context={actorId:'coordinator',reason:'Observed the original registered source checkout',evidenceRefs:bound.result.evidenceRefs};
+    this.write([{expectedRevision:workspace.revision,record:{...workspace,state:'ready',revision:workspace.revision+1,updatedAt:this.clock.now()}}],context);
+    if(run.state==='preparing')this.write([{expectedRevision:run.revision,record:{...run,state:'ready',revision:run.revision+1,updatedAt:this.clock.now()}}],context);
   }
   forwardAllowed(runId: string): boolean {
     const run = this.get('run', runId);
