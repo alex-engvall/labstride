@@ -3,15 +3,19 @@ import type { LabstrideSessionObservationV1 } from '../../contracts/generated/se
 import type { ProjectionObservation } from '../../contracts/generated/projection-observation.ts';
 import type { AuditContext, RecordOf } from './lifecycle.ts';
 import type { Delivery, RetryPolicy } from './execution.ts';
+import type { ProjectionWriteCapabilities } from '../../contracts/generated/projection-capabilities.ts';
 export type Hook = LabstrideHookObservation;
 export type SessionObservation = LabstrideSessionObservationV1;
 export type ProjectionView = ProjectionObservation;
 export interface SessionPoll { sessionId: string; revision: number; nextAt: string; attempts: number; blocked: boolean }
 export interface SessionObserver { observe(session: RecordOf<'session'>): Promise<SessionObservation> }
 export interface ProjectionAdapter {
-  atomicPrecondition: boolean;
+  capabilities?: ProjectionWriteCapabilities;
+  /** Legacy atomic adapters remain compatible. New adapters declare capabilities. */
+  atomicPrecondition?: boolean;
   read(projection: RecordOf<'projection'>, token: string | null): Promise<ProjectionView>;
-  // Must atomically bind generation AND field version. A pre-read alone does not implement this guarantee.
+  // Atomic mode binds generation AND version. Checked mode declares its weaker
+  // pre-read/write/readback guarantee and never invents durable write identity.
   write(projection: RecordOf<'projection'>, token: string): Promise<ProjectionView>;
 }
 export interface ObservationPort {
@@ -26,7 +30,8 @@ export interface ObservationPort {
   delivery(id: string): Delivery;
   projectionToken(id: string): string | null;
   inspectProjection(id: string, expectedRevision: number, view: ProjectionView): 'write' | 'wait' | 'finished';
-  beginProjection(id: string, expectedRevision: number, view: ProjectionView): string;
+  beginProjection(id: string, expectedRevision: number, view: ProjectionView, mode?: 'atomic'|'checked'): string;
+  acknowledgeProjection(id: string, token: string, view: ProjectionView): void;
   projectionNotApplied(id: string, token: string): void;
   retryRead(id: string, policy: RetryPolicy, random: number): void;
   block(id: string, code: string): void;

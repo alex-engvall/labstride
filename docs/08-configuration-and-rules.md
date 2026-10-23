@@ -8,7 +8,7 @@ Parse against config.schema.json, reject unknown core keys, resolve secrets by r
 
 Every new run snapshots effective configuration and extension digests. Ordinary edits apply to new runs. Emergency deny/revoke/pause controls apply immediately to active runs and are audited. Expanding active-run permissions requires an explicit new authorized policy revision.
 
-W02.1 implements the [compiler, typed bindings and transactional admission API](30-installation-configuration.md). Compilation accepts an explicit installed lock and trusted provider/secret interfaces; it inspects pinned artifacts without evaluating their modules. Failures report stable diagnostic codes/paths. The immutable snapshot includes qualified bindings and exact extension pins; activation and new-run admission remain trusted local embedding operations. W02.2 adds [request authorization, trusted policy changes and immediate restrictions](31-authorization-and-policy.md). Actual GitHub synchronization remains W02.3 work.
+W02.1 implements the [compiler, typed bindings and transactional admission API](30-installation-configuration.md). Compilation accepts an explicit installed lock and trusted provider/secret interfaces; it inspects pinned artifacts without evaluating their modules. Failures report stable diagnostic codes/paths. The immutable snapshot includes qualified bindings and exact extension pins; activation and new-run admission remain trusted local embedding operations. W02.2 adds [request authorization, trusted policy changes and immediate restrictions](31-authorization-and-policy.md). W02.3 supplies [actual GitHub observation, generation allocation and checked projections](32-github-reconciliation.md), with explicit supported-history and remote race limits.
 
 ## Fields
 
@@ -37,5 +37,7 @@ GitHub owns task content, acceptance criteria, prioritization and authorized hum
 Distinguish human delivery flow from technical execution progress where the installation uses both. Field names and stage values remain configurable. The coordinator's projection adapter is the single writer for managed technical fields/summaries; agent hooks and Actions report observations instead of directly competing for those fields. Status outputs cannot masquerade as human start or approval requests.
 
 Before projection, refresh the current value. If it differs from the last observed/owned value, record projection_conflict rather than overwriting a human. Do not claim the provider has atomic compare-and-set unless verified. Reconcile races after writes. Discard late results from older run generations.
+
+The GitHub adapter uses the explicitly accepted checked mode: durable attempt, immediate pre-read, mapped-field mutation and independent readback. It holds detected conflicts and retains lost acknowledgements as uncertain without replay. GitHub supplies no field CAS or durable write receipt, so an unobservable concurrent overwrite remains possible. Existing atomic adapters and session guards retain their stronger guarantees; see the [runtime contract](32-github-reconciliation.md).
 
 Examples are structurally valid templates. Strings beginning REPLACE_ and hosts under example.invalid intentionally fail live preflight until resolved.

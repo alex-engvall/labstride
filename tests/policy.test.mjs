@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {removeGitHubMigration} from './helpers/migration-fixture.mjs';
 import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -193,6 +194,7 @@ test('policy content is immutable and a corrupted persisted revision cannot gran
 test('v10 configured runs retain identity after upgrade but acquire no invented authorization',async t=>{
  const x=await setup(t);const receipt=x.admit();
  const db=new DatabaseSync(join(x.root,'state/state.sqlite'));
+ removeGitHubMigration(db);
  db.exec('PRAGMA foreign_keys=OFF; DROP TABLE authorization_decisions; DROP TABLE policy_restrictions; DROP TABLE run_authorizations; DROP TABLE policy_changes; DROP TABLE policy_state; DROP TABLE policy_revisions; DELETE FROM schema_migrations WHERE version=11; PRAGMA user_version=10');db.close();
  const reboot=x.open();assert.equal(reboot.runConfiguration(receipt.runId).digest,x.compiled.snapshot.digest);
  assert.equal(reboot.policyStatus(x.f.config.installationId),null);assert.throws(()=>reboot.claim('op-example-001','executor','attempt'),fail('effect_blocked'));

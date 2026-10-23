@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub history page",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "events": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "GitHub history event",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "kind": {
+            "enum": [
+              "added",
+              "removed",
+              "status"
+            ]
+          },
+          "scopeId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "actorId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "previousStatus": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1024
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "scopeId",
+          "actorId",
+          "occurredAt",
+          "previousStatus",
+          "status"
+        ]
+      }
+    },
+    "endCursor": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "hasNextPage": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "events",
+    "endCursor",
+    "hasNextPage"
+  ]
+}

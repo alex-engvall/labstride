@@ -147,6 +147,11 @@ export type LabstrideLifecycleRecord =
         expectedFingerprint: string;
         value: FieldValue;
       };
+      providerTarget?: {
+        schemaVersion: "1.0";
+        scopeId: string;
+        resourceId: string;
+      };
     }
   | {
       schemaVersion: "1.0";

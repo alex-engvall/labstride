@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub history qualification",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "scopeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "fieldId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "subjectId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "eventId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "actorId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "optionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "scopeId",
+    "fieldId",
+    "subjectId",
+    "eventId",
+    "actorId",
+    "optionId",
+    "status"
+  ]
+}

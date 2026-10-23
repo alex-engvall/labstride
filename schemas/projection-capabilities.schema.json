@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Projection write capabilities",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "mode": {
+      "enum": [
+        "atomic",
+        "checked",
+        "unsupported"
+      ]
+    },
+    "durableWriteIdentity": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "mode",
+    "durableWriteIdentity"
+  ]
+}

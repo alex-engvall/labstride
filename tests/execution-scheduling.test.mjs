@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {removeGitHubMigration} from './helpers/migration-fixture.mjs';
 import assert from 'node:assert/strict';
 import {mkdtempSync,rmSync,mkdirSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -59,6 +60,7 @@ test('v5 upgrade retains legacy conflicting identities and blocks both effect pa
  const {root,store,plan}=fixture(t);const two=nextIssue(store);
  const {DatabaseSync}=await import('node:sqlite');const db=new DatabaseSync(join(root,'state','state.sqlite'));
  // Reproduce the v5 layout and two starts permitted by its old scheduler, in this owned fixture only.
+ removeGitHubMigration(db);
  db.prepare("UPDATE requests SET payload=json_set(payload,'$.issueId',?,'$.generation',2) WHERE id=?").run(plan.request.issueId,two.request.id);
  db.exec('DROP TABLE authorization_decisions; DROP TABLE policy_restrictions; DROP TABLE run_authorizations; DROP TABLE policy_changes; DROP TABLE policy_state; DROP TABLE policy_revisions');
  db.exec('DROP TABLE rule_evaluations; DROP TABLE active_configurations; ALTER TABLE runs DROP COLUMN config_digest; DROP TABLE configuration_snapshots');

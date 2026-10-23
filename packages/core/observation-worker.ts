@@ -4,6 +4,8 @@ import { defaultRetryPolicy } from './execution.ts';
 import type { RetryPolicy } from './execution.ts';
 import type { ObservationPort, ProjectionAdapter, SessionObserver, SessionObservation } from './observations.ts';
 import { PreEffectTransient } from './worker.ts';
+import { validated } from '../storage-sqlite/validation.ts';
+import type { ProjectionWriteCapabilities } from '../../contracts/generated/projection-capabilities.ts';
 export interface ObservationOptions {
   sessions: ReadonlyMap<string, SessionObserver>;
   projections: ReadonlyMap<string, ProjectionAdapter>;
@@ -40,9 +42,15 @@ export function createObservationWorker(store: ObservationPort, options: Observa
             const decision = store.inspectProjection(id, delivery.revision, view);
             if (decision === 'finished') continue;
             if (decision === 'wait') { if (store.projectionAllowed(projection.runId)) store.retryRead(delivery.id, policy, random()); continue; }
-            if (!adapter.atomicPrecondition) { store.block(delivery.id, 'unsupported_capability'); continue; }
-            const token = store.beginProjection(id, delivery.revision, view);
-            try { await adapter.write(structuredClone(projection), token); }
+            const capabilities = validated<ProjectionWriteCapabilities>('projection-capabilities',adapter.capabilities ?? {
+              schemaVersion:'1.0',mode:adapter.atomicPrecondition?'atomic':'unsupported',durableWriteIdentity:!!adapter.atomicPrecondition,
+            });
+            if (capabilities.mode==='unsupported') { store.block(delivery.id, 'unsupported_capability'); continue; }
+            const token = store.beginProjection(id, delivery.revision, view,capabilities.mode);
+            try {
+              const written=await adapter.write(structuredClone(projection), token);
+              if(capabilities.mode==='checked')store.acknowledgeProjection(id,token,written);
+            }
             catch (error) {
               if (error instanceof PreEffectTransient) store.projectionNotApplied(id, token);
               store.retryRead(delivery.id, policy, random());

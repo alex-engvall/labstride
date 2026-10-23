@@ -183,6 +183,30 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   CREATE TRIGGER policy_change_no_delete BEFORE DELETE ON policy_changes BEGIN SELECT RAISE(ABORT,'immutable_policy_change'); END;
   CREATE TRIGGER authorization_decision_no_update BEFORE UPDATE ON authorization_decisions BEGIN SELECT RAISE(ABORT,'immutable_authorization_decision'); END;
   CREATE TRIGGER authorization_decision_no_delete BEFORE DELETE ON authorization_decisions BEGIN SELECT RAISE(ABORT,'immutable_authorization_decision'); END;
+` }, { version: 12, sql: `
+  CREATE TABLE github_projects (key TEXT PRIMARY KEY, installation_id TEXT NOT NULL REFERENCES installations(id),
+    payload TEXT NOT NULL CHECK(json_valid(payload)));
+  CREATE TABLE github_items (key TEXT PRIMARY KEY, project_key TEXT NOT NULL REFERENCES github_projects(key),
+    item_id TEXT NOT NULL, subject_id TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1,
+    snapshot TEXT NOT NULL CHECK(json_valid(snapshot)), baseline INTEGER NOT NULL DEFAULT 0,
+    cursor TEXT, overlap_cursor TEXT, dirty INTEGER NOT NULL DEFAULT 1, seen_epoch INTEGER NOT NULL,
+    removed INTEGER NOT NULL DEFAULT 0, last_error TEXT, UNIQUE(project_key,item_id));
+  CREATE TABLE github_history (item_key TEXT NOT NULL REFERENCES github_items(key), event_id TEXT NOT NULL,
+    payload TEXT NOT NULL CHECK(json_valid(payload)), processed INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY(item_key,event_id));
+  CREATE TABLE github_generations (installation_id TEXT NOT NULL, provider_id TEXT NOT NULL, subject_id TEXT NOT NULL,
+    generation INTEGER NOT NULL CHECK(generation>0), PRIMARY KEY(installation_id,provider_id,subject_id));
+  CREATE TABLE github_candidates (id TEXT PRIMARY KEY, item_key TEXT NOT NULL REFERENCES github_items(key),
+    observation TEXT NOT NULL CHECK(json_valid(observation)), evidence TEXT CHECK(evidence IS NULL OR json_valid(evidence)),
+    source TEXT NOT NULL CHECK(json_valid(source)), state TEXT NOT NULL CHECK(state IN ('pending','admitted','superseded')),
+    receipt TEXT CHECK(receipt IS NULL OR json_valid(receipt)));
+  CREATE TABLE github_webhooks (installation_id TEXT NOT NULL REFERENCES installations(id), delivery_id TEXT NOT NULL,
+    digest TEXT NOT NULL, receipt TEXT NOT NULL CHECK(json_valid(receipt)), PRIMARY KEY(installation_id,delivery_id));
+  ALTER TABLE projection_attempts ADD COLUMN mode TEXT NOT NULL DEFAULT 'atomic';
+  ALTER TABLE projection_attempts ADD COLUMN acknowledged INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE projection_attempts ADD COLUMN observed_version TEXT;
+  CREATE TABLE projection_holds (provider_id TEXT NOT NULL,subject_id TEXT NOT NULL,field_id TEXT NOT NULL,reason TEXT NOT NULL,
+    PRIMARY KEY(provider_id,subject_id,field_id));
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

@@ -129,12 +129,15 @@ export class PolicyStore extends AutomationStore {
       grant.actionId === operation.actionId && grant.actionVersion === operation.actionVersion && grant.effects.includes(effect))) return result('operation_denied');
     return result('allowed');
   }
+  protected verifyRequestActor(observation: RuleObservation): ActorEvidence | null {
+    return this.#verifier?.(observation) ?? null;
+  }
   protected authorizeObservation(snapshot: ConfigurationSnapshot, observation: RuleObservation, source: {repositoryId: string; repository: string} | undefined): Decision {
     const installationId = snapshot.configuration.installationId;
     const revision = this.policyStatus(installationId)?.policyRevision ?? null;
     const denied: Decision = { schemaVersion: '1.0', allowed: false, code: 'actor_unverified', policyRevision: revision, actorId: null };
     let evidence: ActorEvidence | null;
-    try { evidence = this.#verifier?.(structuredClone(observation)) ?? null;
+    try { evidence = this.verifyRequestActor(structuredClone(observation));
       if (evidence) evidence = validated('actor-evidence', evidence);
     } catch { return denied; }
     if (!evidence || evidence.installationId !== installationId || evidence.configDigest !== snapshot.digest ||

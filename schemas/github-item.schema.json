@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub item snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "scopeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "itemId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "subjectId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "repositoryId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "sourceSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "present": {
+                "const": false
+              }
+            },
+            "required": [
+              "present"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "present": {
+                "const": true
+              },
+              "value": {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "null",
+                  "array"
+                ],
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "present",
+              "value"
+            ]
+          }
+        ]
+      }
+    },
+    "optionNames": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string",
+          "maxLength": 1024
+        }
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "scopeId",
+    "itemId",
+    "subjectId",
+    "repositoryId",
+    "repository",
+    "sourceSha",
+    "updatedAt",
+    "fields",
+    "optionNames"
+  ]
+}

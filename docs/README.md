@@ -61,3 +61,4 @@ Keep the current specification coherent. Do not append contradictory historical 
 [Installation configuration compiler and admission](30-installation-configuration.md) documents W02.1 typed fields/rules, immutable snapshots and recovery boundaries.
 
 - [Request authorization and trusted policy changes](31-authorization-and-policy.md)
+- [GitHub observation, generation recovery and checked projections](32-github-reconciliation.md)
