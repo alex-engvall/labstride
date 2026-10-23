@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "probeId": "owned-session-probe",
+  "createdAt": "2026-10-23T12:00:00Z",
+  "dataDir": "/var/lib/labstride/owned-session-probe",
+  "lockFile": "/etc/labstride/extensions.lock.json",
+  "providerId": "example.session.fixture",
+  "backendIdentity": "example-backend",
+  "actorId": "local-operator",
+  "issueId": "owned-test-issue",
+  "source": {
+    "repositoryId": "1001",
+    "repository": "example-owner/example-app",
+    "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "workspace": {
+    "id": "workspace-example",
+    "targetId": "example-target",
+    "locator": "ssh:example-owned-workspace",
+    "branch": "feature/example",
+    "ownershipRef": "operator:owned-test-workspace"
+  }
+}

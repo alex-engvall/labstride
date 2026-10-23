@@ -63,6 +63,11 @@ def main():
         'session-request': 'session-request', 'session-observation': 'session-observation',
         'contract-request': 'contract-request', 'contract-result': 'contract-result',
         'hook-observation': 'hook-observation', 'hook-ack': 'hook-ack',
+        'extension-artifact': 'extension-artifact', 'extension-lock': 'extension-lock',
+        'extension-profile': 'extension-profile', 'session-binding': 'session-binding',
+        'session-command': 'session-command',
+        'session-handoff': 'session-handoff', 'session-reply': 'session-reply',
+        'codex-question': 'codex-question', 'codex-answer': 'codex-answer', 'session-probe': 'session-probe',
     }
     validators, examples = validators_for(ROOT / 'schemas'), {}
     for name, example in pairs.items():

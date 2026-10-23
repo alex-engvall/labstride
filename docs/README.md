@@ -55,3 +55,5 @@ W00.3 toolchain/contract and client-capability discovery (#13) is complete for t
 Keep the current specification coherent. Do not append contradictory historical decisions above current rules. The generated checklist is derived from backlog.json.
 
 - [28 — Durable coordinator store](28-durable-coordinator-store.md)
+
+[Installed extensions and durable sessions](29-installed-sessions.md) documents W01.4 runtime behavior, explicit probe use and remaining live gates.

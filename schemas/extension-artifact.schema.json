@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Installed extension artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "manifest": {
+      "$ref": "extension.schema.json"
+    },
+    "module": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 196608
+    },
+    "schemas": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 32,
+      "additionalProperties": {
+        "type": [
+          "object",
+          "boolean"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "manifest",
+    "module",
+    "schemas"
+  ]
+}

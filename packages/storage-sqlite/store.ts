@@ -23,6 +23,7 @@ function classify(error: unknown): LifecycleError {
 }
 
 export class SqliteStore implements StateStore {
+  private transactionDepth = 0;
   readonly dataDir: string;
   protected db: DatabaseSync;
   protected clock: Clock;
@@ -71,10 +72,17 @@ export class SqliteStore implements StateStore {
   }
 
   protected transaction<T>(work: () => T): T {
+    const savepoint = `nested_${this.transactionDepth}`;
+    const nested = this.transactionDepth > 0;
     try {
-      this.db.exec('BEGIN IMMEDIATE');
-      try { const result = work(); this.db.exec('COMMIT'); return result; }
-      catch (error) { this.db.exec('ROLLBACK'); throw error; }
+      this.db.exec(nested ? `SAVEPOINT ${savepoint}` : 'BEGIN IMMEDIATE');
+      this.transactionDepth++;
+      try { const result = work(); this.db.exec(nested ? `RELEASE ${savepoint}` : 'COMMIT'); return result; }
+      catch (error) {
+        this.db.exec(nested ? `ROLLBACK TO ${savepoint}` : 'ROLLBACK');
+        if (nested) this.db.exec(`RELEASE ${savepoint}`);
+        throw error;
+      } finally { this.transactionDepth--; }
     } catch (error) { throw classify(error); }
   }
 

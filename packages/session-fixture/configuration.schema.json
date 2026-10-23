@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "fixture session configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "providerId": {
+      "const": "example.session.fixture"
+    },
+    "backendIdentity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "databasePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    }
+  },
+  "required": [
+    "providerId",
+    "backendIdentity",
+    "databasePath"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "id": "example.session.fixture",
+  "version": "0.1.0",
+  "kind": "session-provider",
+  "protocol": {
+    "major": 1,
+    "minor": 0
+  },
+  "entrypoint": "module",
+  "capabilities": [
+    "session.lifecycle.v1",
+    "session.atomic-guards.v1",
+    "session.hooks.v1"
+  ],
+  "requiredCapabilities": [],
+  "permissions": [
+    "session.manage",
+    "filesystem.workspace"
+  ],
+  "inputSchema": "input",
+  "outputSchema": "output"
+}

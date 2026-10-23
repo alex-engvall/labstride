@@ -50,6 +50,7 @@ export function createWorker(store: ExecutionPort, options: WorkerOptions) {
     try { await adapter.validate(structuredClone(op.request)); }
     catch (error) {
       if (error instanceof PreEffectTransient) store.retryRead(delivery.id, retry(), (options.random ?? Math.random)());
+      else if (error instanceof LifecycleError && ['unsupported_capability','stale_revision'].includes(error.code)) store.block(delivery.id, error.code);
       else store.block(delivery.id, 'validation_failed');
       return;
     }

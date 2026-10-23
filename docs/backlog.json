@@ -469,7 +469,7 @@
       "title": "Pin installed extension identity",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W01",
       "depends_on_work_packages": [
@@ -479,8 +479,11 @@
       "acceptance_criteria": [
         "Issue content cannot install/upgrade an extension; an integrity mismatch prevents loading."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/52",
+      "verification_evidence": [
+        "evidence/W01.4-installed-sessions-2026-10-23.md",
+        "evidence/W01.4-client-continuity-2026-10-23.md"
+      ],
       "github_issue": 17,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/17"
     },
@@ -1104,7 +1107,7 @@
       "title": "Coordinate provider-neutral sessions",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W01",
       "depends_on_work_packages": [
@@ -1115,8 +1118,12 @@
         "Start/resume/observe/send/interrupt/close preserve provider identity, reject stale human/turn revisions and explicitly report missing atomic backend guards.",
         "Optional hooks are correlated, deduplicated observations with backend reconciliation when missing; the existing interactive client resumes the same enrolled session, not a substituted daemon."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/52",
+      "verification_evidence": [
+        "evidence/W01.4-installed-sessions-2026-10-23.md",
+        "evidence/W01.4-backend-upgrade-2026-10-23.md",
+        "evidence/W01.4-client-continuity-2026-10-23.md"
+      ],
       "github_issue": 17,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/17"
     }

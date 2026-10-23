@@ -267,7 +267,9 @@
       "action": "Load incompatible protocol version or altered pinned package.",
       "expected": "Loading fails before extension code runs.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W01.4-installed-sessions-2026-10-23.md"
+      ]
     },
     {
       "id": "AC23",
@@ -371,8 +373,11 @@
       "precondition": "Human session changes before continuation",
       "action": "Advance the human activity revision after queuing an automated send.",
       "expected": "Stale send is blocked; unsupported atomic backend protection is reported without claiming a guarantee.",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed",
+      "evidence": [
+        "evidence/W01.4-installed-sessions-2026-10-23.md",
+        "evidence/W01.4-client-continuity-2026-10-23.md"
+      ]
     },
     {
       "id": "AC32",
@@ -426,7 +431,9 @@
       "expected": "The enrolled provider/target is re-observed; the original run/session is retained, pending projections recover without overwriting human decisions, and hook reports cannot authorize completion, approval or another privileged effect.",
       "status": "not_run",
       "evidence": [
-        "evidence/W01.2-observations-2026-10-21.md"
+        "evidence/W01.2-observations-2026-10-21.md",
+        "evidence/W01.4-installed-sessions-2026-10-23.md",
+        "evidence/W01.4-client-continuity-2026-10-23.md"
       ]
     },
     {
@@ -450,7 +457,9 @@
         "evidence/W01.1-lifecycles-2026-10-21.md",
         "evidence/W01.1-retention-2026-10-21.md",
         "evidence/W01.2-effects-2026-10-21.md",
-        "evidence/W01.2-observations-2026-10-21.md"
+        "evidence/W01.2-observations-2026-10-21.md",
+        "evidence/W01.4-installed-sessions-2026-10-23.md",
+        "evidence/W01.4-client-continuity-2026-10-23.md"
       ]
     }
   ]

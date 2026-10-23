@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "codex session configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "providerId": {
+      "const": "example.session.codex"
+    },
+    "backendIdentity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "databasePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "socketPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "workspaceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "workspacePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 30000
+    }
+  },
+  "required": [
+    "providerId",
+    "backendIdentity",
+    "databasePath",
+    "socketPath",
+    "sessionId",
+    "workspaceId",
+    "workspacePath"
+  ]
+}

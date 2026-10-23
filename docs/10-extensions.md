@@ -47,6 +47,8 @@ Errors contain a stable code, safe message, evidence ID and retry classification
 
 ## Compatibility
 
+W01.4's [installed loader and durable session implementation](29-installed-sessions.md) adds a self-contained ESM artifact, explicit lockfile, immutable run profiles and profile-bound session commands. The public fixture supplies a separate durable backend. The public Codex example enrolls an explicitly selected existing client session with hooks disabled and rejects automated sends requiring unavailable atomic guards. Local behavior and the live compatibility gate have separate [evidence](evidence/W01.4-installed-sessions-2026-10-23.md).
+
 Protocol major mismatch prevents loading. Minor additions must be optional and capability-negotiated. Breaking changes require migration guidance and paired contract fixtures. Extension versions and configuration snapshots stay pinned for an active run. Upgrades drain or pause work and preserve existing opaque handles.
 
 ## Required conformance cases

@@ -308,13 +308,13 @@ Implementation issue: [#33](https://github.com/alex-engvall/labstride/issues/33)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W01 |
+| MVP | P0 | implemented | W01 |
 
 Specification: [10-extensions.md](10-extensions.md).
 
 - Issue content cannot install/upgrade an extension; an integrity mismatch prevents loading.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W01.4-installed-sessions-2026-10-23.md, evidence/W01.4-client-continuity-2026-10-23.md
 
 Implementation issue: [#17](https://github.com/alex-engvall/labstride/issues/17).
 
@@ -732,13 +732,13 @@ Implementation issue: [#34](https://github.com/alex-engvall/labstride/issues/34)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W01 |
+| MVP | P0 | implemented | W01 |
 
 Specification: [22-api-and-schema-reference.md](22-api-and-schema-reference.md).
 
 - Start/resume/observe/send/interrupt/close preserve provider identity, reject stale human/turn revisions and explicitly report missing atomic backend guards.
 - Optional hooks are correlated, deduplicated observations with backend reconciliation when missing; the existing interactive client resumes the same enrolled session, not a substituted daemon.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W01.4-installed-sessions-2026-10-23.md, evidence/W01.4-backend-upgrade-2026-10-23.md, evidence/W01.4-client-continuity-2026-10-23.md
 
 Implementation issue: [#17](https://github.com/alex-engvall/labstride/issues/17).

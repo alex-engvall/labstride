@@ -60,7 +60,7 @@ test('v5 upgrade retains legacy conflicting identities and blocks both effect pa
  const {DatabaseSync}=await import('node:sqlite');const db=new DatabaseSync(join(root,'state','state.sqlite'));
  // Reproduce the v5 layout and two starts permitted by its old scheduler, in this owned fixture only.
  db.prepare("UPDATE requests SET payload=json_set(payload,'$.issueId',?,'$.generation',2) WHERE id=?").run(plan.request.issueId,two.request.id);
- db.exec('DROP TABLE cancellations; DROP TABLE control_requests; DROP TABLE run_controls; DROP TABLE operation_scheduling; DROP TABLE run_admissions; DROP TABLE scheduling_policy; DELETE FROM schema_migrations WHERE version>=6; PRAGMA user_version=5');db.close();
+ db.exec('DROP TABLE session_handoffs; DROP TABLE session_commands; DROP TABLE session_bindings; DROP TABLE extension_profiles; DROP TABLE cancellations; DROP TABLE control_requests; DROP TABLE run_controls; DROP TABLE operation_scheduling; DROP TABLE run_admissions; DROP TABLE scheduling_policy; DELETE FROM schema_migrations WHERE version>=6; PRAGMA user_version=5');db.close();
  const reboot=startCoordinator(join(root,'state'));t.after(()=>reboot.store.close());
  assert.equal(reboot.store.get('operation',plan.operation.id).id,plan.operation.id);
  assert.equal(reboot.store.get('operation',two.operation.id).id,two.operation.id);

@@ -6,17 +6,30 @@ import { createObservationWorker } from '../../packages/core/observation-worker.
 import type { ObservationOptions } from '../../packages/core/observation-worker.ts';
 import type { AuditContext } from '../../packages/core/lifecycle.ts';
 import type { StoreDependencies } from '../../packages/storage-sqlite/store.ts';
+import { sessionResolver } from '../../packages/extensions/session-provider.ts';
+import type { HostProfile } from '../../packages/extensions/loader.ts';
+import { createSessionAction, sessionAction, sessionActionVersion } from '../../packages/core/sessions.ts';
+import { pinnedSessionObserver } from '../../packages/core/session-runtime.ts';
+import { actionKey } from '../../packages/core/worker.ts';
 
 // Trusted embedding API only. No listener, code loader, default adapters or background timer.
 export function startExecution(dataDir: string, options: {
   actions: WorkerOptions; observations: ObservationOptions; restore?: AuditContext; dependencies?: StoreDependencies;
+  installedSessions?: { host: HostProfile; providerIds: string[] };
 }) {
   const runtime = startCoordinator(dataDir, options.dependencies);
+  const resolver = options.installedSessions && sessionResolver(options.installedSessions.host);
   try {
     if (options.restore) runtime.store.enterRestore(options.restore);
-    const actions = createWorker(runtime.store, options.actions);
+    const actionOptions = { ...options.actions, adapters: new Map(options.actions.adapters) };
+    const observationOptions = { ...options.observations, sessions: new Map(options.observations.sessions) };
+    if (resolver) {
+      actionOptions.adapters.set(actionKey(sessionAction, sessionActionVersion), createSessionAction(runtime.store, resolver.resolve));
+      for (const id of options.installedSessions!.providerIds) observationOptions.sessions.set(id, pinnedSessionObserver(runtime.store, resolver.resolve));
+    }
+    const actions = createWorker(runtime.store, actionOptions);
     const controls = createControlWorker(runtime.store, options.actions);
-    const observations = createObservationWorker(runtime.store, options.observations);
+    const observations = createObservationWorker(runtime.store, observationOptions);
     let observationJob: Promise<void> | undefined;
     let observationError: unknown;
     let closed = false;
@@ -33,7 +46,7 @@ export function startExecution(dataDir: string, options: {
       },
       async close(): Promise<void> {
         closed = true;
-        try { await this.drain(); await controls.close(); await actions.close(); } finally { runtime.store.close(); }
+        try { await this.drain(); await controls.close(); await actions.close(); } finally { await resolver?.close(); runtime.store.close(); }
       },
     };
   } catch (error) { runtime.store.close(); throw error; }

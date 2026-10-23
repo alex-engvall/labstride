@@ -139,6 +139,17 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   ALTER TABLE run_controls ADD COLUMN last_failure TEXT;
   ALTER TABLE run_controls ADD COLUMN budget_hold TEXT;
   ALTER TABLE operation_scheduling ADD COLUMN automation TEXT NOT NULL DEFAULT '{"schemaVersion":"1.0"}';
+` }, { version: 9, sql: `
+  CREATE TABLE extension_profiles (run_id TEXT NOT NULL REFERENCES runs(id), provider_id TEXT NOT NULL,
+    digest TEXT NOT NULL, payload TEXT NOT NULL CHECK(json_valid(payload)), PRIMARY KEY(run_id,provider_id));
+  CREATE TABLE session_bindings (enrollment_id TEXT PRIMARY KEY REFERENCES sessions(id),
+    run_id TEXT NOT NULL REFERENCES runs(id), provider_id TEXT NOT NULL, payload TEXT NOT NULL CHECK(json_valid(payload)),
+    FOREIGN KEY(run_id,provider_id) REFERENCES extension_profiles(run_id,provider_id));
+  CREATE TABLE session_commands (operation_id TEXT PRIMARY KEY REFERENCES operations(id),
+    payload TEXT NOT NULL CHECK(json_valid(payload)), response TEXT CHECK(response IS NULL OR json_valid(response)));
+  CREATE UNIQUE INDEX session_start_enrollment ON session_commands(json_extract(payload,'$.enrollmentId'))
+    WHERE json_extract(payload,'$.request.command')='start';
+  CREATE TABLE session_handoffs (id TEXT PRIMARY KEY, payload TEXT NOT NULL CHECK(json_valid(payload)));
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {
