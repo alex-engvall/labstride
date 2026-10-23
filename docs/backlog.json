@@ -184,7 +184,7 @@
       "acceptance_criteria": [
         "Unknown keys, missing bindings and incompatible capabilities fail preflight; enabled runs retain a configuration digest."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/53",
       "verification_evidence": [
         "evidence/W02.1-configuration-2026-10-23.md"
       ],
@@ -206,7 +206,7 @@
       "acceptance_criteria": [
         "Two installations use different field/option names and IDs without core edits; type mismatches are rejected."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/53",
       "verification_evidence": [
         "evidence/W02.1-configuration-2026-10-23.md"
       ],
@@ -228,7 +228,7 @@
       "acceptance_criteria": [
         "Shell syntax and executable text remain literal data and cannot select uninstalled operations."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/53",
       "verification_evidence": [
         "evidence/W02.1-configuration-2026-10-23.md"
       ],
@@ -270,7 +270,7 @@
       "acceptance_criteria": [
         "Conflicting start rules block effects; initial sync does not automatically start historical matching issues."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/53",
       "verification_evidence": [
         "evidence/W02.1-configuration-2026-10-23.md"
       ],
