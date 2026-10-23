@@ -4,8 +4,10 @@ import { LifecycleError } from '../core/lifecycle.ts';
 import type { AutomationContext } from '../../contracts/generated/automation-context.ts';
 import type { RunBudget } from '../../contracts/generated/run-budget.ts';
 import type { AuditContext } from '../core/lifecycle.ts';
+import type { LocalPolicyAuthority } from '../core/policy.ts';
 
 export class AutomationStore extends SchedulingStore {
+  protected assertControlAuthority(_runId: string, _authority?: LocalPolicyAuthority): void {}
   automationContext(operationId: string): AutomationContext {
     const row = this.db.prepare('SELECT automation FROM operation_scheduling WHERE operation_id=?').get(operationId);
     if (!row) throw new LifecycleError('effect_blocked');
@@ -60,8 +62,9 @@ export class AutomationStore extends SchedulingStore {
     this.db.prepare(`UPDATE run_controls SET last_failure=?,failure_count=?,budget_hold=CASE WHEN ?>=2 THEN 'repeated_failure' ELSE budget_hold END WHERE run_id=?`)
       .run(status === 'failed' ? fingerprint : null, count, count, op.runId);
   }
-  updateRunBudget(input: RunBudget, context: AuditContext): void {
+  updateRunBudget(input: RunBudget, context: AuditContext, authority?: LocalPolicyAuthority): void {
     const budget = validated('run-budget', input), safe = controlContext(context);
+    this.assertControlAuthority(budget.runId, authority);
     this.transaction(() => {
       const payload = JSON.stringify({ budget, context: safe });
       const old = this.db.prepare('SELECT payload FROM control_requests WHERE id=?').get(budget.id);

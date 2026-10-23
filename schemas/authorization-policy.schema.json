@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "Authorization policy",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "installationId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "actorIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024
+      },
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "repositories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "grants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "repositoryId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "targetId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "actionId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "actionVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "execute",
+                "cancel"
+              ]
+            },
+            "maxItems": 256,
+            "uniqueItems": true,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "repositoryId",
+          "targetId",
+          "actionId",
+          "actionVersion",
+          "effects"
+        ]
+      },
+      "maxItems": 256,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "installationId",
+    "actorIds",
+    "repositories",
+    "grants"
+  ]
+}

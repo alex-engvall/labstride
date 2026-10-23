@@ -10,13 +10,14 @@ import type { AuditContext } from '../core/lifecycle.ts';
 import { LifecycleError } from '../core/lifecycle.ts';
 import type { StartPlan, InboxInput } from '../core/execution.ts';
 import { recoveryContext, requestDigest } from './execution.ts';
+import type { Decision, LocalPolicyAuthority } from '../core/policy.ts';
 
 export interface ConfigurationReceipt {
-  schemaVersion: '1.0'; inboxId: string; configDigest: string; evaluation: RuleEvaluation; runId: string | null;
+  schemaVersion: '1.0'; inboxId: string; configDigest: string; evaluation: RuleEvaluation; runId: string | null; authorization: Decision | null;
 }
 export class ConfigurationStore extends SessionStore {
-  // Trusted local operator embedding only; #19 supplies authenticated policy authority.
-  activateConfiguration(compiled: CompiledConfiguration, expectedRevision: number | null, authorization: AuditContext): string {
+  activateConfiguration(compiled: CompiledConfiguration, expectedRevision: number | null, authorization: AuditContext, authority?: LocalPolicyAuthority): string {
+    this.assertOperator(authority);
     const snapshot = compiledSnapshot(compiled), context = recoveryContext(authorization);
     return this.transaction(() => {
       const id = snapshot.configuration.installationId;
@@ -45,10 +46,11 @@ export class ConfigurationStore extends SessionStore {
     const row = this.db.prepare('SELECT * FROM rule_evaluations WHERE inbox_id=?').get(inboxId);
     if (!row) throw new LifecycleError('not_found');
     return { schemaVersion: '1.0', inboxId, configDigest: String(row.config_digest),
-      evaluation: validated<RuleEvaluation>('rule-evaluation', JSON.parse(String(row.payload))), runId: row.run_id as string | null };
+      evaluation: validated<RuleEvaluation>('rule-evaluation', JSON.parse(String(row.payload))), runId: row.run_id as string | null,
+      authorization: this.authorizationDecision(inboxId) };
   }
-  // The observation is normalized by a trusted adapter. This API does not authenticate
-  // GitHub actors or authorize issue text. The supplied builder is reviewed local code.
+  // The enrolled verifier authenticates attribution. AuditContext is only audit;
+  // neither it nor the observation can provide policy authority.
   requestConfiguredStart(compiled: CompiledConfiguration, input: RuleObservation, contextInput: BindingContext,
     buildPlan: (steps: BoundStep[], observation: RuleObservation) => StartPlan, authorization: AuditContext): ConfigurationReceipt {
     const snapshot = compiledSnapshot(compiled), observation = validated('rule-observation', input);
@@ -66,7 +68,10 @@ export class ConfigurationStore extends SessionStore {
       if (active?.digest !== snapshot.digest || canonical(this.configurationSnapshot(snapshot.digest)) !== canonical(snapshot))
         throw new LifecycleError('effect_blocked');
       let evaluation = evaluateRules(snapshot, observation);
+      let decision = this.authorizeObservation(snapshot, observation, contextInput.source);
       let runId: string | null = null;
+      if (evaluation.outcome === 'matched' && !decision.allowed)
+        evaluation = { schemaVersion: '1.0', outcome: 'blocked', code: 'authorization_denied', ruleIds: evaluation.ruleIds, workflow: null };
       if (evaluation.outcome === 'matched') {
         let bound: BoundStep[] | undefined;
         try {
@@ -83,11 +88,17 @@ export class ConfigurationStore extends SessionStore {
             (contextInput.source && canonical(operation.source) !== canonical(contextInput.source)) ||
             (contextInput.workspaceId && plan.workspace.id !== contextInput.workspaceId) ||
             operation.requestDigest !== requestDigest(operation)) throw new LifecycleError('identity_conflict');
-          runId = this.scheduleStart(received.id, { ...plan, configurationSnapshot: snapshot }, context);
-          if (this.get('run', runId).configRevision !== snapshot.digest) throw new LifecycleError('identity_conflict');
+          decision = this.authorizePlan(plan, decision);
+          if (!decision.allowed) evaluation = { schemaVersion: '1.0', outcome: 'blocked', code: 'authorization_denied', ruleIds: evaluation.ruleIds, workflow: null };
+          else {
+            const admittedPlan = { ...plan, configurationSnapshot: snapshot };
+            runId = this.withPolicyAdmission(admittedPlan, decision, () => this.scheduleStart(received.id, admittedPlan, context));
+            if (this.get('run', runId).configRevision !== snapshot.digest) throw new LifecycleError('identity_conflict');
+          }
         }
       }
       if (!runId) this.db.prepare('UPDATE inbox SET processed=1 WHERE id=?').run(received.id);
+      this.recordAuthorization(received.id, decision);
       this.db.prepare('INSERT INTO rule_evaluations VALUES (?,?,?,?)').run(received.id, snapshot.digest, canonical(evaluation), runId);
       this.log(null, 'rule_evaluation', { inboxId: received.id, configDigest: snapshot.digest, evaluation, runId });
       return this.configurationReceipt(received.id);

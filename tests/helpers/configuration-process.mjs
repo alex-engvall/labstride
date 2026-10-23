@@ -1,14 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { compileConfiguration } from '../../packages/configuration/compiler.ts';
 import { startCoordinator } from '../../apps/coordinator/main.ts';
-import { planFor, context } from './configuration-fixture.mjs';
+import { planFor, context, policyDependencies } from './configuration-fixture.mjs';
 import { freezeProfile, loadExtension } from '../../packages/extensions/loader.ts';
 import { createWorker, actionKey } from '../../packages/core/worker.ts';
 const [state,path,stage]=process.argv.slice(2);
 const fixture=JSON.parse(readFileSync(path,'utf8'));
 const result=await compileConfiguration(fixture.configuration,{...fixture.dependencies,secrets:{exists:()=>true},provider:{describeField:field=>fixture.descriptors[field.fieldId]}});
 if(!result.ok)throw Error(JSON.stringify(result.diagnostics));
-const compiled=result.configuration,{store}=startCoordinator(state);
+const compiled=result.configuration,{store}=startCoordinator(state,policyDependencies);
 const barrier=()=>{process.send({stage});Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0);};
 if(stage==='inside'){
  const original=store.bindStartConfiguration.bind(store);

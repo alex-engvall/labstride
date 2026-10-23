@@ -40,7 +40,8 @@
         "unchanged",
         "invalid_observation",
         "invalid_value",
-        "rule_conflict"
+        "rule_conflict",
+        "authorization_denied"
       ]
     }
   },
@@ -122,7 +123,8 @@
           "code": {
             "enum": [
               "invalid_observation",
-              "invalid_value"
+              "invalid_value",
+              "authorization_denied"
             ]
           },
           "workflow": {

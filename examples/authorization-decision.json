@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "1.0",
+  "allowed": false,
+  "code": "actor_denied",
+  "policyRevision": 1,
+  "actorId": "unapproved-example"
+}

@@ -10,13 +10,14 @@ import { assertDatabaseFiles, assertSeparate, canonicalPath } from './paths.ts';
 import { checkedSnapshot } from '../configuration/snapshot.ts';
 import type { ConfigurationSnapshot } from '../configuration/snapshot.ts';
 import { canonical } from '../configuration/json.ts';
+import type { PolicyDependencies } from '../core/policy.ts';
 
 const tables: Record<Kind, string> = {
   installation: 'installations', request: 'requests', run: 'runs', workspace: 'workspaces', operation: 'operations',
   deployment: 'deployments', session: 'sessions', outbox: 'outbox', projection: 'projections',
   resource: 'resources', evidence: 'evidence',
 };
-export interface StoreDependencies { clock?: Clock; identities?: IdentityProvider; localWorkspaceRoots?: readonly string[] }
+export interface StoreDependencies extends PolicyDependencies { clock?: Clock; identities?: IdentityProvider; localWorkspaceRoots?: readonly string[] }
 function classify(error: unknown): LifecycleError {
   if (error instanceof LifecycleError) return error;
   const code = (error as { errcode?: number }).errcode;

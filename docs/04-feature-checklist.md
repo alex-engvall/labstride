@@ -149,13 +149,13 @@ Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W02 |
+| MVP | P0 | implemented | W02 |
 
 Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - A PR or issue cannot expand permissions; emergency revocation blocks the next privileged action in an active run.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W02.2-authorization-2026-10-23.md, evidence/W02.2-live-authorization-receipt-2026-10-23.json
 
 Implementation issue: [#19](https://github.com/alex-engvall/labstride/issues/19).
 
@@ -192,13 +192,13 @@ Implementation issue: [#11](https://github.com/alex-engvall/labstride/issues/11)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W02 |
+| MVP | P0 | implemented | W02 |
 
 Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contract.md).
 
 - An unapproved actor cannot start a workspace even if a signed event or field edit is received.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W02.2-authorization-2026-10-23.md, evidence/W02.2-live-authorization-receipt-2026-10-23.json
 
 Implementation issue: [#19](https://github.com/alex-engvall/labstride/issues/19).
 

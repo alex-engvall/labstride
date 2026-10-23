@@ -1,11 +1,12 @@
 import { canonical, digest } from '../configuration/json.ts';
 export { canonical, digest } from '../configuration/json.ts';
-import { AutomationStore } from './automation.ts';
+import { PolicyStore } from './policy.ts';
 import { controlContext } from './scheduling.ts';
 import { validated } from './validation.ts';
 import { LifecycleError } from '../core/lifecycle.ts';
 import type { AutomationContext } from '../../contracts/generated/automation-context.ts';
 import type { RunControl } from '../../contracts/generated/run-control.ts';
+import type { LocalPolicyAuthority } from '../core/policy.ts';
 import type { AuditContext, RecordOf } from '../core/lifecycle.ts';
 import type { InboxEntry, InboxInput, InboxStore, StartPlan, Claim, BoundResult, Delivery, RetryPolicy } from '../core/execution.ts';
 
@@ -24,7 +25,7 @@ function bounded(value: string): void {
   if (typeof value !== 'string' || !value || value.length > 1024) throw new LifecycleError('invalid_payload');
 }
 
-export class ExecutionStore extends AutomationStore implements InboxStore {
+export class ExecutionStore extends PolicyStore implements InboxStore {
   receive(input: InboxInput): { id: string; duplicate: boolean } {
     const safe = validated('execution-inbox', input);
     return this.transaction(() => this.receiveInside(safe));
@@ -106,6 +107,7 @@ export class ExecutionStore extends AutomationStore implements InboxStore {
         this.write([plan.request, plan.run, plan.workspace, plan.operation, plan.outbox, ...plan.projections]
           .map(record => ({ record, expectedRevision: null })), authorization);
         this.bindStartConfiguration(input.configurationSnapshot, plan.run, plan.request.installationId);
+        this.bindStartPolicy(input, authorization);
         this.assertConfigurationOperation(plan.run.id, plan.operation.request);
         this.db.prepare('INSERT INTO execution_bindings VALUES (?,?,?,?)').run(plan.operation.id, plan.resourceKey, plan.operation.request.requestDigest, authorization.actorId);
         this.assertWorkspaceExclusive(plan.workspace.id);
@@ -142,6 +144,7 @@ export class ExecutionStore extends AutomationStore implements InboxStore {
       if (!this.forwardAllowed(operation.runId) || this.unresolved(operation.runId) ||
         !this.db.prepare('SELECT 1 FROM run_admissions WHERE run_id=?').get(operation.runId)) throw new LifecycleError('effect_blocked');
       this.assertConfigurationOperation(operation.runId, operation.request);
+      this.assertPolicyOperation(operation.runId, operation.request);
       if (outbox.runId !== operation.runId || outbox.operationId !== operation.id) throw new LifecycleError('identity_conflict');
       if (automation.sessionGuard) {
         const session = this.get('session', automation.sessionGuard.enrollmentId);
@@ -194,6 +197,7 @@ export class ExecutionStore extends AutomationStore implements InboxStore {
     this.assertAutomation(id);
     const op = this.get('operation', id), run = this.get('run', op.runId);
     this.assertConfigurationOperation(run.id, op.request);
+    this.assertPolicyOperation(run.id, op.request);
     if (!this.forwardAllowed(run.id)) throw new LifecycleError('effect_blocked');
     const request = this.get('request', run.requestId);
     const latest = this.db.prepare('SELECT max(generation) AS generation FROM requests WHERE installation_id=? AND provider_id=? AND issue_id=?')
@@ -342,7 +346,7 @@ export class ExecutionStore extends AutomationStore implements InboxStore {
   projectionAllowed(runId: string): boolean {
     this.runConfiguration(runId); // Missing/corrupt managed snapshots cannot grant projection effects.
     const run = this.get('run', runId), control = this.db.prepare('SELECT * FROM run_controls WHERE run_id=?').get(runId);
-    return !run.paused && !control?.operator_paused && !control?.cancel_requested && !control?.human_hold && !control?.budget_hold &&
+    return this.policyProjectionAllowed(runId) && !run.paused && !control?.operator_paused && !control?.cancel_requested && !control?.human_hold && !control?.budget_hold &&
       this.db.prepare('SELECT paused FROM recovery_control WHERE id=1').get()!.paused === 0;
   }
   controlStatus(runId: string) {
@@ -365,12 +369,13 @@ export class ExecutionStore extends AutomationStore implements InboxStore {
       cancellations: this.db.prepare('SELECT c.operation_id,c.state FROM cancellations c JOIN operations o ON o.id=c.operation_id WHERE o.run_id=?').all(runId)
         .map(c => ({ operationId: String(c.operation_id), state: c.state === 'submitted' ? 'outcome_unknown' : String(c.state) })) };
   }
-  pauseRun(input: RunControl, context: AuditContext) { return this.control(input, 'pause', context); }
-  resumeRun(input: RunControl, context: AuditContext) { return this.control(input, 'resume', context); }
-  takeoverRun(input: RunControl, context: AuditContext) { return this.control(input, 'takeover', context); }
-  cancelRun(input: RunControl, context: AuditContext) { return this.control(input, 'cancel', context); }
-  private control(input: RunControl, command: RunControl['command'], context: AuditContext) {
+  pauseRun(input: RunControl, context: AuditContext, authority?: LocalPolicyAuthority) { return this.control(input, 'pause', context, authority); }
+  resumeRun(input: RunControl, context: AuditContext, authority?: LocalPolicyAuthority) { return this.control(input, 'resume', context, authority); }
+  takeoverRun(input: RunControl, context: AuditContext, authority?: LocalPolicyAuthority) { return this.control(input, 'takeover', context, authority); }
+  cancelRun(input: RunControl, context: AuditContext, authority?: LocalPolicyAuthority) { return this.control(input, 'cancel', context, authority); }
+  private control(input: RunControl, command: RunControl['command'], context: AuditContext, authority?: LocalPolicyAuthority) {
     const request = validated('run-control', input), safe = controlContext(context);
+    this.assertControlAuthority(request.runId, authority);
     if (request.command !== command) throw new LifecycleError('invalid_payload');
     return this.transaction(() => {
       const contents = canonical({ request, context: safe });
@@ -424,6 +429,7 @@ export class ExecutionStore extends AutomationStore implements InboxStore {
       if (this.db.prepare('SELECT paused FROM recovery_control WHERE id=1').get()!.paused) throw new LifecycleError('effect_blocked');
       const op = this.get('operation', operationId);
       this.assertConfigurationOperation(op.runId, op.request);
+      this.assertPolicyOperation(op.runId, op.request, 'cancel');
       if (['succeeded','failed','cancelled'].includes(op.state)) throw new LifecycleError('effect_consumed');
       const row = this.db.prepare("UPDATE cancellations SET state='submitted' WHERE operation_id=? AND state='pending'").run(operationId);
       if (row.changes !== 1) throw new LifecycleError('effect_consumed');

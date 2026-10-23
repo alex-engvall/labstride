@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "Authorization decision",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "allowed": {
+      "type": "boolean"
+    },
+    "code": {
+      "enum": [
+        "allowed",
+        "actor_unverified",
+        "actor_denied",
+        "repository_denied",
+        "operation_denied",
+        "policy_missing",
+        "policy_paused"
+      ]
+    },
+    "policyRevision": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "actorId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 1024
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "allowed",
+    "code",
+    "policyRevision",
+    "actorId"
+  ]
+}

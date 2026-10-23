@@ -40,7 +40,9 @@
       "action": "Change a trigger field as an actor outside the allowlist.",
       "expected": "Request is rejected with no execution intent.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W02.2-authorization-2026-10-23.md"
+      ]
     },
     {
       "id": "AC04",
@@ -281,7 +283,9 @@
       "action": "Revoke deploy permission before executor effect.",
       "expected": "Deploy is denied while observation and audit continue.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W02.2-authorization-2026-10-23.md"
+      ]
     },
     {
       "id": "AC24",
@@ -435,7 +439,8 @@
       "evidence": [
         "evidence/W01.2-observations-2026-10-21.md",
         "evidence/W01.4-installed-sessions-2026-10-23.md",
-        "evidence/W01.4-client-continuity-2026-10-23.md"
+        "evidence/W01.4-client-continuity-2026-10-23.md",
+        "evidence/W02.2-authorization-2026-10-23.md"
       ]
     },
     {

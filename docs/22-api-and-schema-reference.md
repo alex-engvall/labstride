@@ -75,3 +75,7 @@ Optional provider hooks must normalize through this enrolled boundary and the [h
 ## Boolean operator controls
 
 The controls map binds keep and pause to configured logical values of supported external fields. For example, a single-select field can express retain/release. Values must be disjoint and resolvable. Unknown/missing keep values block cleanup; unknown/missing pause state prevents new automated effects until reconciled. Operators may also set an explicit local hold through the authenticated CLI; an external release value cannot silently remove a local hold.
+
+## Request authorization and policy
+
+The [W02.2 embedding contract](31-authorization-and-policy.md) specifies [authorization policy](../schemas/authorization-policy.schema.json), [operator policy changes](../schemas/policy-change.schema.json), [independently verified actor evidence](../schemas/actor-evidence.schema.json) and [authorization decisions](../schemas/authorization-decision.schema.json). Their version is `1.0`; generated TypeScript and examples are checked with the existing local inventory. These are not new network endpoints. Local operator capabilities are opaque in-memory references and are deliberately absent from JSON payloads.
