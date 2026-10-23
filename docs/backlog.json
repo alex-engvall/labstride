@@ -250,7 +250,7 @@
       "acceptance_criteria": [
         "A PR or issue cannot expand permissions; emergency revocation blocks the next privileged action in an active run."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/54",
       "verification_evidence": [
         "evidence/W02.2-authorization-2026-10-23.md",
         "evidence/W02.2-live-authorization-receipt-2026-10-23.json"
@@ -321,7 +321,7 @@
       "acceptance_criteria": [
         "An unapproved actor cannot start a workspace even if a signed event or field edit is received."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/54",
       "verification_evidence": [
         "evidence/W02.2-authorization-2026-10-23.md",
         "evidence/W02.2-live-authorization-receipt-2026-10-23.json"
