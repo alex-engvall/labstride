@@ -345,7 +345,7 @@
         "The same current request is recovered after a missed event and produces no duplicate run.",
         "Missing hooks and failed GitHub progress writes recover through provider observation and the durable projection outbox after coordinator restart."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/56",
       "verification_evidence": [
         "evidence/W02.3-reconciliation-2026-10-23.md",
         "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json"
@@ -369,7 +369,7 @@
         "Projection updates only its mapped field; a concurrent human change creates a visible conflict.",
         "Only the coordinator projection adapter writes managed technical fields/summaries; hook/workflow observations preserve human-owned fields and decisions."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/56",
       "verification_evidence": [
         "evidence/W02.3-reconciliation-2026-10-23.md",
         "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json"
@@ -393,7 +393,7 @@
         "Coordinator status writes and stale events cannot retrigger work.",
         "Agent turn-stop/session-end reports cannot imply task completion, human approval or a new start request."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/56",
       "verification_evidence": [
         "evidence/W02.3-reconciliation-2026-10-23.md",
         "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json"
