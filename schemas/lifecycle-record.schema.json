@@ -675,6 +675,30 @@
             "expectedFingerprint",
             "value"
           ]
+        },
+        "providerTarget": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "schemaVersion": {
+              "const": "1.0"
+            },
+            "scopeId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "resourceId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "scopeId",
+            "resourceId"
+          ]
         }
       },
       "required": [

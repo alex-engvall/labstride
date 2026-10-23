@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "1.0",
+  "fixture": {
+    "repository": "alex-engvall/labstride",
+    "repositoryId": "R_kgDOVRiyPg",
+    "issueId": "I_kwDOVRiyPs8AAAABZTgk2A",
+    "issueNumber": 55,
+    "actorId": "U_kgDOCKCTAw",
+    "ownerId": "U_kgDOCKCTAw"
+  },
+  "checks": [
+    "historical-bootstrap-inert",
+    "missed-start-recovered-once",
+    "renamed-field-and-option-IDs-retained",
+    "technical-field-only-write-confirmed",
+    "lost-live-write-response-retained-without-replay",
+    "concurrent-human-change-preserved-and-conflict-visible",
+    "own-projection-and-restart-do-not-retrigger"
+  ],
+  "limitations": [
+    "Existing broad GitHub CLI credential; no minimal-permission qualification",
+    "Source/workspace action and installation pins use the public test fixture; no SSH workspace, agent turn, merge or deployment is executed",
+    "Checked Project writes have no provider CAS or durable mutation identity; an unobservable concurrent overwrite remains possible",
+    "Live response-loss recovery and local SIGKILL cases are recorded separately; full AC35/AC36 are not passed"
+  ],
+  "project": {
+    "id": "PVT_kwHOCKCTA84BoWSn",
+    "number": 15,
+    "url": "https://github.com/users/alex-engvall/projects/15"
+  },
+  "runId": "run-example-001",
+  "generation": 1,
+  "uncertainProjectionId": "github-progress:b6c10b2f69e9ec99954aba8c587bf5627b8486e88b1a0afb715e31f9bb85f1a1",
+  "counts": {
+    "requests": 1,
+    "runs": 1,
+    "workspaces": 1,
+    "operations": 1,
+    "outbox": 1
+  },
+  "projections": [
+    {
+      "projectionId": "github-progress:ab2f6f8ead675e34e0a45a5d1f761770d2dc4d525cbf83bcdac57fc075552239",
+      "state": "done",
+      "reason": "acknowledged_and_observed",
+      "uncertain": false
+    },
+    {
+      "projectionId": "github-progress:b6c10b2f69e9ec99954aba8c587bf5627b8486e88b1a0afb715e31f9bb85f1a1",
+      "state": "conflict",
+      "reason": "projection_conflict",
+      "uncertain": true
+    },
+    {
+      "projectionId": "github-progress:120e6c306049ae564c52b464352b31069addb1c7ca215c1687a39126c5d7dd5b",
+      "state": "conflict",
+      "reason": "human_or_provider_change",
+      "uncertain": false
+    }
+  ],
+  "actorQualificationEventId": "PVTISC_lADOVRiyPs8AAAABZTgk2M8AAAAH7CU5Pw",
+  "cleanupVerified": true,
+  "fixtureClosed": true,
+  "probeSourceSha256": "43baf148e346ec17bfb73bad44f41e5041795094d39e985d50f433e38fe65f71",
+  "runtimeSourceSha256": {
+    "packages/storage-sqlite/github.ts": "44167a0fa1a76fd7bc44111a23a086f0816717eb5edfd16fad2182f8241ddbed",
+    "packages/core/github-worker.ts": "ba1edcebc078b5f5920c424e5c11bdf3713e8e053e2e7f081be9eb7307a79b73",
+    "packages/core/observation-worker.ts": "51eb86fca7056a5e0b578cb43b958892a7a08c42ee51aaed9ea8da59da8ec557",
+    "packages/storage-sqlite/observations.ts": "3f02f55d70eca460c0e882835874872f6a9cb1abe8972c7df7a591185728cfcc",
+    "packages/storage-sqlite/migrations.ts": "0d975cbeb24fe795d2cdc51ebf2debc6e0897f3df26eaad6e8b24bbe4fb8c64c",
+    "packages/provider-github/adapter.ts": "58770c522fce89f59e3c7ff5a078bfd5fd448e4ef0030c480183854052d3639d",
+    "packages/provider-github/client.ts": "9188f224d97e98eab0697ec975f35c7ac4c8ae0e54b3b405d88495ec828b3258",
+    "packages/provider-github/projection.ts": "d6fbf9572d4a47940328fd4605e44597383caab5b597dd329c865e3d6a5554fb",
+    "packages/provider-github/webhook.ts": "cabcc81d568363ba586dcdce13100dc0910b49aaead87d86caeb8c012230be0c",
+    "schemas/github-history-qualification.schema.json": "044e3b3bf02b6962f5be825a273b5e4f38b3924e052cad5921eb7040fd078f6c",
+    "schemas/lifecycle-record.schema.json": "7d1d9aaf23edad0d5a9d98681f6ab84a31255eec6dc0346259cedf91bc7cc932"
+  }
+}

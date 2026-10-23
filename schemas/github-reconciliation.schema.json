@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub reconciliation status",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "installationId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "scopeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "configDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "cursor": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "nextAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "attempts": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "lastError": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "key",
+    "installationId",
+    "providerId",
+    "scopeId",
+    "configDigest",
+    "revision",
+    "cursor",
+    "epoch",
+    "nextAt",
+    "attempts",
+    "lastError"
+  ]
+}

@@ -159,7 +159,7 @@ test('v9 migration preserves legacy runs and handles without inventing configura
  const checksums=db.prepare('SELECT * FROM schema_migrations').all();assert.equal(db.prepare('PRAGMA user_version').get().user_version,9);db.close();
  const reboot=open(t,state);assert.equal(reboot.get('operation',op.id).state,'outcome_unknown');assert.equal(reboot.runConfiguration(run.id),null);
  assert.equal(reboot.operationHandle(op.id),'original-legacy-handle');
- const direct=new DatabaseSync(join(state,'state.sqlite'));t.after(()=>direct.close());assert.equal(direct.prepare('PRAGMA user_version').get().user_version,11);
+ const direct=new DatabaseSync(join(state,'state.sqlite'));t.after(()=>direct.close());assert.equal(direct.prepare('PRAGMA user_version').get().user_version,migrations.length);
  assert.equal(direct.prepare('SELECT config_digest FROM runs WHERE id=?').get(run.id).config_digest,null);
  assert.deepEqual(direct.prepare('SELECT * FROM schema_migrations WHERE version<=9').all(),checksums);
 });

@@ -6,6 +6,8 @@ Issue completion and runtime acceptance are separate tracking levels. LS-GH-001 
 
 For W00.3 / #13, see the separate [toolchain/session capability matrix and discovery closeout](W00.3-discovery-closeout-2026-10-21.md). It records bounded discovery, the foundation merged in PR #41, #13's completed closure and an explicit initial hooks-disabled profile; runtime acceptance is not marked passed. The original W00.1 evidence below remains scoped to GitHub.
 
+The later [W02.3 implementation evidence](W02.3-reconciliation-2026-10-23.md) now records actual coordinator polling/admission, checked Project writes and recovery on owned GitHub fixtures. AC04/AC05 passed for that tested profile; full AC02/AC29/AC35/AC36 retain their named integration gates. Historical discovery limits and unexecuted statuses below describe W00.1's examined scope, not a replacement for the canonical current acceptance file.
+
 ## Verified provider capabilities and limits
 
 The operator selected public `alex-engvall/fortnox-mcp` as the sole dedicated App test repository and personal Project #8 as the Project target. Those are evidence fixtures, not product defaults. In the dedicated-credential probes, repository effects used downscoped App installation tokens and Project effects used a separate user PAT reporting only `project`. The earlier broad-credential discovery is recorded separately below.

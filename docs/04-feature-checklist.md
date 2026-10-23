@@ -206,14 +206,14 @@ Implementation issue: [#19](https://github.com/alex-engvall/labstride/issues/19)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W02 |
+| MVP | P0 | implemented | W02 |
 
 Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contract.md).
 
 - The same current request is recovered after a missed event and produces no duplicate run.
 - Missing hooks and failed GitHub progress writes recover through provider observation and the durable projection outbox after coordinator restart.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json
 
 Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20).
 
@@ -221,14 +221,14 @@ Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W02 |
+| MVP | P0 | implemented | W02 |
 
 Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - Projection updates only its mapped field; a concurrent human change creates a visible conflict.
 - Only the coordinator projection adapter writes managed technical fields/summaries; hook/workflow observations preserve human-owned fields and decisions.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json
 
 Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20).
 
@@ -236,14 +236,14 @@ Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W02 |
+| MVP | P0 | implemented | W02 |
 
 Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - Coordinator status writes and stale events cannot retrigger work.
 - Agent turn-stop/session-end reports cannot imply task completion, human approval or a new start request.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json
 
 Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20).
 

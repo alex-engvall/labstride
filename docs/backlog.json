@@ -334,7 +334,7 @@
       "title": "Reconcile missed and duplicate events",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W02",
       "depends_on_work_packages": [
@@ -346,7 +346,10 @@
         "Missing hooks and failed GitHub progress writes recover through provider observation and the durable projection outbox after coordinator restart."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W02.3-reconciliation-2026-10-23.md",
+        "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json"
+      ],
       "github_issue": 20,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/20"
     },
@@ -355,7 +358,7 @@
       "title": "Preserve human edits and unrelated fields",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W02",
       "depends_on_work_packages": [
@@ -367,7 +370,10 @@
         "Only the coordinator projection adapter writes managed technical fields/summaries; hook/workflow observations preserve human-owned fields and decisions."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W02.3-reconciliation-2026-10-23.md",
+        "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json"
+      ],
       "github_issue": 20,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/20"
     },
@@ -376,7 +382,7 @@
       "title": "Separate progress from start intent",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W02",
       "depends_on_work_packages": [
@@ -388,7 +394,10 @@
         "Agent turn-stop/session-end reports cannot imply task completion, human approval or a new start request."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W02.3-reconciliation-2026-10-23.md",
+        "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json"
+      ],
       "github_issue": 20,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/20"
     },

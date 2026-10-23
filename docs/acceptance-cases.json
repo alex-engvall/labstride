@@ -28,7 +28,8 @@
       "expected": "One request generation, run and workspace are created.",
       "status": "not_run",
       "evidence": [
-        "evidence/W01.2-observations-2026-10-21.md"
+        "evidence/W01.2-observations-2026-10-21.md",
+        "evidence/W02.3-reconciliation-2026-10-23.md"
       ]
     },
     {
@@ -53,8 +54,10 @@
       "precondition": "Renamed arbitrary fields",
       "action": "Rename mapped fields/options while retaining IDs, then change to the configured start value.",
       "expected": "Resolved binding remains valid; own status writes never start work.",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed",
+      "evidence": [
+        "evidence/W02.3-reconciliation-2026-10-23.md"
+      ]
     },
     {
       "id": "AC05",
@@ -64,8 +67,10 @@
       "precondition": "Human status override",
       "action": "Change status between observation and projection.",
       "expected": "Human change is preserved or race detected and reconciled; conflict is visible.",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed",
+      "evidence": [
+        "evidence/W02.3-reconciliation-2026-10-23.md"
+      ]
     },
     {
       "id": "AC06",
@@ -440,7 +445,8 @@
         "evidence/W01.2-observations-2026-10-21.md",
         "evidence/W01.4-installed-sessions-2026-10-23.md",
         "evidence/W01.4-client-continuity-2026-10-23.md",
-        "evidence/W02.2-authorization-2026-10-23.md"
+        "evidence/W02.2-authorization-2026-10-23.md",
+        "evidence/W02.3-reconciliation-2026-10-23.md"
       ]
     },
     {
@@ -466,7 +472,8 @@
         "evidence/W01.2-effects-2026-10-21.md",
         "evidence/W01.2-observations-2026-10-21.md",
         "evidence/W01.4-installed-sessions-2026-10-23.md",
-        "evidence/W01.4-client-continuity-2026-10-23.md"
+        "evidence/W01.4-client-continuity-2026-10-23.md",
+        "evidence/W02.3-reconciliation-2026-10-23.md"
       ]
     }
   ]

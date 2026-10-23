@@ -6,6 +6,7 @@ import type { Delivery, RetryPolicy, InboxInput } from '../core/execution.ts';
 import type { Hook, ObservationPort, ProjectionView, SessionObservation, SessionPoll } from '../core/observations.ts';
 import type { LabstrideHookAcknowledgement } from '../../contracts/generated/hook-ack.ts';
 import { same } from '../configuration/values.ts';
+import type { LocalPolicyAuthority } from '../core/policy.ts';
 
 export class ObservationStore extends ExecutionStore implements ObservationPort {
   private currentGeneration(runId: string): boolean {
@@ -99,6 +100,15 @@ export class ObservationStore extends ExecutionStore implements ObservationPort 
     });
   }
   dueProjections(): Delivery[] {
+    this.transaction(()=>{
+      const pending=this.db.prepare("SELECT d.projection_id FROM deliveries d LEFT JOIN projection_attempts a ON a.projection_id=d.projection_id WHERE d.state='pending' AND d.projection_id IS NOT NULL AND a.projection_id IS NULL ORDER BY d.rowid DESC").all();
+      const seen=new Set<string>();
+      for(const row of pending){
+        const p=this.get('projection',String(row.projection_id)),key=JSON.stringify([p.providerId,p.subjectId,p.fieldId]);
+        if(seen.has(key))this.db.prepare("UPDATE deliveries SET state='superseded',last_error='coalesced_unsent',revision=revision+1 WHERE projection_id=?").run(p.id);
+        seen.add(key);
+      }
+    });
     return this.db.prepare("SELECT id FROM deliveries WHERE projection_id IS NOT NULL AND state IN ('pending','reconcile') AND next_at<=? ORDER BY rowid LIMIT 64")
       .all(this.clock.now()).map(row => this.delivery(String(row.id)));
   }
@@ -116,15 +126,34 @@ export class ObservationStore extends ExecutionStore implements ObservationPort 
       this.db.prepare('UPDATE deliveries SET state=?,last_error=?,revision=revision+1 WHERE id=?').run(state, reason, delivery.id);
       this.log(null, 'projection_observation', { projectionId: id, state, reason }); return 'finished' as const;
     };
-    if (!this.currentGeneration(projection.runId) || view.generation > projection.generation) return finish('superseded', 'newer_generation');
-    if (view.generation !== projection.generation) return finish('conflict', 'generation_conflict');
-    const attempt = this.db.prepare('SELECT token,state FROM projection_attempts WHERE projection_id=?').get(id);
+    const conflict=(reason:string)=>{
+      this.db.prepare('INSERT OR IGNORE INTO projection_holds VALUES (?,?,?,?)').run(projection.providerId,projection.subjectId,projection.fieldId,reason);
+      return finish('conflict',reason);
+    };
+    const attempt = this.db.prepare('SELECT * FROM projection_attempts WHERE projection_id=?').get(id);
+    if(attempt?.mode==='checked'&&attempt.state==='started'){
+      if(attempt.acknowledged&&attempt.observed_version===view.version&&same(view.value,projection.payload.value)){
+        this.db.prepare("UPDATE projection_attempts SET state='applied' WHERE projection_id=?").run(id);
+        return finish('done','acknowledged_and_observed');
+      }
+      if(attempt.acknowledged&&attempt.observed_version!==view.version){
+        this.db.prepare("UPDATE projection_attempts SET state='applied' WHERE projection_id=?").run(id);
+        return conflict('projection_conflict');
+      }
+      // Desired state without a durable acknowledgement is not proof of our
+      // write. Retain the original unknown attempt and do not replay it.
+      if(!same(view.value,projection.payload.value)&&view.version!==projection.payload.expectedFingerprint)return conflict('projection_conflict');
+      return 'wait';
+    }
     if (attempt && view.appliedToken === attempt.token && same(view.value, projection.payload.value)) {
       this.db.prepare("UPDATE projection_attempts SET state='applied' WHERE projection_id=?").run(id);
       return finish('done', 'observed_applied');
     }
-    if (view.version !== projection.payload.expectedFingerprint) return finish('conflict', 'human_or_provider_change');
+    if (!this.currentGeneration(projection.runId) || view.generation > projection.generation) return finish('superseded', 'newer_generation');
+    if (view.generation !== projection.generation) return conflict('generation_conflict');
+    if (view.version !== projection.payload.expectedFingerprint) return conflict('human_or_provider_change');
     if (attempt?.state === 'started') return 'wait';
+    if(this.db.prepare('SELECT 1 FROM projection_holds WHERE provider_id=? AND subject_id=? AND field_id=?').get(projection.providerId,projection.subjectId,projection.fieldId))return conflict('projection_conflict');
     if (same(view.value, projection.payload.value)) return finish('done', 'already_matches');
     if (!this.projectionAllowed(projection.runId)) return 'wait';
     return 'write';
@@ -132,14 +161,47 @@ export class ObservationStore extends ExecutionStore implements ObservationPort 
   inspectProjection(id: string, expectedRevision: number, view: ProjectionView): 'write' | 'wait' | 'finished' {
     return this.transaction(() => this.projectionDecision(id, expectedRevision, view));
   }
-  beginProjection(id: string, expectedRevision: number, view: ProjectionView): string {
+  beginProjection(id: string, expectedRevision: number, view: ProjectionView,mode:'atomic'|'checked'='atomic'): string {
     return this.transaction(() => {
+      if(!['atomic','checked'].includes(mode))throw new LifecycleError('invalid_payload');
       if (this.projectionDecision(id, expectedRevision, view) !== 'write') throw new LifecycleError('effect_blocked');
+      const projection=this.get('projection',id);
+      for(const row of this.db.prepare("SELECT projection_id FROM projection_attempts WHERE state='started' AND projection_id!=?").all(id)){
+        const other=this.get('projection',String(row.projection_id));
+        if(other.providerId===projection.providerId&&other.subjectId===projection.subjectId&&other.fieldId===projection.fieldId)throw new LifecycleError('effect_blocked');
+      }
       const token = this.projectionToken(id) ?? this.identities.next();
-      this.db.prepare("INSERT INTO projection_attempts VALUES (?,?,'started') ON CONFLICT(projection_id) DO UPDATE SET state='started'").run(id, token);
+      this.db.prepare("INSERT INTO projection_attempts(projection_id,token,state,mode) VALUES (?,?,'started',?) ON CONFLICT(projection_id) DO UPDATE SET state='started',mode=excluded.mode,acknowledged=0,observed_version=NULL").run(id, token,mode);
       this.db.prepare("UPDATE deliveries SET state='reconcile',revision=revision+1 WHERE projection_id=?").run(id);
       this.log(null, 'projection_effect_boundary', { projectionId: id, token });
       return token;
+    });
+  }
+  acknowledgeProjection(id:string,token:string,input:ProjectionView):void{
+    const view=validated('projection-observation',input);
+    this.transaction(()=>{
+      const projection=this.get('projection',id);
+      if(view.providerId!==projection.providerId||view.subjectId!==projection.subjectId||view.fieldId!==projection.fieldId||view.generation!==projection.generation||!same(view.value,projection.payload.value))throw new LifecycleError('identity_conflict');
+      const result=this.db.prepare("UPDATE projection_attempts SET acknowledged=1,observed_version=? WHERE projection_id=? AND token=? AND state='started' AND mode='checked'").run(view.version,id,token);
+      if(!result.changes)throw new LifecycleError('revision_conflict');
+      this.log(null,'projection_acknowledged',{projectionId:id,token,version:view.version});
+    });
+  }
+  projectionDiagnostics():{projectionId:string;state:string;reason:string|null;uncertain:boolean}[]{
+    return this.db.prepare('SELECT d.projection_id,d.state,d.last_error,a.state AS attempt_state FROM deliveries d LEFT JOIN projection_attempts a ON a.projection_id=d.projection_id WHERE d.projection_id IS NOT NULL').all()
+      .map(row=>({projectionId:String(row.projection_id),state:String(row.state),reason:row.last_error as string|null,uncertain:row.attempt_state==='started'}));
+  }
+  clearProjectionConflict(id:string,context:AuditContext,authority?:LocalPolicyAuthority):void{
+    context=recoveryContext(context);
+    this.transaction(()=>{
+      const p=this.get('projection',id);this.assertControlAuthority(p.runId,authority);
+      // Unknown attempts must be reconciled, not released by clearing a warning.
+      for(const row of this.db.prepare("SELECT projection_id FROM projection_attempts WHERE state='started'").all()){
+        const other=this.get('projection',String(row.projection_id));
+        if(other.providerId===p.providerId&&other.subjectId===p.subjectId&&other.fieldId===p.fieldId)throw new LifecycleError('recovery_required');
+      }
+      this.db.prepare('DELETE FROM projection_holds WHERE provider_id=? AND subject_id=? AND field_id=?').run(p.providerId,p.subjectId,p.fieldId);
+      this.log(null,'projection_conflict_cleared',{projectionId:id,context});
     });
   }
   projectionNotApplied(id: string, token: string): void {
