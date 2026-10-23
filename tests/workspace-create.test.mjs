@@ -7,7 +7,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { WorkspaceRegistry } from '../packages/target-helper/workspaces.ts';
 import { TargetRegistry } from '../packages/target-helper/registry.ts';
 import { workspaceIdentity } from '../packages/target-helper/workspace-contracts.ts';
-import { sourceAccess } from '../packages/target-helper/workspace-git.ts';
+import { sourceAccess,runGit } from '../packages/target-helper/workspace-git.ts';
 import { requestDigest } from '../packages/storage-sqlite/execution.ts';
 import { workspaceFixture } from './helpers/workspace-fixture.mjs';
 const inspect=request=>({...request,method:'inspect'});
@@ -124,5 +124,11 @@ for(const authenticated of [false,true])test(`real HTTPS Git/API ${authenticated
   assert.equal(actualGit(f.sourcePath(result.created.workspace),['rev-parse','HEAD']),f.operation.source.sha);
   const pending=once(server,'message',{signal:AbortSignal.timeout(10000)});server.send('report');const [report]=await pending;
   assert.equal(report.api,1);assert.ok(report.fetches>=1);assert.equal(report.rejected,0);
-  if(secret){assert.equal(stdout.includes(secret),false);assert.equal(stderr.includes(secret),false);assert.equal(readFileSync(join(f.sourcePath(result.created.workspace),'.git/config'),'utf8').includes(secret),false);}
+  if(secret){
+    assert.equal(stdout.includes(secret),false);assert.equal(stderr.includes(secret),false);assert.equal(readFileSync(join(f.sourcePath(result.created.workspace),'.git/config'),'utf8').includes(secret),false);
+    const previous=process.env.NODE_EXTRA_CA_CERTS;process.env.NODE_EXTRA_CA_CERTS=certificate;
+    try{assert.throws(()=>runGit(f.sourcePath(result.created.workspace),['push','origin','HEAD:refs/heads/forbidden'],sourceAccess(f.policy.sources[0])),error=>error.code==='operation_failed');}
+    finally{if(previous===undefined)delete process.env.NODE_EXTRA_CA_CERTS;else process.env.NODE_EXTRA_CA_CERTS=previous;}
+    assert.throws(()=>execFileSync('/usr/bin/git',['--git-dir='+join(f.root,'source.git'),'show-ref','--verify','refs/heads/forbidden'],{stdio:'ignore'}));
+  }
 });

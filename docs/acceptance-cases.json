@@ -109,7 +109,10 @@
       "action": "Start two different issues on the same host.",
       "expected": "Distinct checkouts/branches and optional runtime namespaces; no shared worktree.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W03.2-workspaces-2026-10-23.md",
+        "evidence/W03.2-continuity-2026-10-23.md"
+      ]
     },
     {
       "id": "AC09",
@@ -122,7 +125,9 @@
       "expected": "Reconciliation adopts the exact registered directory, not a second one.",
       "status": "not_run",
       "evidence": [
-        "evidence/W01.2-effects-2026-10-21.md"
+        "evidence/W01.2-effects-2026-10-21.md",
+        "evidence/W03.2-workspaces-2026-10-23.md",
+        "evidence/W03.2-continuity-2026-10-23.md"
       ]
     },
     {
@@ -480,7 +485,9 @@
         "evidence/W01.2-observations-2026-10-21.md",
         "evidence/W01.4-installed-sessions-2026-10-23.md",
         "evidence/W01.4-client-continuity-2026-10-23.md",
-        "evidence/W02.3-reconciliation-2026-10-23.md"
+        "evidence/W02.3-reconciliation-2026-10-23.md",
+        "evidence/W03.2-workspaces-2026-10-23.md",
+        "evidence/W03.2-continuity-2026-10-23.md"
       ]
     }
   ]

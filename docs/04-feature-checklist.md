@@ -370,7 +370,7 @@ Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 - The workspace contains the requested SHA on a dedicated branch and is recorded in the target registry.
 
-Verification evidence: evidence/W03.2-workspaces-2026-10-23.md
+Verification evidence: evidence/W03.2-workspaces-2026-10-23.md, evidence/W03.2-continuity-2026-10-23.md
 
 Implementation issue: [#22](https://github.com/alex-engvall/labstride/issues/22).
 
@@ -384,7 +384,7 @@ Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 - Reconnect adopts the same owned directory; conflicting pre-existing paths are preserved and reported.
 
-Verification evidence: evidence/W03.2-workspaces-2026-10-23.md
+Verification evidence: evidence/W03.2-workspaces-2026-10-23.md, evidence/W03.2-continuity-2026-10-23.md
 
 Implementation issue: [#22](https://github.com/alex-engvall/labstride/issues/22).
 

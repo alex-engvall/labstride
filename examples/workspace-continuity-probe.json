@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0",
+  "stateDirectory": "/var/lib/labstride-example/continuity",
+  "repository": "example/source",
+  "repositoryId": "repo-example",
+  "issueIds": [
+    "issue-example-a",
+    "issue-example-b"
+  ],
+  "actorId": "actor-example",
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "rootId": "source",
+  "sourceRoot": "/srv/labstride-example/workspaces",
+  "codingUid": 2345,
+  "coordinatorUser": "labstride-coordinator",
+  "coordinatorUid": 2346,
+  "nodePath": "/opt/node/bin/node",
+  "probeScript": "/opt/labstride-example/release/tools/workspace-continuity/probe.mjs",
+  "targetRegistry": "/var/lib/labstride-example/helper/target.sqlite",
+  "sessionEnrollmentFile": "/etc/labstride-example/continuity-session.json",
+  "connectorPin": {
+    "id": "labstride.connector.ssh",
+    "version": "1.1.0",
+    "kind": "connector",
+    "artifactPath": "/opt/labstride-example/labstride.connector.ssh.artifact.json",
+    "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+    "permissions": [
+      "network.ssh"
+    ],
+    "capabilities": [
+      "workspace.probe.v1",
+      "workspace.create.v1",
+      "workspace.inspect.v1"
+    ],
+    "configuration": {
+      "enrollmentDirectory": "/var/lib/labstride-example/coordinator",
+      "targetId": "target-example",
+      "revision": 1,
+      "digest": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "actionPin": {
+    "id": "labstride.workspace-create",
+    "version": "1.0.0",
+    "kind": "action",
+    "artifactPath": "/opt/labstride-example/labstride.workspace-create.artifact.json",
+    "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+    "permissions": [
+      "filesystem.workspace"
+    ],
+    "capabilities": [
+      "workspace.create.v1"
+    ],
+    "configuration": {}
+  },
+  "sessionActionPin": {
+    "id": "labstride.session-command",
+    "version": "1.0.0",
+    "kind": "action",
+    "artifactPath": "/opt/labstride-example/labstride.session-command.artifact.json",
+    "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+    "permissions": [
+      "session.manage"
+    ],
+    "capabilities": [
+      "session.command.v1"
+    ],
+    "configuration": {}
+  }
+}

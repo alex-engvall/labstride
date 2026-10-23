@@ -1,3 +1,4 @@
+import { installedSessionAction } from '../../packages/extensions/session-action.ts';
 import { configuredWorkspaceAction } from '../../packages/connector-ssh/workspaces.ts';
 import { workspaceAction, workspaceVersion } from '../../packages/target-helper/workspace-contracts.ts';
 import { startCoordinator } from './main.ts';
@@ -10,7 +11,7 @@ import type { AuditContext } from '../../packages/core/lifecycle.ts';
 import type { StoreDependencies } from '../../packages/storage-sqlite/store.ts';
 import { sessionResolver } from '../../packages/extensions/session-provider.ts';
 import type { HostProfile } from '../../packages/extensions/loader.ts';
-import { createSessionAction, sessionAction, sessionActionVersion } from '../../packages/core/sessions.ts';
+import { sessionAction, sessionActionVersion } from '../../packages/core/sessions.ts';
 import { pinnedSessionObserver } from '../../packages/core/session-runtime.ts';
 import { actionKey } from '../../packages/core/worker.ts';
 import { createGitHubWorker } from '../../packages/core/github-worker.ts';
@@ -35,7 +36,7 @@ export function startExecution(dataDir: string, options: {
     const observationOptions = { ...options.observations, sessions: new Map(options.observations.sessions),projections:new Map(options.observations.projections) };
     if(options.github?.adapter.projection)observationOptions.projections.set(options.github.adapter.providerId,options.github.adapter.projection(runtime.store));
     if (resolver) {
-      actionOptions.adapters.set(actionKey(sessionAction, sessionActionVersion), createSessionAction(runtime.store, resolver.resolve));
+      actionOptions.adapters.set(actionKey(sessionAction, sessionActionVersion), installedSessionAction(runtime.store, options.installedSessions!.host, resolver.resolve));
       for (const id of options.installedSessions!.providerIds) observationOptions.sessions.set(id, pinnedSessionObserver(runtime.store, resolver.resolve));
     }
     const actions = createWorker(runtime.store, actionOptions);
