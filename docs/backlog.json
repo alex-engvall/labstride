@@ -546,7 +546,7 @@
       "acceptance_criteria": [
         "A host-key mismatch fails before any command; explicit enrollment/rotation is documented."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/engshort/labstride/pull/57",
       "verification_evidence": [
         "[Enrolled SSH/helper boundary, actual pilot identity separation and crash/transport recovery](evidence/W03.1-ssh-boundary-2026-10-23.md)"
       ],
@@ -568,7 +568,7 @@
       "acceptance_criteria": [
         "Host, path and issue metacharacters cannot escape enrolled targets or create injected commands."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/engshort/labstride/pull/57",
       "verification_evidence": [
         "[Enrolled SSH/helper boundary, actual pilot identity separation and crash/transport recovery](evidence/W03.1-ssh-boundary-2026-10-23.md)"
       ],
@@ -997,7 +997,7 @@
         "The coding/workspace user cannot change trusted target ownership or coordinator policy.",
         "Agent-writable hook reports cannot change trusted policy/ownership, obtain privileged projection/deploy credentials or grant approval/completion authority."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/engshort/labstride/pull/57",
       "verification_evidence": [
         "[Enrolled SSH/helper boundary, actual pilot identity separation and crash/transport recovery](evidence/W03.1-ssh-boundary-2026-10-23.md)"
       ],
