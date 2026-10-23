@@ -48,13 +48,29 @@ let store;
 try {
   if(phase==='cleanup-project') {
     assert.ok(journal.project&&journal.started,'Only the recorded owned fixture can be removed');
-    const check=await query('query($id:ID!){node(id:$id){... on ProjectV2{id title}}}',{id:journal.project.id});
-    if(check.node){
-      assert.equal(check.node.title,'Labstride W03.2 continuity '+journal.fixtureId);
+    // Deleted GitHub node IDs can return GraphQL errors rather than node:null.
+    // Inspect the owner's complete bounded listing instead; do not resubmit a
+    // deletion just because that post-effect node query lost its useful result.
+    async function ownedProject(){
+      let after=null;
+      for(let page=0;page<10;page++){
+        const result=await query('query($after:String){viewer{id projectsV2(first:100,after:$after){nodes{id title} pageInfo{hasNextPage endCursor}}}}',{after});
+        assert.equal(result.viewer.id,spec.actorId);
+        const projects=result.viewer.projectsV2,found=nodes(projects.nodes).find(project=>project.id===journal.project.id);
+        if(found)return found;
+        if(!projects.pageInfo.hasNextPage)return null;
+        assert.ok(projects.pageInfo.endCursor&&projects.pageInfo.endCursor!==after);after=projects.pageInfo.endCursor;
+      }
+      throw Error('Owned Project absence is unverified beyond the listing bound');
+    }
+    const current=await ownedProject();
+    if(current){
+      assert.equal(current.title,'Labstride W03.2 continuity '+journal.fixtureId);
       await mutate('delete-owned-project','mutation($input:DeleteProjectV2Input!){deleteProjectV2(input:$input){clientMutationId}}',{input:{projectId:journal.project.id}});
     }
-    const absent=await query('query($id:ID!){node(id:$id){id}}',{id:journal.project.id});assert.equal(absent.node,null);
-    journal.projectRemoved=true;save();transport.emit({kind:'result',phase,removedOwnedProject:true,workspacesRetained:true});
+    assert.equal(await ownedProject(),null);
+    journal.projectRemoved=true;save();transport.emit({kind:'result',phase,ownedProjectAbsent:true,
+      deletionAcknowledged:journal.effects?.['delete-owned-project']?.state==='complete',workspacesRetained:true});
   } else {
   assert.equal(journal.projectRemoved,undefined,'The owned Project was already removed');
   if(phase==='prepare'&&!journal.project){
@@ -141,6 +157,9 @@ try {
     // Duplicate polling/start after a new process never builds another run.
     journal.now+=120000;await Promise.all([github.tick(),github.tick()]);assert.equal(count(),2);
     if(phase==='execute'){
+      assert.equal(journal.faultAttemptStarted,undefined,'The original fault attempt must be recovered, never restarted');
+      assert.ok(!journal.checks.includes('actual-ssh-creation-reply-lost'));
+      journal.faultAttemptStarted=true;save();
       await fixtureEffect('controlled-github-write-failure',async()=>{
         const before=await adapter.item(journal.items[0].id);let failure;
         try {
@@ -235,11 +254,12 @@ try {
       }
       if(phase==='after-human') {
         assert.ok(journal.beforeHuman);
-        journal.now+=120000;await createObservationWorker(store,{sessions:new Map([[profile.pin.id,pinnedSessionObserver(store,resolver.resolve)]]),projections:new Map()}).tick();
+        journal.now+=120000;await createObservationWorker(store,{sessions:new Map([[profile.pin.id,pinnedSessionObserver(store,resolver.resolve)]]),
+          projections:new Map([[adapter.providerId,adapter.projection(store)]])}).tick();
         const session=store.get('session',enrollmentId),op=store.get('operation',journal.beforeHuman.operationId);
         assert.notEqual(session.lastTurnId,journal.beforeHuman.lastTurnId);assert.ok(session.humanActivityRevision>journal.beforeHuman.revision);
         let rejected;try{store.claim(op.id,'stale-continuation-check',randomUUID());}catch(error){rejected=error.code;}
-        assert.equal(rejected,'stale_revision');const adapter=await resolver.resolve(profile),reply=await adapter.invoke(store.command(op.id).request);
+        assert.equal(rejected,'stale_revision');const sessionProvider=await resolver.resolve(profile),reply=await sessionProvider.invoke(store.command(op.id).request);
         assert.equal(reply.outcome,'error');assert.equal(reply.code,'stale_revision');assert.equal(op.effectBoundary,'not_crossed');
         assert.equal(store.binding(enrollmentId).sessionId,journal.session.sessionId);assert.equal(store.controlStatus(run.id).humanHold,true);
         journal.checks.push('actual-human-turn-retained-same-session','stale-original-continuation-rejected-before-effect');save();
@@ -247,7 +267,8 @@ try {
       transport.emit({kind:'session-result',phase,enrollmentId,session:store.get('session',enrollmentId),binding:store.binding(enrollmentId),humanHold:store.controlStatus(run.id).humanHold});
     }finally{await resolver.close();}
   }
-  journal.now+=16000;save();transport.emit({kind:'result',phase,runs:journal.runs,checks:journal.checks,projections:store.projectionDiagnostics()});
+  journal.now+=16000;save();transport.emit({kind:'result',phase,runs:journal.runs.map(run=>({...run,
+    workspace:store.get('workspace',run.workspace.id),operation:store.get('operation',run.operation.id)})),checks:journal.checks,projections:store.projectionDiagnostics()});
   }
 }catch(error){transport.emit({kind:'failure',phase,code:error.code??'probe_failed',message:String(error.message).slice(0,2000)});process.exitCode=1;}
 finally{store?.close();transport.close();}

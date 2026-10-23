@@ -38,6 +38,9 @@ export type InputBinding =
   | {
       binding: "field";
       field: string;
+      mapping?: {
+        [k: string]: string;
+      };
     }
   | {
       binding: "context";
@@ -87,6 +90,10 @@ export interface LabstrideInstallationConfigurationV1 {
       options?: {
         [k: string]: string;
       };
+      /**
+       * Opt in to disjoint managed progress values on a single-select request field; controls remain human-owned.
+       */
+      allowManagedProgress?: boolean;
     };
   };
   targets: {
@@ -163,11 +170,23 @@ export interface LabstrideInstallationConfigurationV1 {
   /**
    * @minItems 0
    */
-  projections: {
+  projections: ({
+    [k: string]: unknown;
+  } & {
     fact: string;
     field: string;
-    value: FieldValue;
-  }[];
+    value?: FieldValue;
+    valueFrom?:
+      | {
+          kind: "workspace-source-path";
+          targetId: string;
+          rootId: string;
+          rootPath: string;
+        }
+      | {
+          kind: "session-id";
+        };
+  })[];
   extensionConfiguration: {
     [k: string]: {
       [k: string]: unknown;

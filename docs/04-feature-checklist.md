@@ -141,7 +141,7 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - Shell syntax and executable text remain literal data and cannot select uninstalled operations.
 
-Verification evidence: evidence/W02.1-configuration-2026-10-23.md
+Verification evidence: evidence/W02.1-configuration-2026-10-23.md, evidence/W03.2-native-fields-2026-10-24.md
 
 Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18).
 
@@ -213,7 +213,7 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 - The same current request is recovered after a missed event and produces no duplicate run.
 - Missing hooks and failed GitHub progress writes recover through provider observation and the durable projection outbox after coordinator restart.
 
-Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json
+Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json, evidence/W03.2-native-fields-2026-10-24.md
 
 Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20).
 
@@ -370,7 +370,7 @@ Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 - The workspace contains the requested SHA on a dedicated branch and is recorded in the target registry.
 
-Verification evidence: evidence/W03.2-workspaces-2026-10-23.md, evidence/W03.2-continuity-2026-10-23.md
+Verification evidence: evidence/W03.2-workspaces-2026-10-23.md, evidence/W03.2-continuity-2026-10-23.md, evidence/W03.2-live-continuity-receipt-2026-10-23.json, evidence/W03.2-native-fields-2026-10-24.md
 
 Implementation issue: [#22](https://github.com/alex-engvall/labstride/issues/22).
 
@@ -384,7 +384,7 @@ Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 - Reconnect adopts the same owned directory; conflicting pre-existing paths are preserved and reported.
 
-Verification evidence: evidence/W03.2-workspaces-2026-10-23.md, evidence/W03.2-continuity-2026-10-23.md
+Verification evidence: evidence/W03.2-workspaces-2026-10-23.md, evidence/W03.2-continuity-2026-10-23.md, evidence/W03.2-live-continuity-receipt-2026-10-23.json, evidence/W03.2-native-fields-2026-10-24.md
 
 Implementation issue: [#22](https://github.com/alex-engvall/labstride/issues/22).
 

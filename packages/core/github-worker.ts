@@ -6,7 +6,7 @@ import type { GitHubStore } from '../storage-sqlite/github.ts';
 
 export function createGitHubWorker(store: GitHubStore, options: GitHubOptions) {
   const snapshot=compiledSnapshot(options.compiled), configuration=snapshot.configuration;
-  const scopes=[...new Set(Object.values(snapshot.bindings).filter(binding=>binding.providerId===options.adapter.providerId&&binding.source==='project_v2').map(binding=>binding.scopeId))];
+  const scopes=[...new Set(Object.values(snapshot.bindings).filter(binding=>binding.providerId===options.adapter.providerId&&['project_v2','organization_issue_field'].includes(binding.source)).map(binding=>binding.scopeId))];
   const keys=scopes.map(scope=>store.registerGitHub(options.compiled,options.adapter.providerId,scope).key);
   let ticking=false;
   return {

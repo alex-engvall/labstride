@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "1.0",
+  "recordedOn": "2026-10-23",
+  "environment": {
+    "os": "Debian 13",
+    "kernelFamily": "Linux",
+    "architecture": "x86_64",
+    "node": "24.22.0",
+    "pilotNodeTests": {
+      "total": 478,
+      "passed": 478,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "source": {
+    "repository": "engshort/labstride",
+    "sha": "20cfde76dd458fbd7f4a201cf61f8af31496d5ca",
+    "privateGitHubQualification": "not_run"
+  },
+  "githubAdmission": {
+    "ownedIssueNumbers": [
+      58,
+      59
+    ],
+    "ownedProjectCreated": true,
+    "inertBootstrap": true,
+    "realActorHistoryQualified": true,
+    "admittedRuns": 2,
+    "duplicatePollingAddedRuns": 0,
+    "runtimeAdapter": "actual GitHub API",
+    "compilerProviderDescriptor": "public fixture",
+    "ownedProjectDeletionAcknowledged": true,
+    "ownedProjectAbsenceIndependentlyVerified": true
+  },
+  "workspaceProof": {
+    "distinctCheckouts": 2,
+    "distinctGitDatabases": 2,
+    "distinctBranches": 2,
+    "exactOriginalShaVerifiedByCodingAccount": true,
+    "registeredResourcesPerWorkspace": [
+      1,
+      1
+    ],
+    "retainedCreationRowsBefore": 2,
+    "retainedCreationRowsAfter": 4,
+    "originalReservationsRetained": 1,
+    "allWorkspacesRetained": true
+  },
+  "faults": {
+    "actualSshReplyLost": true,
+    "ownCoordinatorSignal": "SIGKILL",
+    "processUidExecutableAncestryChecked": true,
+    "signalsUsedPidfds": true,
+    "originalOperationRecovered": true,
+    "originalDirectoryRecovered": true,
+    "originalHandleMatchedTargetReceipt": true,
+    "additionalRunOrWorkspaceForLostReply": false,
+    "controlledGitHubWriteRejected": true,
+    "rejectedWriteLeftFieldUnchanged": true,
+    "actualGitHubMutationAcknowledgementLost": true,
+    "unacknowledgedProjectionReplayed": false,
+    "unacknowledgedProjectionRemainsUncertain": true,
+    "hooksUsed": false
+  },
+  "recoveredHandlesSha256": [
+    "a779c07edac894085ace9f1548fc55de5806ebd69cc9e5e843c767989db8e78f",
+    "4eeae542a5a2283fb10b57cad0a638b4011898921050a0ffd051fdcdbc6a920f"
+  ],
+  "interactiveClient": {
+    "status": "passed_for_tested_profile",
+    "observedOn": "2026-10-24",
+    "backendVersion": "0.163.0",
+    "effectiveCodingIdentityVerified": true,
+    "kernelSocketPeerVerified": true,
+    "backendExecutableSha256": "399ff69c431c066e40de318fba45c2b07f45a76b19939d247ee4828fc70c4215",
+    "providerArtifactSha256": "b0c5f4b78a9d8ccaba75e7d98a1d507ce60ea4c3d74e91432bb54930564e0f1b",
+    "sessionActionArtifactSha256": "301483640f86dc0f37c10c2cf89e7b1ac16a3049bd87e67c994770b05f71f0b6",
+    "frozenProfileDigest": "855ebed7fcb2c7179db456022a83792aa6a93989a66f28ef5c93e3eda26c26ec",
+    "sessionIdSha256": "210d269b170ae26b7f4a3a592d0043d033147887384df10514455908757c7ef1",
+    "firstTurnIdSha256": "102f2b707a75117230de524838908f9a8471380905c01cc6220e0b77673b38ed",
+    "exactAdmittedCheckoutMatched": true,
+    "existingSessionEnrolled": true,
+    "duplicateEnrollmentReusedOriginalOperations": true,
+    "sameSessionResumed": true,
+    "hooks": false,
+    "backendAtomicGuards": false,
+    "originalContinuationBlockedBeforeEffect": "unsupported_capability",
+    "activityRevisionBeforeHuman": 1,
+    "activityRevisionMeaning": "local observation token, not backend atomic counter",
+    "sameSessionHumanTurnObserved": true,
+    "staleOriginalContinuationRejected": true,
+    "activityRevisionAfterHuman": 2,
+    "humanHoldAfterRecovery": true,
+    "subsequentCoordinatorRestartRetainedBinding": true,
+    "staleCoreClaimResult": "stale_revision",
+    "stalePinnedProviderResult": "stale_revision",
+    "secondTurnIdSha256": "c5a0d06a5e0af12305805ea18b5c649e5fcaa1bb866d4f0db4dce92da878ea09"
+  },
+  "acceptance": {
+    "AC08": "passed for tested Linux source-checkout profile",
+    "AC09": "passed for tested Linux source-checkout profile",
+    "AC36": "passed for tested Linux/GitHub/Codex profile"
+  },
+  "retainedForOngoingProbe": {
+    "ownedProject": false,
+    "protectedCoordinatorState": true,
+    "temporaryBootstrapAccess": false
+  },
+  "limits": [
+    "Process death is not power-loss qualification.",
+    "Optional runtime namespaces remain W03.3.",
+    "Private GitHub source authorization remains unqualified.",
+    "GitHub has no field CAS or durable write receipt; uncertainty is retained."
+  ],
+  "finalCleanup": {
+    "ownedProjectAbsent": true,
+    "consistentBackupsRetained": true,
+    "allFourWorkspacesRetained": true,
+    "originalCodingClientRetained": true,
+    "taskTunnelClosed": true,
+    "taskRelaySocketsRemoved": true,
+    "temporaryRootAccessRevoked": true,
+    "originalRootAccessEntriesRetained": true,
+    "revokedKeyAuthenticationRefused": true,
+    "localTemporaryKeyFilesRemoved": true
+  },
+  "nativeIssueFields": {
+    "evidence": "W03.2-native-fields-2026-10-24.md",
+    "permanentProtectedProfileStored": true,
+    "sixNativeFieldsQualified": true,
+    "backgroundServiceActivated": false
+  }
+}

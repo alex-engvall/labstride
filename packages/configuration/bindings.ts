@@ -19,7 +19,12 @@ export function visitBindings(node: Node, configuration: Configuration, path: st
     if (object.binding === 'literal') return;
     if (object.binding === 'context') return;
     if (object.binding === 'field') {
-      if (!own(configuration.fields, String(object.field))) invalid(path, 'Configure the referenced field.');
+      const field=own(configuration.fields,String(object.field));
+      if(!field)invalid(path,'Configure the referenced field.');
+      if(object.mapping){
+        if(field.type!=='single-select'||Object.keys(object.mapping as object).some(id=>!Object.values(field.options??{}).includes(id)))
+          invalid(path,'Map only configured single-select option IDs to reviewed runtime values.');
+      }
       return;
     }
     for (const [key, value] of Object.entries(object)) visitBindings(value, configuration, `${path}/${key}`);
@@ -51,7 +56,13 @@ function materialize(node: Node, configuration: Configuration, fields: Record<st
     if (!field || !state?.present || state.value === undefined)
       throw new ConfigurationError('binding_invalid', '/inputs', 'Refresh the required field before binding inputs.');
     // No second pass: text retrieved from a field remains literal, including context.*.
-    return fieldValue(field, state.value);
+    const value=fieldValue(field,state.value);
+    if(object.mapping){
+      const mapped=typeof value==='string'?own(object.mapping as Record<string,string>,value):undefined;
+      if(mapped===undefined)throw new ConfigurationError('binding_invalid','/inputs','The selected option has no qualified runtime mapping.');
+      return mapped;
+    }
+    return value;
   }
   return Object.fromEntries(Object.entries(object).map(([key, value]) => [key, materialize(value, configuration, fields, context)]));
 }

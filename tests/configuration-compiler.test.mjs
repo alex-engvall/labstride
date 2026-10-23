@@ -126,3 +126,22 @@ test('aggregate snapshot size and malformed injected host data return diagnostic
  f.config.workflows.prepare[0].inputs.literal='literal';f.dependencies.host.callback=()=>{};
  const host=await f.compile();assert.equal(host.ok,false);assert.ok(host.diagnostics.some(d=>d.path==='/extensions'));
 });
+
+test('a shared request/progress field requires explicit disjoint values and never permits control or predicate aliases',async t=>{
+ const f=fixture(t,'a');delete f.config.fields.status;f.config.fields.request.options.busy='busy-a';f.descriptors['request-a'].optionIds.push('busy-a');f.config.projections=[{fact:'run.queued',field:'request',value:'busy'}];
+ await rejected(f,'/projections');f.config.fields.request.allowManagedProgress=true;await compiled(f);
+ f.config.projections[0].value='go';await rejected(f,'/projections');f.config.projections[0].value='busy';
+ f.config.fields.alias=structuredClone(f.config.fields.request);f.config.rules[0].condition={all:[f.config.rules[0].condition,{not:{field:'alias',op:'changedTo',value:'wait'}}]};await rejected(f,'/projections');
+ f.config.rules[0].condition={field:'request',op:'changedTo',value:'go'};f.config.controls.request={field:'alias',enabledValues:['go'],disabledValues:['wait']};await rejected(f,'/projections');
+});
+test('configured select mappings bind runtime strings and refuse unmapped options without a fallback',async t=>{
+ const f=fixture(t,'a');f.config.workflows.prepare[0].inputs.note={binding:'field',field:'request',mapping:{'go-a':'qualified-model','wait-a':'none'}};const c=await compiled(f);
+ assert.equal(c.bindWorkflow('prepare',observation(f,c).current,{source:f.source})[0].inputs.note,'qualified-model');
+ delete f.config.workflows.prepare[0].inputs.note.mapping['go-a'];const partial=await compiled(f);assert.throws(()=>partial.bindWorkflow('prepare',observation(f,partial).current,{source:f.source}),error=>error.code==='binding_invalid');
+ f.config.workflows.prepare[0].inputs.note.mapping.foreign='unsafe';await rejected(f,'/workflows');
+});
+test('registered output mappings reject arbitrary issue paths, ambiguous sources and early facts',async t=>{
+ const f=fixture(t,'a');f.config.projections=[{fact:'workspace.ready',field:'note',valueFrom:{kind:'workspace-source-path',targetId:'target-a',rootId:'source',rootPath:'/owned/workspaces'}}];await compiled(f);
+ f.config.projections[0].valueFrom.rootPath='/owned/../outside';await rejected(f,'/projections');f.config.projections[0].valueFrom={kind:'session-id'};await rejected(f,'/projections');
+ f.config.projections[0].fact='session.ready';await compiled(f);f.config.projections[0].value='unregistered-session';await rejected(f,'/');
+});

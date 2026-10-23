@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub issue field profile",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "repositoryId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "workflow": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "rootId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "sourceRoot": {
+      "type": "string",
+      "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+      "maxLength": 4000
+    },
+    "fields": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "request": {
+          "$ref": "config.schema.json#/properties/fields/additionalProperties"
+        },
+        "aiMode": {
+          "$ref": "config.schema.json#/properties/fields/additionalProperties"
+        },
+        "model": {
+          "$ref": "config.schema.json#/properties/fields/additionalProperties"
+        },
+        "reasoning": {
+          "$ref": "config.schema.json#/properties/fields/additionalProperties"
+        },
+        "session": {
+          "$ref": "config.schema.json#/properties/fields/additionalProperties"
+        },
+        "path": {
+          "$ref": "config.schema.json#/properties/fields/additionalProperties"
+        }
+      },
+      "required": [
+        "request",
+        "aiMode",
+        "model",
+        "reasoning",
+        "session",
+        "path"
+      ]
+    },
+    "runtimeValues": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "aiMode": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "model": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "reasoning": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        }
+      },
+      "required": [
+        "aiMode",
+        "model",
+        "reasoning"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "repositoryId",
+    "repository",
+    "workflow",
+    "targetId",
+    "rootId",
+    "sourceRoot",
+    "fields",
+    "runtimeValues"
+  ]
+}
