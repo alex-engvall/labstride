@@ -8,6 +8,8 @@ Parse against config.schema.json, reject unknown core keys, resolve secrets by r
 
 Every new run snapshots effective configuration and extension digests. Ordinary edits apply to new runs. Emergency deny/revoke/pause controls apply immediately to active runs and are audited. Expanding active-run permissions requires an explicit new authorized policy revision.
 
+W02.1 implements the [compiler, typed bindings and transactional admission API](30-installation-configuration.md). Compilation accepts an explicit installed lock and trusted provider/secret interfaces; it inspects pinned artifacts without evaluating their modules. Failures report stable diagnostic codes/paths. The immutable snapshot includes qualified bindings and exact extension pins; activation and new-run admission remain trusted local embedding operations. Authenticated actor/policy changes and actual GitHub synchronization remain W02.2/W02.3 work.
+
 ## Fields
 
 Bind logical names such as request, status, model, reasoning or keep to any supported external field. A binding contains provider kind, container/project scope, field ID, data type and option IDs where applicable. Names are display hints only. Rename handling must keep stable IDs; deletion/type changes block the affected binding with a useful diagnostic.
@@ -25,6 +27,8 @@ Rules have an explicit event kind, typed condition and workflow reference. The r
 Evaluate a start rule on a qualifying transition, not continuously while the field retains the same value. The transition generation is persisted. Initial synchronization does not start old matching issues by default; the operator can deliberately import selected requests.
 
 If multiple start rules match the same request with incompatible actions/targets, mark rule_conflict and perform no effects. Default one matching start rule; explicit ordered follow-up actions are allowed. Projection events carry origin markers and cannot satisfy a user-start rule.
+
+The W02.1 evaluator conservatively rejects any multiple matching start rules, even if they reference the same workflow. Duplicate condition trees fail preflight; other overlaps fail at evaluation before scheduling. Each start branch requires a positive `changedTo` predicate. Missing observations block evaluation, confirmed absence is distinct from null, and unknown values never acquire truth through negation. Workflow steps keep typed bindings until their recorded context is available; full materialized inputs must pass the pinned schema before that step is scheduled.
 
 ## Authority and manual changes
 

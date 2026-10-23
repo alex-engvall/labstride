@@ -9,6 +9,7 @@ export interface StartPlan {
   resourceKey: string;
   capacityClass?: 'development' | 'ciReview';
   automation?: AutomationContext;
+  configurationSnapshot?: import('../../contracts/generated/configuration-snapshot.ts').EffectiveInstallationConfigurationSnapshot;
 }
 // Only a trusted policy adapter constructs plans/context. These are not event payload fields.
 export interface InboxStore {

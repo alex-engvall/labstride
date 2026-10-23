@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { createCoordinator, LifecycleError } from '../../packages/core/lifecycle.ts';
-import { SessionStore } from '../../packages/storage-sqlite/sessions.ts';
+import { ConfigurationStore } from '../../packages/storage-sqlite/configuration.ts';
 import type { StoreDependencies } from '../../packages/storage-sqlite/store.ts';
 
 export function startCoordinator(dataDir: string, dependencies: StoreDependencies = {}) {
-  const store = new SessionStore(dataDir, dependencies);
+  const store = new ConfigurationStore(dataDir, dependencies);
   const coordinator = createCoordinator(store, dependencies.clock ?? { now: () => new Date().toISOString() },
     dependencies.identities ?? { next: randomUUID });
   try { return { coordinator, store, recovered: coordinator.recover() }; }

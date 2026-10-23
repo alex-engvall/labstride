@@ -7,6 +7,9 @@ import type { AuditContext, AuditRecord, Change, Clock, IdentityProvider, Kind, 
 import { migrate } from './migrations.ts';
 import { validated } from './validation.ts';
 import { assertDatabaseFiles, assertSeparate, canonicalPath } from './paths.ts';
+import { checkedSnapshot } from '../configuration/snapshot.ts';
+import type { ConfigurationSnapshot } from '../configuration/snapshot.ts';
+import { canonical } from '../configuration/json.ts';
 
 const tables: Record<Kind, string> = {
   installation: 'installations', request: 'requests', run: 'runs', workspace: 'workspaces', operation: 'operations',
@@ -90,6 +93,18 @@ export class SqliteStore implements StateStore {
     this.transaction(() => {
       if (!Array.isArray(input)) throw new LifecycleError('invalid_payload');
       for (const change of input) {
+        if (change?.record?.kind === 'installation') {
+          const previous = this.#read('installation', change.record.id);
+          if (previous && previous.configRevision !== change.record.configRevision)
+            throw new LifecycleError('recovery_required'); // Only audited preflight activation may advance the revision.
+        }
+        if (change?.record?.kind === 'run' && !this.#read('run', change.record.id)) {
+          const requestId = change.record.requestId;
+          const requestChange = input.find(c => c?.record?.kind === 'request' && c.record.id === requestId);
+          const request = requestChange?.record?.kind === 'request' ? requestChange.record : this.get('request', requestId);
+          if (this.db.prepare('SELECT 1 FROM active_configurations WHERE installation_id=?').get(request.installationId))
+            throw new LifecycleError('recovery_required');
+        }
         if (change?.record?.kind === 'operation' && this.db.prepare('SELECT 1 FROM execution_bindings WHERE operation_id=?').get(change.record.id))
           throw new LifecycleError('recovery_required');
       }
@@ -146,7 +161,8 @@ export class SqliteStore implements StateStore {
     if (record.kind === 'workspace' && record.localPath !== null) assertSeparate(this.dataDir, record.localPath);
     if (record.kind === 'run') {
       const request = this.get('request', record.requestId);
-      if (record.configRevision !== this.get('installation', request.installationId).configRevision)
+      // Existing runs keep their original revision after ordinary installation edits.
+      if (!this.#read('run', record.id) && record.configRevision !== this.get('installation', request.installationId).configRevision)
         throw new LifecycleError('identity_conflict');
     }
     if (record.kind === 'operation') {
@@ -183,6 +199,42 @@ export class SqliteStore implements StateStore {
           throw new LifecycleError('identity_conflict');
       }
     }
+  }
+
+  configurationSnapshot(hash: string): ConfigurationSnapshot {
+    const row = this.db.prepare('SELECT installation_id,payload FROM configuration_snapshots WHERE digest=?').get(hash);
+    if (!row) throw new LifecycleError('effect_blocked');
+    try {
+      const snapshot = checkedSnapshot(JSON.parse(String(row.payload)));
+      if (snapshot.digest !== hash || snapshot.configuration.installationId !== row.installation_id) throw new Error();
+      return snapshot;
+    } catch { throw new LifecycleError('effect_blocked'); }
+  }
+  runConfiguration(runId: string): ConfigurationSnapshot | null {
+    const run = this.get('run', runId);
+    const marker = this.db.prepare('SELECT config_digest FROM runs WHERE id=?').get(runId)!;
+    if (marker.config_digest === null) return null; // Migrated legacy runs acquire no invented snapshot.
+    const snapshot = this.configurationSnapshot(String(marker.config_digest));
+    const request = this.get('request', run.requestId);
+    if (snapshot.digest !== run.configRevision || snapshot.configuration.installationId !== request.installationId)
+      throw new LifecycleError('effect_blocked');
+    return snapshot;
+  }
+  protected assertConfigurationOperation(runId: string, operation: RecordOf<'operation'>['request']): void {
+    const snapshot = this.runConfiguration(runId);
+    if (!snapshot) return;
+    const pin = snapshot.extensionLock.extensions.find(pin => pin.kind === 'action' && pin.id === operation.actionId && pin.version === operation.actionVersion);
+    if (!pin || operation.configDigest !== snapshot.digest || !Object.hasOwn(snapshot.configuration.targets, operation.targetId) ||
+      !snapshot.configuration.github.repositories.includes(operation.source.repository)) throw new LifecycleError('effect_blocked');
+  }
+  protected bindStartConfiguration(snapshot: ConfigurationSnapshot | undefined, run: RecordOf<'run'>, installationId: string): void {
+    const active = this.db.prepare('SELECT digest FROM active_configurations WHERE installation_id=?').get(installationId);
+    if (!active && !snapshot) return;
+    if (!active || !snapshot || active.digest !== snapshot.digest || snapshot.digest !== run.configRevision)
+      throw new LifecycleError('effect_blocked');
+    const saved = this.configurationSnapshot(snapshot.digest);
+    if (!saved.configuration.enabled || canonical(saved) !== canonical(checkedSnapshot(snapshot))) throw new LifecycleError('effect_blocked');
+    this.db.prepare('UPDATE runs SET config_digest=? WHERE id=?').run(snapshot.digest, run.id);
   }
 
   #records(): LifecycleRecord[] {

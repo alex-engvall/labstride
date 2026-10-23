@@ -317,7 +317,9 @@
       "action": "Sync old matching issues and define conflicting start rules.",
       "expected": "No unsolicited run; clear preflight/conflict result.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W02.1-configuration-2026-10-23.md"
+      ]
     },
     {
       "id": "AC27",

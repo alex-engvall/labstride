@@ -5,6 +5,7 @@ import type { RecordOf, AuditContext } from '../core/lifecycle.ts';
 import type { Delivery, RetryPolicy, InboxInput } from '../core/execution.ts';
 import type { Hook, ObservationPort, ProjectionView, SessionObservation, SessionPoll } from '../core/observations.ts';
 import type { LabstrideHookAcknowledgement } from '../../contracts/generated/hook-ack.ts';
+import { same } from '../configuration/values.ts';
 
 export class ObservationStore extends ExecutionStore implements ObservationPort {
   private currentGeneration(runId: string): boolean {
@@ -118,13 +119,13 @@ export class ObservationStore extends ExecutionStore implements ObservationPort 
     if (!this.currentGeneration(projection.runId) || view.generation > projection.generation) return finish('superseded', 'newer_generation');
     if (view.generation !== projection.generation) return finish('conflict', 'generation_conflict');
     const attempt = this.db.prepare('SELECT token,state FROM projection_attempts WHERE projection_id=?').get(id);
-    if (attempt && view.appliedToken === attempt.token && view.value === projection.payload.value) {
+    if (attempt && view.appliedToken === attempt.token && same(view.value, projection.payload.value)) {
       this.db.prepare("UPDATE projection_attempts SET state='applied' WHERE projection_id=?").run(id);
       return finish('done', 'observed_applied');
     }
     if (view.version !== projection.payload.expectedFingerprint) return finish('conflict', 'human_or_provider_change');
     if (attempt?.state === 'started') return 'wait';
-    if (view.value === projection.payload.value) return finish('done', 'already_matches');
+    if (same(view.value, projection.payload.value)) return finish('done', 'already_matches');
     if (!this.projectionAllowed(projection.runId)) return 'wait';
     return 'write';
   }

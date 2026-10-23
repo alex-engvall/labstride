@@ -174,7 +174,7 @@
       "title": "Validate and snapshot configuration",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W02",
       "depends_on_work_packages": [
@@ -184,8 +184,10 @@
       "acceptance_criteria": [
         "Unknown keys, missing bindings and incompatible capabilities fail preflight; enabled runs retain a configuration digest."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/53",
+      "verification_evidence": [
+        "evidence/W02.1-configuration-2026-10-23.md"
+      ],
       "github_issue": 18,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/18"
     },
@@ -194,7 +196,7 @@
       "title": "Configure arbitrary supported fields and values",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W02",
       "depends_on_work_packages": [
@@ -204,8 +206,10 @@
       "acceptance_criteria": [
         "Two installations use different field/option names and IDs without core edits; type mismatches are rejected."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/53",
+      "verification_evidence": [
+        "evidence/W02.1-configuration-2026-10-23.md"
+      ],
       "github_issue": 18,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/18"
     },
@@ -214,7 +218,7 @@
       "title": "Evaluate typed rules without code execution",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W02",
       "depends_on_work_packages": [
@@ -224,8 +228,10 @@
       "acceptance_criteria": [
         "Shell syntax and executable text remain literal data and cannot select uninstalled operations."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/53",
+      "verification_evidence": [
+        "evidence/W02.1-configuration-2026-10-23.md"
+      ],
       "github_issue": 18,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/18"
     },
@@ -254,7 +260,7 @@
       "title": "Handle conflicting and historical matches",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W02",
       "depends_on_work_packages": [
@@ -264,8 +270,10 @@
       "acceptance_criteria": [
         "Conflicting start rules block effects; initial sync does not automatically start historical matching issues."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/alex-engvall/labstride/pull/53",
+      "verification_evidence": [
+        "evidence/W02.1-configuration-2026-10-23.md"
+      ],
       "github_issue": 18,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/18"
     },

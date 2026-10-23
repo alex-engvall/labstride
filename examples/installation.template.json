@@ -139,7 +139,10 @@
         "action": "labstride.workspace-create",
         "inputs": {
           "target": "development",
-          "source": "context.source"
+          "source": {
+            "binding": "context",
+            "context": "source"
+          }
         }
       }
     ],

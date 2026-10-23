@@ -68,6 +68,8 @@ def main():
         'session-command': 'session-command',
         'session-handoff': 'session-handoff', 'session-reply': 'session-reply',
         'codex-question': 'codex-question', 'codex-answer': 'codex-answer', 'session-probe': 'session-probe',
+        'configuration-snapshot': 'configuration-snapshot', 'provider-binding': 'provider-binding',
+        'rule-observation': 'rule-observation', 'rule-evaluation': 'rule-evaluation',
     }
     validators, examples = validators_for(ROOT / 'schemas'), {}
     for name, example in pairs.items():

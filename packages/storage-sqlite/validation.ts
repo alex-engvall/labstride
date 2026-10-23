@@ -11,6 +11,14 @@ addFormats(ajv, { mode: 'full' });
 for (const name of readdirSync(directory).filter(name => name.endsWith('.schema.json')))
   ajv.addSchema(JSON.parse(readFileSync(new URL(name, directory), 'utf8')), new URL(name, directory).href);
 
+// Schema locations only: never echo rejected values (which may contain secrets).
+export function validationIssues(name: string, value: unknown): { path: string; keyword: string }[] {
+  const validator = ajv.getSchema(new URL(`${name}.schema.json`, directory).href);
+  if (!validator) return [{ path: '/', keyword: 'schema' }];
+  validator(value);
+  return (validator.errors ?? []).map(error => ({ path: error.instancePath || '/', keyword: error.keyword }));
+}
+
 export function validated<T>(name: string, value: T): T {
   try {
     const serialized = JSON.stringify(value, (_key, item: unknown) => {

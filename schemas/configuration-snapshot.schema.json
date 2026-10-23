@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Effective installation configuration snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "configuration": {
+      "$ref": "config.schema.json"
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "provider-binding.schema.json"
+      }
+    },
+    "extensionLock": {
+      "$ref": "extension-lock.schema.json"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "digest",
+    "configuration",
+    "bindings",
+    "extensionLock"
+  ]
+}

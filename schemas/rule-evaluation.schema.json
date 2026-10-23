@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Configuration rule evaluation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "outcome": {
+      "enum": [
+        "matched",
+        "no_match",
+        "blocked",
+        "rule_conflict"
+      ]
+    },
+    "ruleIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+      },
+      "uniqueItems": true
+    },
+    "workflow": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "code": {
+      "enum": [
+        "matched",
+        "no_match",
+        "disabled",
+        "initial_sync",
+        "non_human_origin",
+        "unchanged",
+        "invalid_observation",
+        "invalid_value",
+        "rule_conflict"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "outcome",
+    "ruleIds",
+    "workflow",
+    "code"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "matched"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "code": {
+            "enum": [
+              "matched"
+            ]
+          },
+          "workflow": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ruleIds": {
+            "minItems": 1,
+            "maxItems": 1,
+            "type": "array"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "no_match"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "code": {
+            "enum": [
+              "no_match",
+              "disabled",
+              "initial_sync",
+              "non_human_origin",
+              "unchanged"
+            ]
+          },
+          "workflow": {
+            "type": "null"
+          },
+          "ruleIds": {
+            "minItems": 0,
+            "maxItems": 0,
+            "type": "array"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "blocked"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "code": {
+            "enum": [
+              "invalid_observation",
+              "invalid_value"
+            ]
+          },
+          "workflow": {
+            "type": "null"
+          },
+          "ruleIds": {
+            "minItems": 0,
+            "type": "array"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "rule_conflict"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "code": {
+            "enum": [
+              "rule_conflict"
+            ]
+          },
+          "workflow": {
+            "type": "null"
+          },
+          "ruleIds": {
+            "minItems": 2,
+            "type": "array"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -5,6 +5,10 @@ The JSON schemas are proposed normative v1 contracts for implementation. They ar
 | Schema | Validated example | Consumer |
 | --- | --- | --- |
 | [config](../schemas/config.schema.json) | [installation template](../examples/installation.template.json) | CLI/coordinator |
+| [configuration snapshot](../schemas/configuration-snapshot.schema.json) | [structural template](../examples/configuration-snapshot.json) | Configured-run persistence/recovery |
+| [qualified provider binding](../schemas/provider-binding.schema.json) | [synthetic description](../examples/provider-binding.json) | Configuration compiler |
+| [rule observation](../schemas/rule-observation.schema.json) | [normalized observation](../examples/rule-observation.json) | Trusted adapter/admission |
+| [rule evaluation](../schemas/rule-evaluation.schema.json) | [disabled decision](../examples/rule-evaluation.json) | Durable admission result |
 | [extension](../schemas/extension.schema.json) | [manifest](../examples/extension.json) | Extension loader |
 | [operation](../schemas/operation.schema.json) | [request](../examples/operation.json) | Action executor |
 | [receipt](../schemas/receipt.schema.json) | [receipt](../examples/receipt.json) | Workflow adapter/broker |
@@ -35,6 +39,8 @@ Extension-specific configuration and action inputs are validated by the selected
 ## Binding notation
 
 In configuration inputs, context.source, context.mergeSha and context.workspaceId are reserved typed binding tokens, not string-evaluated expressions. Other strings are literals. The compiler rejects unknown context tokens or incompatible types. Field values in rules/projections use logical option keys resolved to external option IDs.
+
+W02.1 adds tagged field/context/literal input bindings and typed boolean/number/null/multi-select values in conditions, controls and projections. [Compiler API and admission behavior](30-installation-configuration.md) define their exact semantics, snapshot digests, first-step materialization, durable decisions and migration v10. Structural snapshot examples use synthetic pins/qualifications and disabled configuration; they are not compiled installation evidence or permission to load artifacts. Existing scalar configuration and reserved tokens remain supported.
 
 ## Digest
 

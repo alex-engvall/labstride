@@ -64,7 +64,7 @@ const initial: Partial<Record<Kind, string>> = {
   run: 'queued', workspace: 'requested', operation: 'prepared', deployment: 'requested', session: 'ready',
 };
 const immutableFields: Partial<Record<Kind, readonly string[]>> = {
-  installation: ['configRevision'], request: ['installationId', 'providerId', 'issueId', 'generation'],
+  request: ['installationId', 'providerId', 'issueId', 'generation'],
   run: ['requestId', 'repositoryId', 'configRevision'],
   workspace: ['runId', 'targetId', 'locator', 'localPath', 'ownershipRef', 'branch'],
   operation: ['runId', 'workspaceId', 'request'], deployment: ['runId', 'operationId', 'targetId', 'sourceSha'],
