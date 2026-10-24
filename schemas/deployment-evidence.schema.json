@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Deployment evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "operationId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "requestDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "enrollmentDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "claim": {
+      "$ref": "workflow-claim.schema.json"
+    },
+    "receiptDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "recipe": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "digest": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ]
+    },
+    "sourceRepositoryId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "sourceSha": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40,
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "targetId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "environment": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "runId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "repositoryId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "repositoryNodeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "repository": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "workflowId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "workflowPath": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "refName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "workflowSha": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "event": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "runAttempt": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "conclusion": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 256
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "runId",
+        "repositoryId",
+        "repositoryNodeId",
+        "repository",
+        "ownerId",
+        "workflowId",
+        "workflowPath",
+        "refName",
+        "workflowSha",
+        "event",
+        "status",
+        "name",
+        "runAttempt",
+        "conclusion",
+        "createdAt"
+      ]
+    },
+    "probeRequest": {
+      "$ref": "target-observation-request.schema.json"
+    },
+    "target": {
+      "anyOf": [
+        {
+          "$ref": "target-observation.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recoveryEpoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "status": {
+      "enum": [
+        "verified",
+        "failed",
+        "outcome_unknown"
+      ]
+    },
+    "blocker": {
+      "enum": [
+        "none",
+        "workflow_failed",
+        "target_unhealthy",
+        "target_revision_mismatch",
+        "target_identity_mismatch",
+        "target_observation_stale",
+        "target_observation_invalid",
+        "target_observer_unavailable",
+        "target_health_unknown"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "operationId",
+    "requestDigest",
+    "enrollmentDigest",
+    "claim",
+    "receiptDigest",
+    "recipe",
+    "sourceRepositoryId",
+    "sourceSha",
+    "targetId",
+    "environment",
+    "workflow",
+    "probeRequest",
+    "target",
+    "observedAt",
+    "recoveryEpoch",
+    "status",
+    "blocker"
+  ]
+}

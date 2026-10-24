@@ -162,7 +162,8 @@
       "expected": "Result is rejected and no verified deployment is recorded.",
       "status": "not_run",
       "evidence": [
-        "evidence/W04.1-workflow-broker-2026-10-24.md"
+        "evidence/W04.1-workflow-broker-2026-10-24.md",
+        "evidence/W04.2-deployment-verification-2026-10-24.md"
       ]
     },
     {
@@ -227,7 +228,9 @@
       "action": "Let workflow deployment finish but health/revision probe fail.",
       "expected": "Deployment fails/unknown; tested recovery follows recipe; no cleanup.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04.2-deployment-verification-2026-10-24.md"
+      ]
     },
     {
       "id": "AC17",

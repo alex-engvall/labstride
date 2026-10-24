@@ -2,8 +2,12 @@ import { enrolledWorkflow } from '../workflow-broker/bindings.ts';
 import { GitHubStore } from './github.ts';
 import { validated } from './validation.ts';
 import { canonical, digest } from './execution.ts';
-import { BrokerError, workflowResource } from '../core/workflow-broker.ts';
+import { BrokerError, matchingRun, workflowAction, workflowVersion, workflowResource } from '../core/workflow-broker.ts';
 import type { Enrollment, WorkflowClaim, WorkflowDispatch, WorkflowMessage, WorkflowReceipt, WorkflowRun } from '../core/workflow-broker.ts';
+import { deploymentId, recoveryDetails, targetVerdict } from '../core/deployments.ts';
+import type { DeploymentEvidence, TargetObservation, TargetObservationRequest } from '../core/deployments.ts';
+import type { BoundResult, Claim } from '../core/execution.ts';
+import type { RecordOf } from '../core/lifecycle.ts';
 
 // The coordinator's existing claim protects dispatch. This second claim binds
 // the external workflow executor; neither claim is inferred from hook progress.
@@ -57,6 +61,14 @@ export class WorkflowBrokerStore extends GitHubStore {
         requestDigest: op.requestDigest, enrollment, submittedAt: this.clock.now(), runId: null });
       this.db.prepare('INSERT INTO workflow_dispatches(operation_id,payload,resource_key) VALUES (?,?,?)')
         .run(operationId, canonical(record), workflowResource(enrollment));
+      if (enrollment.deployment) {
+        const now = this.clock.now();
+        const deployment: RecordOf<'deployment'> = { schemaVersion: '1.0', kind: 'deployment', id: deploymentId(operationId),
+          revision: 1, createdAt: now, updatedAt: now, runId: op.runId, operationId, targetId: op.targetId, sourceSha: op.source.sha, state: 'requested' };
+        const context = { actorId: 'coordinator', reason: 'Bound deployment dispatch', evidenceRefs: [`workflow:${operationId}`] };
+        this.write([{ record: deployment, expectedRevision: null }], context);
+        this.write([{ record: { ...deployment, state: 'running', revision: 2 }, expectedRevision: 1 }], context);
+      }
       this.log(operationId, 'workflow_dispatch_intent', { requestDigest: op.requestDigest, workflowSha: enrollment.workflowSha, sourceSha: op.source.sha });
       return { dispatch: true, record };
     });
@@ -151,13 +163,105 @@ export class WorkflowBrokerStore extends GitHubStore {
   }
   finishWorkflowObservation(operationId: string, run: WorkflowRun): WorkflowReceipt | null {
     return this.transaction(() => {
-      const claim = this.workflowClaim(operationId), receipt = this.workflowReceipt(operationId);
+      const dispatch = this.workflowDispatch(operationId), claim = this.workflowClaim(operationId), receipt = this.workflowReceipt(operationId);
+      const op = this.get('operation', operationId).request;
       const expected = { succeeded: 'success', failed: 'failure', cancelled: 'cancelled', outcome_unknown: null };
-      if (!claim || !receipt || this.workflowConflicted(operationId) || run.runId !== claim.executor.runId || run.runAttempt !== claim.executor.runAttempt ||
+      if (!dispatch || !claim || !receipt || this.workflowConflicted(operationId) || run.runId !== claim.executor.runId || run.runAttempt !== claim.executor.runAttempt ||
+        dispatch.runId !== run.runId || !matchingRun(dispatch.enrollment, op, run, dispatch.submittedAt) ||
         run.status !== 'completed' || receipt.conclusion === 'outcome_unknown') return null;
+      if (receipt.operationId !== operationId || receipt.requestDigest !== op.requestDigest || receipt.sourceSha !== op.source.sha ||
+        receipt.targetId !== op.targetId || claim.operationId !== operationId || claim.requestDigest !== op.requestDigest ||
+        receipt.claimId !== claim.claimId || receipt.fencingNumber !== claim.fencingNumber || canonical(receipt.executor) !== canonical(claim.executor) ||
+        this.db.prepare('SELECT consumed FROM workflow_claims WHERE operation_id=?').get(operationId)?.consumed !== 1) return null;
       if (run.conclusion !== expected[receipt.conclusion]) { this.workflowConflict(operationId); return null; }
-      this.db.prepare('UPDATE workflow_dispatches SET active=0 WHERE operation_id=?').run(operationId);
+      // Deployment profiles release only in the operation-finalization transaction.
+      if (!dispatch.enrollment.deployment) this.db.prepare('UPDATE workflow_dispatches SET active=0 WHERE operation_id=?').run(operationId);
       return receipt;
+    });
+  }
+
+  deploymentEvidence(operationId: string, id?: string): { id: string; evidence: DeploymentEvidence } | null {
+    const row = id === undefined
+      ? this.db.prepare('SELECT id,payload FROM deployment_evidence WHERE operation_id=? ORDER BY rowid DESC LIMIT 1').get(operationId)
+      : this.db.prepare('SELECT id,payload FROM deployment_evidence WHERE operation_id=? AND id=?').get(operationId, id);
+    if (!row) return null;
+    const evidence = validated('deployment-evidence', JSON.parse(String(row.payload)) as DeploymentEvidence);
+    if (digest(evidence) !== row.id || evidence.operationId !== operationId) throw new BrokerError('identity_rejected', 403);
+    return { id: String(row.id), evidence };
+  }
+
+  recordDeploymentObservation(operationId: string, workflow: WorkflowRun, probeRequest: TargetObservationRequest,
+    target: TargetObservation | null, unavailable: 'target_observer_unavailable' | 'target_observation_invalid', epoch: number) {
+    return this.transaction(() => {
+      const receipt = this.finishWorkflowObservation(operationId, workflow), dispatch = this.workflowDispatch(operationId);
+      if (!receipt || !dispatch?.enrollment.deployment || epoch !== this.recoveryEpoch()) throw new BrokerError('identity_rejected', 403);
+      const op = this.get('operation', operationId).request, profile = dispatch.enrollment.deployment;
+      const request = validated('target-observation-request', probeRequest);
+      if (request.targetId !== op.targetId || request.environment !== dispatch.enrollment.environment ||
+        digest(request.configuration) !== digest(profile.observer.configuration)) throw new BrokerError('identity_rejected', 403);
+      const observedAt = this.clock.now();
+      const verdict = receipt.conclusion !== 'succeeded' ? { status: 'failed' as const, blocker: 'workflow_failed' as const }
+        : target === null ? { status: 'outcome_unknown' as const, blocker: unavailable }
+        : targetVerdict(request, target, profile, op.source, observedAt);
+      const evidence = validated<DeploymentEvidence>('deployment-evidence', { schemaVersion: '1.0', operationId,
+        requestDigest: op.requestDigest, enrollmentDigest: digest(dispatch.enrollment), claim: this.workflowClaim(operationId)!,
+        receiptDigest: digest(receipt), recipe: profile.recipe, sourceRepositoryId: op.source.repositoryId, sourceSha: op.source.sha,
+        targetId: op.targetId, environment: dispatch.enrollment.environment, workflow, probeRequest: request, target,
+        observedAt, recoveryEpoch: epoch, ...verdict });
+      const id = digest(evidence);
+      this.db.prepare('INSERT OR IGNORE INTO deployment_evidence VALUES (?,?,?)').run(id, operationId, canonical(evidence));
+      this.log(operationId, 'deployment_observation', { evidenceId: id, status: evidence.status, blocker: evidence.blocker });
+      return { id, evidence };
+    });
+  }
+
+  override acceptResult(input: BoundResult, claim: Claim | null, expectedRevision: number, projections: RecordOf<'projection'>[] = [], observedEpoch = 0, createsWorkspace = false): boolean {
+    const bound = this.validateResult(input), operation = this.get('operation', bound.operationId);
+    if (operation.request.actionId !== workflowAction || operation.request.actionVersion !== workflowVersion || !this.workflowEnrollment(operation.id).deployment)
+      return super.acceptResult(bound, claim, expectedRevision, projections, observedEpoch, createsWorkspace);
+    return this.transaction(() => {
+      const op = operation.request, enrollment = this.workflowEnrollment(op.operationId), profile = enrollment.deployment!;
+      const terminal = ['succeeded', 'failed', 'cancelled'].includes(bound.result.status);
+      let selected: ReturnType<WorkflowBrokerStore['deploymentEvidence']> = null;
+      if (terminal) {
+        const id = bound.result.outputs.deploymentEvidenceId;
+        if (typeof id !== 'string') throw new BrokerError('identity_rejected', 403);
+        selected = this.deploymentEvidence(op.operationId, id);
+        if (!selected) throw new BrokerError('identity_rejected', 403);
+        const evidence = selected.evidence;
+        const receipt = this.finishWorkflowObservation(op.operationId, evidence.workflow);
+        const currentClaim = this.workflowClaim(op.operationId);
+        const latest = this.deploymentEvidence(op.operationId);
+        if (!receipt || !currentClaim || latest?.id !== id || evidence.enrollmentDigest !== digest(enrollment) || evidence.requestDigest !== op.requestDigest ||
+          evidence.sourceSha !== op.source.sha || evidence.sourceRepositoryId !== op.source.repositoryId || evidence.targetId !== op.targetId ||
+          evidence.environment !== enrollment.environment || digest(evidence.recipe) !== digest(profile.recipe) ||
+          canonical(evidence.claim) !== canonical(currentClaim) || evidence.receiptDigest !== digest(receipt) || evidence.recoveryEpoch !== this.recoveryEpoch())
+          throw new BrokerError('identity_rejected', 403);
+        const verdict = receipt.conclusion !== 'succeeded' ? { status: 'failed', blocker: 'workflow_failed' }
+          : targetVerdict(evidence.probeRequest, evidence.target, profile, op.source,
+            evidence.status === 'failed' ? evidence.observedAt : this.clock.now());
+        if (verdict.status !== evidence.status || verdict.blocker !== evidence.blocker ||
+          bound.result.status !== (evidence.status === 'verified' ? 'succeeded' : 'failed') ||
+          bound.result.outputs.deploymentVerified !== (evidence.status === 'verified')) throw new BrokerError('identity_rejected', 403);
+        if (evidence.status === 'verified' && this.db.prepare('SELECT 1 FROM resource_holds WHERE resource_key=?').get(workflowResource(enrollment)))
+          throw new BrokerError('identity_rejected', 403);
+      }
+      const accepted = super.acceptResult(bound, claim, expectedRevision, projections, observedEpoch, createsWorkspace);
+      if (!accepted) return false;
+      const deployment = this.get('deployment', deploymentId(op.operationId));
+      // Failed/verified records are historical outcomes, never rewritten by a
+      // subsequent health recovery or an identical acknowledgement.
+      if (['verified', 'failed'].includes(deployment.state)) return true;
+      const state = selected ? selected.evidence.status === 'verified' ? 'verified' : 'failed'
+        : bound.result.status === 'outcome_unknown' ? 'outcome_unknown' : deployment.state;
+      if (state !== deployment.state) this.write([{ record: { ...deployment, state, revision: deployment.revision + 1, updatedAt: this.clock.now() },
+        expectedRevision: deployment.revision, ...(deployment.state === 'outcome_unknown' ? { recovery: true } : {}) }],
+      { actorId: 'coordinator', reason: 'Independent deployment verification', evidenceRefs: selected ? [`deployment:${selected.id}`] : [`workflow:${op.operationId}`] });
+      if (selected?.evidence.status === 'verified') this.db.prepare('UPDATE workflow_dispatches SET active=0 WHERE operation_id=?').run(op.operationId);
+      // Failure keeps both the active dispatch and a persistent recovery hold.
+      if (selected?.evidence.status === 'failed') this.db.prepare('INSERT OR IGNORE INTO resource_holds VALUES (?,?)')
+        .run(workflowResource(enrollment), selected.evidence.blocker);
+      return true;
     });
   }
   brokerDenied(operationId: string, code: string): void {
@@ -172,7 +276,12 @@ export class WorkflowBrokerStore extends GitHubStore {
         const id = String(row.operation_id), dispatch = this.workflowDispatch(id)!;
         return { operationId: id, sourceSha: this.get('operation', id).request.source.sha, workflowSha: dispatch.enrollment.workflowSha,
           workflowRunId: dispatch.runId, claim: this.workflowClaim(id), effectConsumed: row.consumed === 1,
-          receiptConclusion: this.workflowReceipt(id)?.conclusion ?? null, conflict: row.conflict === 1, deploymentVerified: false };
+          receiptConclusion: this.workflowReceipt(id)?.conclusion ?? null, conflict: row.conflict === 1,
+          deploymentVerified: dispatch.enrollment.deployment ? this.get('deployment', deploymentId(id)).state === 'verified' : false,
+          ...(dispatch.enrollment.deployment ? { deployment: this.get('deployment', deploymentId(id)), evidence: this.deploymentEvidence(id),
+            cleanupBlocked: this.get('deployment', deploymentId(id)).state !== 'verified' || row.conflict === 1,
+            blocker: row.conflict === 1 ? 'conflicting_workflow_evidence' : this.deploymentEvidence(id)?.evidence.blocker ?? 'workflow_evidence_pending',
+            recovery: recoveryDetails(dispatch.enrollment.deployment, dispatch.enrollment.targetId, dispatch.enrollment.environment) } : {}) };
       });
   }
 }

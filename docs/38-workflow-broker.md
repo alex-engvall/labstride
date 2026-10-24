@@ -1,6 +1,6 @@
 # 38 — Authenticated repository workflow execution
 
-W04.1 implements an opt-in workflow action, loopback broker and durable reconciliation. [Local evidence](evidence/W04.1-workflow-broker-2026-10-24.md) is distinct from live GitHub runner, HTTPS ingress, installation-credential and target acceptance. This slice records authenticated workflow completion; W04.2 / #25 owns verified deployment health/revision and recipe recovery.
+W04.1 implements an opt-in workflow action, loopback broker and durable reconciliation. [Local evidence](evidence/W04.1-workflow-broker-2026-10-24.md) is distinct from live GitHub runner, HTTPS ingress, installation-credential and target acceptance. The optional [W04.2 deployment profile](19-deploy-and-recipes.md) adds independent target health/revision and explicit recipe recovery diagnostics, with separate [local evidence](evidence/W04.2-deployment-verification-2026-10-24.md).
 
 ## Enrollment and composition
 
@@ -50,7 +50,7 @@ The reviewed workflow adapter declares continuous reconciliation: uncertain outc
 
 Receipts must match operation/digest, claim/fence, application SHA, target and authenticated executor. Identical receipts are idempotent; conflicting receipts return `409`, retain the original evidence and hold the target for reconciliation. Observation, receipt ingestion and audit continue after an action revocation. Hooks cannot submit authenticated receipts or manufacture a claim/approval.
 
-A workflow operation succeeds only after its authenticated receipt and independently observed exact run attempt agree on terminal conclusion. Missing receipt, green run alone, wrong attempt or conflicting conclusion cannot complete it. The action returns workflow receipt evidence with `deploymentVerified: false`; it creates no verified deployment. Health/revision checks, stale-release/predecessor ordering, rollback and delivery-specific cancellation remain #25 and their owning packages.
+A workflow-only operation succeeds only after its authenticated receipt and independently observed exact run attempt agree on terminal conclusion. Missing receipt, green run alone, wrong attempt or conflicting conclusion cannot complete it. Without a deployment profile the action returns `deploymentVerified: false` and creates no verified deployment. Enrollments with a deployment profile retain the target lock until independent health/revision verification and atomic completion described in [the deployment contract](19-deploy-and-recipes.md). Failed/unknown deployments retain recovery and cleanup blockers. Stale-release/predecessor ordering, automatic rollback execution and delivery-specific cancellation remain with their owning packages.
 
 There is no down migration or unknown-operation rerun endpoint. Preserve active/unknown records and workspaces. Rollback requires a compatible stopped-service backup and reconciliation against the original provider/target; restoring SQLite cannot undo a dispatch or deployment.
 
@@ -58,6 +58,6 @@ There is no down migration or unknown-operation rerun endpoint. Preserve active/
 
 Existing pinned `jose` 6.2.13 moves from development to runtime dependencies for broker JWT/JWKS verification. It is MIT licensed; retain its notices. It avoids implementing signature verification in application code. Its existing lock/integrity is retained, and upgrades require re-running signature, claim and outage tests. Clean distribution, supported installation profiles and dependency notices remain W07 qualification.
 
-Local tests cover LS-DEP-001/002/004 and the workflow boundary of LS-SEC-002. Full AC10/11/12/23/34 require the promised live environment. W04.2 / #25 owns target verification in AC11 and release evidence; W01.4 / #17, W02.3 / #20 and W06 own the remaining session/projection/installed integration in AC35. Hooks-disabled broker execution is covered locally; the complete AC35 scenario remains `not_run`. No local fixture or green unrelated CI closes those gates.
+Local tests cover LS-DEP-001/002/004 and the workflow boundary of LS-SEC-002; W04.2 adds local LS-DEP-003/006 and AC11/AC16 evidence. Full AC10/11/12/16/23/34 require the promised live environment. W01.4 / #17, W02.3 / #20 and W06 own the remaining session/projection/installed integration in AC35. Hooks-disabled broker execution is covered locally; the complete AC35 scenario remains `not_run`. No local fixture or green unrelated CI closes those gates.
 
 API semantics are based on the [GitHub workflow dispatch API](https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event), [attempt-specific run API](https://docs.github.com/en/rest/actions/workflow-runs#get-a-workflow-run-attempt) and [OIDC reference](https://docs.github.com/en/actions/reference/security/oidc), reviewed 2026-10-24. Runtime acceptance still needs actual execution evidence.

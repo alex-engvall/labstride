@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "observationId": "observation-example",
+  "targetId": "application-test",
+  "environment": "production",
+  "resourceId": "example-release",
+  "sourceRepositoryId": "1001",
+  "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "health": "healthy",
+  "observedAt": "2026-10-21T13:00:00Z"
+}

@@ -434,13 +434,13 @@ Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W04 |
+| MVP | P0 | implemented | W04 |
 
 Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contract.md).
 
 - Mismatched operation/digest/source/run/attempt results are rejected; required health failure cannot produce verified deploy.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04.2-deployment-verification-2026-10-24.md
 
 Implementation issue: [#25](https://github.com/alex-engvall/labstride/issues/25).
 
@@ -476,13 +476,13 @@ Implementation issue: [#27](https://github.com/alex-engvall/labstride/issues/27)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W04 |
+| MVP | P0 | implemented | W04 |
 
 Specification: [19-deploy-and-recipes.md](19-deploy-and-recipes.md).
 
 - Rollback is used only for a tested supported recipe; irreversible migration limits remain visible.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04.2-deployment-verification-2026-10-24.md
 
 Implementation issue: [#25](https://github.com/alex-engvall/labstride/issues/25).
 

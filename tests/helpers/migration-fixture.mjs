@@ -1,5 +1,6 @@
 // Only used to reconstruct older layouts in owned temporary test databases.
 export function removeGitHubMigration(db){
+  db.exec('DROP TABLE IF EXISTS deployment_evidence; DELETE FROM schema_migrations WHERE version=15;');
   db.exec('DROP TABLE IF EXISTS workflow_receipts; DROP TABLE IF EXISTS workflow_claims; DROP TABLE IF EXISTS workflow_dispatches; DELETE FROM schema_migrations WHERE version=14;');
   db.exec('DROP TABLE IF EXISTS managed_phases; DROP TABLE IF EXISTS managed_summary_errors;');
   db.exec(`DROP TABLE IF EXISTS managed_summaries; DROP TABLE IF EXISTS managed_reports; DROP TABLE IF EXISTS managed_sessions;
