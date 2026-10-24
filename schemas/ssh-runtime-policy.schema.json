@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Trusted runtime helper policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "installationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetRevision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "helperUid": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "stateDir": {
+      "type": "string",
+      "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+      "maxLength": 4096
+    },
+    "recipes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "$ref": "runtime-recipe.schema.json"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "installationId",
+    "targetId",
+    "targetRevision",
+    "helperUid",
+    "stateDir",
+    "recipes"
+  ]
+}

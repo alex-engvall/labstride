@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "1.0",
+  "requirement": "LS-SSH-005",
+  "implementationStatus": "verified_for_tested_linux_profile",
+  "environment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "node": "24.22.0",
+    "ownership": "real invoking UID; outside sandbox ancestor remapping"
+  },
+  "action": {
+    "id": "labstride.runtime-create",
+    "version": "1.0.0",
+    "artifactIntegrity": "8a060a18147d3d68d079123034adef206841934440ea26806a469b2c4889a661"
+  },
+  "connector": {
+    "id": "labstride.connector.ssh",
+    "version": "1.2.0",
+    "artifactIntegrity": "e8166e43348d9f424d31bae2438237ba399c1a0c049876b2f89127d3bf487cc3"
+  },
+  "executed": {
+    "sourceOnlyWithoutAgent": true,
+    "actualSQLiteResource": true,
+    "actualLoopbackHttpProcess": true,
+    "independentWorkspaceNamespacesAndPorts": true,
+    "recipeSelectedDisposalDeclarations": true,
+    "duplicateAndConcurrentAllocation": true,
+    "actualHelperSigkill": true,
+    "pendingInspectionDoesNotReplayCreate": true,
+    "deadHttpPendingReceiptDoesNotRestart": true,
+    "workerLostReplyAndCoordinatorReopen": true,
+    "transactionalCoreResourceInventory": true,
+    "pinnedCompositionWithRealHelperSubprocess": true,
+    "originalV1V2HelperReplies": true,
+    "foreignPathsAndUserChangesRetained": true,
+    "actualCoordinatorSigkill": true
+  },
+  "qualificationGates": {
+    "newV3RealSshRuntimePath": "passed; installed isolated Linux helper/SSH profile",
+    "installedPilotV3IdentitySeparation": "passed; actual helper, coordinator and coding identities",
+    "AC30": "partial runtime/configuration evidence; cleanup execution remains W05",
+    "generalWorkflowAdvancement": "W04",
+    "installedServiceAndPolling": "W06"
+  },
+  "rollback": {
+    "retainRegistriesAndResources": true,
+    "retainOriginalPinsAndDrivers": true,
+    "automaticDeletionOrDownMigration": false
+  },
+  "exampleDriverIntegrity": "fe3ab625669034cb619a2be87199abc3cb96556071d96b2364a75224868f5d7c",
+  "checks": {
+    "focusedLinuxTests": {
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0
+    },
+    "typeContracts": 66,
+    "pythonTests": 6,
+    "schemaExamplePairs": 51,
+    "localRegressionSuite": {
+      "tests": 509,
+      "passed": 501,
+      "failed": 0,
+      "skipped": 8,
+      "skipReason": "root-operated isolated OpenSSH tests; this invoking account is non-root"
+    },
+    "pilotRegressionSuite": {
+      "tests": 509,
+      "passed": 509,
+      "failed": 0,
+      "skipped": 0
+    },
+    "actualHelperUidFocusedTests": {
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0
+    },
+    "pilotTypeCheck": "66 generated contracts checked; pinned TypeScript compiler passed via direct Node invocation (pilot npm launcher lacks the usual bin PATH)"
+  },
+  "implementationPullRequest": "https://github.com/engshort/labstride/pull/63",
+  "pilotProof": {
+    "qualifiedRuntimeResources": 4,
+    "qualifiedSourceWorkspaces": 2,
+    "actualHttpResponses": 2,
+    "distinctDatabaseIdentities": 2,
+    "codingUidAndProtectedParents": true,
+    "codingEditsPreserved": true,
+    "roleReadIsolation": true,
+    "oldRegistryRowsAndPolicyLauncherUnchanged": true,
+    "oldWorkspaceCount": 5,
+    "newRegisteredCheckouts": 3,
+    "incompleteOriginalRuntimeRetained": 1,
+    "unobservedOriginalSourceRetainedUnknown": 1,
+    "receiptDigests": [
+      "986d3ca3b74456e5e02134a64a74d7017c7889d67aafdb12f6062073d5842f46",
+      "271c3cbe93b7b54c90f5d19209858f3e6ae51c11f13dd05dd3f5c2a97d69bf01",
+      "02b0e3353ae9e41ef9fc5a00cd6aaf28784a0bf5c16f0f60b4a7a8d28fdf85b5",
+      "af0813da6b7502e0bb4a8df7083a3410b444a6f05e42d984e34ae3c20ee1635e"
+    ],
+    "newQualifiedResourceNames": [
+      "rt-9188942bce624e8a56de48c87e92c9bee95d6a35-http",
+      "rt-799643ba2fe4be745563718c654cfa37ab6aa7eb-db",
+      "rt-73f2bb9b3ec1371b4adcf722be1fbd875c7bc6d1-http",
+      "rt-786eb295832b0ae9153e662d3f2beb9a6e14d3bc-db"
+    ],
+    "processTeardownVerified": true,
+    "regression": {
+      "tests": 509,
+      "passed": 509,
+      "failed": 0,
+      "skipped": 0
+    },
+    "helperUidFocusedTests": {
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0
+    },
+    "testedImplementationCommit": "2028b1da6de1abe64f90d9e2aa1d98b9d3484dc5",
+    "profileConfigurationDigest": "590747da9651923c62989646768da9f231a3ad6b1985dcc4e95534fe61d80143"
+  },
+  "accessCleanup": {
+    "temporaryRootAccessRevoked": true,
+    "freshSshLoginDenied": true,
+    "localTemporaryKeyFilesDeleted": true,
+    "originalAccessEntriesRetained": true
+  },
+  "sharedLauncherActivation": false,
+  "retainedUnknowns": {
+    "partialRuntimeCreation": 1,
+    "sourceOperationWithoutSufficientTargetEvidence": 1,
+    "completedByReplayOrAlternateLocator": false,
+    "note": "Earlier mixed operator phase recorded storage_failure. Original unknown cases remain retained; subsequent independent ordered cases provide the complete qualified profile."
+  }
+}

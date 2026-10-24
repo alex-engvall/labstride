@@ -90,3 +90,7 @@ The [W02.2 embedding contract](31-authorization-and-policy.md) specifies [author
 ## GitHub observation and projection
 
 The [W02.3 runtime contract](32-github-reconciliation.md) adds version `1.0` schemas for [history qualification](../schemas/github-history-qualification.schema.json), [item snapshots](../schemas/github-item.schema.json), [history pages](../schemas/github-history-page.schema.json), [reconciliation status](../schemas/github-reconciliation.schema.json) and [projection capabilities](../schemas/projection-capabilities.schema.json). Lifecycle projections optionally include a versioned `providerTarget` with scope/resource IDs while retaining their logical issue subject. Atomic adapters remain compatible; checked adapters explicitly declare the weaker guarantee. The signed Request/Response webhook handler is ready to mount on the installation-owned HTTPS route above, but no ingress is provisioned by this slice.
+
+## Optional runtime recipes
+
+[W03.3](36-recipe-owned-runtimes.md) adds the pinned runtime-create action, recipe/driver/receipt contracts and v3 helper request/response/installation. The v3 installation embeds unchanged v2 workspace policy; v1 reservations and v2 source replies retain their wire shapes. Source-only operation does not invoke the runtime action. Runtime resource disposal declarations do not grant or execute cleanup.

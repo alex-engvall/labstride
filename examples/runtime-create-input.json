@@ -1,0 +1,10 @@
+{
+  "target": "target-example",
+  "rootId": "source",
+  "workspaceOperationId": "operation-source",
+  "recipe": {
+    "id": "example.sqlite",
+    "version": "1.0.0",
+    "digest": "a22567773c60329547b1d344dd7a6880166375103f777fd899f950d4a9ae2525"
+  }
+}

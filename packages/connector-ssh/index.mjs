@@ -57,14 +57,17 @@ function enrollment(configuration) {
 function checkRequest(e, request) {
   const common = ['schemaVersion','requestId','installationId','targetId','targetRevision','method'];
   const workspace = request?.schemaVersion === '2.0';
-  if (!request || !(workspace ? ['probe','create','inspect'] : ['probe','reserve','inspect']).includes(request.method)) fail('unsupported_capability');
-  if (!keys(request, request.method === 'probe' ? common : [...common, 'operation']) || !['1.0','2.0'].includes(request.schemaVersion) ||
+  const runtime = request?.schemaVersion === '3.0';
+  if (!request || !(workspace || runtime ? ['probe','create','inspect'] : ['probe','reserve','inspect']).includes(request.method)) fail('unsupported_capability');
+  if (!keys(request, request.method === 'probe' ? common : [...common, 'operation']) || !['1.0','2.0','3.0'].includes(request.schemaVersion) ||
     !/^[A-Za-z0-9_.:-]{1,256}$/.test(request.requestId) || request.installationId !== e.installationId ||
     request.targetId !== e.targetId || request.targetRevision !== e.revision) fail('identity_mismatch');
   if (request.method !== 'probe') {
     const op = request.operation;
-    if (!op || op.operationId !== request.requestId || op.targetId !== e.targetId || op.actionId !== (workspace ? 'labstride.workspace-create' : 'labstride.target-reserve') || op.actionVersion !== '1.0.0' ||
-      !keys(op.inputs, workspace ? ['target','rootId','source'] : ['rootId']) || workspace && (op.inputs.target !== op.targetId || hash(op.inputs.source) !== hash(op.source)) || !e.rootIds.includes(op.inputs.rootId)) fail('validation_failed');
+    if (!op || op.operationId !== request.requestId || op.targetId !== e.targetId || op.actionId !== (runtime ? 'labstride.runtime-create' : workspace ? 'labstride.workspace-create' : 'labstride.target-reserve') || op.actionVersion !== '1.0.0' ||
+      !keys(op.inputs, runtime ? ['target','rootId','workspaceOperationId','recipe'] : workspace ? ['target','rootId','source'] : ['rootId']) ||
+      (workspace || runtime) && op.inputs.target !== op.targetId || workspace && hash(op.inputs.source) !== hash(op.source) ||
+      runtime && (!/^[A-Za-z0-9_.:-]{1,256}$/.test(op.inputs.workspaceOperationId) || !keys(op.inputs.recipe,['id','version','digest']) || !/^[a-f0-9]{64}$/.test(op.inputs.recipe.digest)) || !e.rootIds.includes(op.inputs.rootId)) fail('validation_failed');
     const { requestDigest, ...contents } = op;
     if (hash(contents) !== requestDigest) fail('validation_failed');
   }

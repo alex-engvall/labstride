@@ -20,7 +20,9 @@ Use a separate clone or an equivalently isolated checkout in the first implement
 
 ## Workspace resources
 
-The base requires Git and whatever runtime the target repository declares. Node, PHP, database, queue, proxy and application URL are optional recipe concerns. Record resources individually with provider ID, owner operation and disposal policy.
+The source-only base requires Git; application runtimes are opt-in actions. Node, PHP, database, queue, proxy and application URL are optional recipe concerns. Record resources individually with provider ID, owner operation and disposal policy.
+
+W03.3 implements the separate [recipe-owned runtime action and recovery](36-recipe-owned-runtimes.md), including versioned driver hooks, generated resource namespaces and disposal declarations. Source-only workspace creation never invokes it.
 
 Running apps need separate ports/data/cache namespaces. A workspace root is a configuration value, not a fixed /var/www or control-panel path. Repos from another host provider require a suitable source adapter; GitHub is the first one implemented.
 

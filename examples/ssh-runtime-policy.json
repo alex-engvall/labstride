@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0",
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "targetRevision": 1,
+  "helperUid": 1234,
+  "stateDir": "/var/lib/labstride/runtimes",
+  "recipes": [
+    {
+      "id": "example.sqlite",
+      "version": "1.0.0",
+      "driver": {
+        "path": "/opt/labstride/recipes/node-resources.mjs",
+        "integrity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "configuration": {
+        "kind": "sqlite",
+        "root": "/srv/labstride/runtimes"
+      },
+      "resources": [
+        {
+          "key": "db",
+          "type": "database"
+        }
+      ],
+      "cleanup": {
+        "actionId": "example.runtime-stop",
+        "actionVersion": "1.0.0",
+        "trigger": "workspace.completed"
+      },
+      "timeoutMs": 10000
+    }
+  ]
+}

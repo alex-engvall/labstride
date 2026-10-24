@@ -65,3 +65,5 @@ Keep the current specification coherent. Do not append contradictory historical 
 - [Enrolled SSH targets and trusted helper](33-ssh-target-boundary.md)
 
 - [Exact-revision workspaces and creation recovery](34-exact-revision-workspaces.md)
+
+- [Recipe-owned optional application runtimes](36-recipe-owned-runtimes.md)

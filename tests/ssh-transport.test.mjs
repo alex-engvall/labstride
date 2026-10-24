@@ -135,3 +135,20 @@ test('AC09 real SSH and authenticated HTTPS source recover the same checkout aft
   assert.equal(f.calls(),4);
   const db=new DatabaseSync(join(f.policy.stateDir,'target.sqlite'),{readOnly:true});try{assert.equal(db.prepare('SELECT count(*) n FROM workspace_creations').get().n,1);}finally{db.close();}
 });
+test('real SSH runtime recipe reply loss recovers the original database and v3 installation retains old probe formats',{skip},async t=>{
+  const {runtimeFixture}=await import('./helpers/runtime-fixture.mjs');
+  const {runtimeTargetResolver}=await import('../packages/connector-ssh/runtimes.ts');
+  const base=await runtimeFixture(t,'/run'),f=await transport(t,base);writeFileSync(f.policyFile,JSON.stringify(f.installation));
+  const host={protocol:{major:1,minor:0},permissions:['network.ssh'],capabilities:[]};
+  const pin={...f.pin,capabilities:['runtime.probe.v1','runtime.create.v1','runtime.inspect.v1']};
+  const connector=await runtimeTargetResolver(host).resolve(freezeProfile(f.operation.runId,f.operation.configDigest,pin,host));
+  writeFileSync(f.behavior,JSON.stringify({mode:'drop-reply'}));await assert.rejects(connector.invoke(f.requestFor()),code('outcome_unknown'));
+  writeFileSync(f.behavior,JSON.stringify({mode:'normal'}));const reply=await connector.invoke({...f.requestFor(),method:'inspect'});
+  assert.equal(reply.outcome,'ok',JSON.stringify(reply));assert.equal(reply.runtime.operationId,f.operationFor().operationId);
+  assert.deepEqual((await connector.invoke(f.requestFor())).runtime,reply.runtime);
+  const legacy=await f.connector.invoke(probe(f));assert.equal(legacy.schemaVersion,'1.0');assert.deepEqual(legacy.capabilities,['target.probe.v1','target.reserve.v1','target.inspect.v1']);
+  const {workspaceTargetResolver}=await import('../packages/connector-ssh/workspaces.ts');
+  const sourceConnector=await workspaceTargetResolver(host).resolve(freezeProfile(f.operation.runId,f.operation.configDigest,{...f.pin,capabilities:['workspace.probe.v1','workspace.create.v1','workspace.inspect.v1']},host));
+  assert.deepEqual((await sourceConnector.invoke({...f.request,method:'inspect'})).workspace,f.created);
+  const db=new DatabaseSync(join(f.root,'runtime-state','runtimes.sqlite'),{readOnly:true});try{assert.equal(db.prepare('SELECT count(*) n FROM runtimes').get().n,1);}finally{db.close();}
+});

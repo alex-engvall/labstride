@@ -146,5 +146,14 @@ export class WorkspaceRegistry {
     finally{closeSync(markerFd);}
     if(digest(marker)!==digest(receipt))throw new TargetError('identity_mismatch');
   }
+  // A runtime may attach only to the original, proven source creation. Resolve
+  // its request from protected state rather than trusting a caller's receipt.
+  async inspectOperation(operationId:string):Promise<WorkspaceResponse> {
+    const row=this.db.prepare('SELECT request FROM workspace_creations WHERE operation_id=?').get(operationId);
+    if(!row)throw new TargetError('outcome_unknown');
+    const operation=JSON.parse(String(row.request));
+    return this.handle({schemaVersion:'2.0',requestId:operationId,installationId:this.policy.installationId,
+      targetId:this.policy.targetId,targetRevision:this.policy.targetRevision,method:'inspect',operation});
+  }
   close(){this.db.close();}
 }

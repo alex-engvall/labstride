@@ -6,6 +6,9 @@ import { readProtected } from '../../packages/target-helper/filesystem.ts';
 import { TargetRegistry, validateHelperRequest } from '../../packages/target-helper/registry.ts';
 import type { HelperPolicy } from '../../packages/target-helper/registry.ts';
 import { validated } from '../../packages/storage-sqlite/validation.ts';
+import { RuntimeRegistry } from '../../packages/target-helper/runtimes.ts';
+import type { RuntimeInstallation } from '../../packages/target-helper/runtime-contracts.ts';
+import { validateRuntimeRequest } from '../../packages/target-helper/runtime-contracts.ts';
 
 export async function serve(policyFile: string, input: AsyncIterable<Uint8Array>, output: (text: string) => void): Promise<void> {
   const chunks: Buffer[] = []; let size = 0;
@@ -15,7 +18,17 @@ export async function serve(policyFile: string, input: AsyncIterable<Uint8Array>
     chunks.push(Buffer.from(chunk));
   }
   const request: unknown = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-  const policyInput: unknown = JSON.parse(readProtected(policyFile).toString('utf8'));
+  let policyInput: unknown = JSON.parse(readProtected(policyFile).toString('utf8'));
+  const runtimeInstallation=(policyInput as {schemaVersion?:string})?.schemaVersion==='3.0'
+    ? validated('ssh-runtime-installation',policyInput as RuntimeInstallation):null;
+  if((request as {schemaVersion?:string})?.schemaVersion==='3.0') {
+    if(!runtimeInstallation)throw new Error('unsupported_capability');
+    validateRuntimeRequest(runtimeInstallation,request);
+    const registry=new RuntimeRegistry(runtimeInstallation);
+    try {output(JSON.stringify(await registry.handle(request)));}finally{registry.close();}
+    return;
+  }
+  if(runtimeInstallation)policyInput=runtimeInstallation.workspacePolicy;
   if ((request as {schemaVersion?:string})?.schemaVersion === '2.0') {
     const policy=validated<WorkspacePolicy>('ssh-workspace-policy',policyInput as WorkspacePolicy);
     validateWorkspaceRequest(policy,request);

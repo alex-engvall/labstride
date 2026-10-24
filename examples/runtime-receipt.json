@@ -1,0 +1,36 @@
+{
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "targetRevision": 1,
+  "runId": "run-example-001",
+  "workspaceId": "ws-example-001",
+  "operationId": "operation-runtime",
+  "requestDigest": "2f1d8672bd5f119a9438e0260a738893104e4044aa9a53c595418980fa2d7aa8",
+  "workspaceOperationId": "operation-source",
+  "workspaceReceiptDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "recipe": {
+    "id": "example.sqlite",
+    "version": "1.0.0",
+    "digest": "a22567773c60329547b1d344dd7a6880166375103f777fd899f950d4a9ae2525"
+  },
+  "namespace": "rt-62a6aa4c53dc8187fb101de4720c64a03b6bab63",
+  "resources": [
+    {
+      "name": "rt-62a6aa4c53dc8187fb101de4720c64a03b6bab63-db",
+      "type": "database",
+      "locator": "/srv/labstride/runtimes/rt-62a6aa4c53dc8187fb101de4720c64a03b6bab63/database.sqlite",
+      "state": "ready"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "bindingDigest": "d829bf41a319f1e9ddec582050416f0259c0e36d656997b95c5ff8640d01401d",
+  "handle": "operation-runtime",
+  "cleanup": {
+    "actionId": "example.runtime-stop",
+    "actionVersion": "1.0.0",
+    "trigger": "workspace.completed"
+  },
+  "evidenceRefs": [
+    "recipe:example:created"
+  ]
+}

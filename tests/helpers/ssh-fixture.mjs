@@ -39,7 +39,7 @@ export function enrollFixture(f, options = {}) {
 export async function installedConnector(f, configuration) {
   const path=join(f.root,`connector-${configuration.revision}-${configuration.digest.slice(0,8)}.artifact.json`);
   execFileSync(process.execPath,['scripts/package_extension.mjs','packages/connector-ssh',path]);
-  const pin={id:'labstride.connector.ssh',version:'1.1.0',kind:'connector',artifactPath:path,
+  const pin={id:'labstride.connector.ssh',version:'1.2.0',kind:'connector',artifactPath:path,
     integrity:createHash('sha256').update(readFileSync(path)).digest('hex'),permissions:['network.ssh'],
     capabilities:['target.probe.v1','target.reserve.v1','target.inspect.v1'],configuration};
   const profile=freezeProfile(f.operation.runId,f.operation.configDigest,pin,host);

@@ -391,7 +391,9 @@
       "action": "Use source-only workspace then an optional app with a different cleanup trigger.",
       "expected": "Behavior is configured through actions, without core forks.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "W03.3 scoped runtime/configuration proof passed on installed Linux/SSH: source-only checkout, independent SQLite/HTTP namespaces, actual role isolation, recipe-owned disposal declarations and same-resource reply-loss/process recovery. Full cleanup trigger/effect stays with LS-CLN-001/W05; AC30 remains not_run. See evidence/W03.3-runtimes-2026-10-24.md."
+      ]
     },
     {
       "id": "AC31",

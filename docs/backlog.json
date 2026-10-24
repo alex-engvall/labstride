@@ -636,7 +636,7 @@
       "title": "Keep app runtimes optional and isolated",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "verified",
       "owner_role": "maintainer",
       "work_package": "W03",
       "depends_on_work_packages": [
@@ -646,8 +646,11 @@
       "acceptance_criteria": [
         "Source-only workspace creation works; two runtime recipes have distinct resource namespaces."
       ],
-      "implementation_pr": null,
-      "verification_evidence": [],
+      "implementation_pr": "https://github.com/engshort/labstride/pull/63",
+      "verification_evidence": [
+        "[Real Linux/SSH SQLite/HTTP recipes, exact pinned actions, actual role isolation and reply-loss/process recovery; retained partial outcomes and scope limits recorded](evidence/W03.3-runtimes-2026-10-24.md)",
+        "evidence/W03.3-runtime-receipt-2026-10-24.json"
+      ],
       "github_issue": 23,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/23"
     },

@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0",
+  "method": "create",
+  "binding": {
+    "installationId": "installation-example",
+    "targetId": "target-example",
+    "targetRevision": 1,
+    "runId": "run-example-001",
+    "workspaceId": "ws-example-001",
+    "operationId": "operation-runtime",
+    "requestDigest": "2f1d8672bd5f119a9438e0260a738893104e4044aa9a53c595418980fa2d7aa8",
+    "workspaceOperationId": "operation-source",
+    "workspaceReceiptDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "recipe": {
+      "id": "example.sqlite",
+      "version": "1.0.0",
+      "digest": "a22567773c60329547b1d344dd7a6880166375103f777fd899f950d4a9ae2525"
+    },
+    "namespace": "rt-62a6aa4c53dc8187fb101de4720c64a03b6bab63",
+    "resources": [
+      {
+        "name": "rt-62a6aa4c53dc8187fb101de4720c64a03b6bab63-db",
+        "type": "database"
+      }
+    ]
+  },
+  "bindingDigest": "d829bf41a319f1e9ddec582050416f0259c0e36d656997b95c5ff8640d01401d",
+  "workspace": {
+    "path": "/srv/labstride/workspaces/ws-8797fdf711ccd31aaf1563156fe8ec6705489a2d/source",
+    "receipt": {
+      "schemaVersion": "1.0",
+      "installationId": "installation-example",
+      "targetId": "target-example",
+      "targetRevision": 1,
+      "runId": "run-example-001",
+      "workspaceId": "ws-example-001",
+      "operationId": "op-example-001",
+      "requestDigest": "3a841cf5bde1ce76b72fac7bce356d267a669ac6fc82097ff25bd84e6d1ffa1e",
+      "rootId": "source",
+      "locator": "ws-8797fdf711ccd31aaf1563156fe8ec6705489a2d",
+      "branch": "labstride/ws-8797fdf711ccd31aaf1563156fe8ec6705489a2d",
+      "ownershipRef": "workspace:ws-8797fdf711ccd31aaf1563156fe8ec6705489a2d",
+      "handle": "op-example-001",
+      "source": {
+        "repositoryId": "repo-example",
+        "repository": "example/source",
+        "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "directoryIdentity": {
+        "device": 1,
+        "inode": 2,
+        "mountId": 3,
+        "uid": 1234
+      },
+      "checkoutIdentity": {
+        "device": 1,
+        "inode": 9002,
+        "mountId": 3,
+        "uid": 1234
+      },
+      "state": "ready"
+    }
+  },
+  "configuration": {
+    "kind": "sqlite",
+    "root": "/srv/labstride/runtimes"
+  }
+}

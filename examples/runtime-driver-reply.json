@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "status": "ready",
+  "bindingDigest": "d829bf41a319f1e9ddec582050416f0259c0e36d656997b95c5ff8640d01401d",
+  "resources": [
+    {
+      "name": "rt-62a6aa4c53dc8187fb101de4720c64a03b6bab63-db",
+      "type": "database",
+      "locator": "/srv/labstride/runtimes/rt-62a6aa4c53dc8187fb101de4720c64a03b6bab63/database.sqlite",
+      "state": "ready"
+    }
+  ],
+  "evidenceRefs": [
+    "recipe:example:created"
+  ]
+}

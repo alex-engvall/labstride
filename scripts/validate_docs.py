@@ -83,6 +83,15 @@ def main():
         'workspace-continuity-probe': 'workspace-continuity-probe',
         'workspace-continuity-session': 'workspace-continuity-session',
         'github-issue-field-profile': 'github-issue-field-profile',
+        'runtime-recipe': 'runtime-recipe',
+        'runtime-create-input': 'runtime-create-input',
+        'runtime-driver-request': 'runtime-driver-request',
+        'runtime-driver-reply': 'runtime-driver-reply',
+        'runtime-receipt': 'runtime-receipt',
+        'ssh-runtime-policy': 'ssh-runtime-policy',
+        'ssh-runtime-installation': 'ssh-runtime-installation',
+        'ssh-runtime-request': 'ssh-runtime-request',
+        'ssh-runtime-response': 'ssh-runtime-response',
     }
     validators, examples = validators_for(ROOT / 'schemas'), {}
     for name, example in pairs.items():
@@ -95,9 +104,10 @@ def main():
         malformed = copy.deepcopy(value)
         malformed['unexpectedCoreKey'] = True
         require(not validator.is_valid(malformed), f'{name} accepts unknown core keys')
-        malformed = copy.deepcopy(value)
-        del malformed['schemaVersion']
-        require(not validator.is_valid(malformed), f'{name} accepts missing version')
+        if name not in ('runtime-recipe', 'runtime-create-input'):
+            malformed = copy.deepcopy(value)
+            del malformed['schemaVersion']
+            require(not validator.is_valid(malformed), f'{name} accepts missing version')
 
     malformed = copy.deepcopy(examples['operation'])
     malformed['source']['sha'] = 'main'

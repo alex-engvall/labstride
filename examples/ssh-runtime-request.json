@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "3.0",
+  "requestId": "operation-runtime",
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "targetRevision": 1,
+  "method": "create",
+  "operation": {
+    "schemaVersion": "1.0",
+    "operationId": "operation-runtime",
+    "runId": "run-example-001",
+    "workspaceId": "ws-example-001",
+    "actionId": "labstride.runtime-create",
+    "actionVersion": "1.0.0",
+    "configDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+    "source": {
+      "repositoryId": "1001",
+      "repository": "example-owner/example-app",
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "targetId": "target-example",
+    "deadline": "2026-10-21T14:00:00Z",
+    "inputs": {
+      "target": "target-example",
+      "rootId": "source",
+      "workspaceOperationId": "operation-source",
+      "recipe": {
+        "id": "example.sqlite",
+        "version": "1.0.0",
+        "digest": "a22567773c60329547b1d344dd7a6880166375103f777fd899f950d4a9ae2525"
+      }
+    },
+    "requestDigest": "2f1d8672bd5f119a9438e0260a738893104e4044aa9a53c595418980fa2d7aa8"
+  }
+}
