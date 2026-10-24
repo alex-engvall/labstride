@@ -9,22 +9,29 @@ export type TrustedWorkspaceHelperResponseV2 = {
   method: "probe" | "create" | "inspect";
   outcome: "ok" | "error" | "outcome_unknown";
   /**
-   * @maxItems 3
+   * @maxItems 4
    */
   capabilities:
     | []
-    | ["workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1"]
+    | ["workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1" | "workspace.root-map.v1"]
     | [
-        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1",
-        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1"
+        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1" | "workspace.root-map.v1",
+        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1" | "workspace.root-map.v1"
       ]
     | [
-        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1",
-        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1",
-        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1"
+        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1" | "workspace.root-map.v1",
+        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1" | "workspace.root-map.v1",
+        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1" | "workspace.root-map.v1"
+      ]
+    | [
+        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1" | "workspace.root-map.v1",
+        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1" | "workspace.root-map.v1",
+        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1" | "workspace.root-map.v1",
+        "workspace.probe.v1" | "workspace.create.v1" | "workspace.inspect.v1" | "workspace.root-map.v1"
       ];
   error: Error | null;
   workspace: OwnedWorkspaceCreationReceiptV1 | null;
+  roots?: Roots;
 };
 export type Error = {
   code:
@@ -47,6 +54,1403 @@ export type Error = {
   evidenceId: string | null;
   retryClass: "none" | "read_only" | "pre_effect_transient" | "reconcile";
 };
+/**
+ * @minItems 1
+ * @maxItems 16
+ */
+export type Roots =
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ]
+  | [
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      },
+      {
+        id: string;
+        path: string;
+        identity: {
+          device: number;
+          inode: number;
+          mountId: number;
+          uid: number;
+        };
+      }
+    ];
 
 export interface OwnedWorkspaceCreationReceiptV1 {
   schemaVersion: "1.0";

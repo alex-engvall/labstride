@@ -45,13 +45,14 @@
     },
     "capabilities": {
       "type": "array",
-      "maxItems": 3,
+      "maxItems": 4,
       "uniqueItems": true,
       "items": {
         "enum": [
           "workspace.probe.v1",
           "workspace.create.v1",
-          "workspace.inspect.v1"
+          "workspace.inspect.v1",
+          "workspace.root-map.v1"
         ]
       }
     },
@@ -74,6 +75,9 @@
           "type": "null"
         }
       ]
+    },
+    "roots": {
+      "$ref": "ssh-workspace-policy.schema.json#/properties/roots"
     }
   },
   "required": [
@@ -196,6 +200,33 @@
                 "code"
               ]
             }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "roots"
+        ],
+        "type": "object",
+        "properties": {
+          "roots": {}
+        }
+      },
+      "then": {
+        "properties": {
+          "method": {
+            "const": "probe"
+          },
+          "outcome": {
+            "const": "ok"
+          },
+          "capabilities": {
+            "contains": {
+              "const": "workspace.root-map.v1"
+            },
+            "type": "array"
           }
         }
       }

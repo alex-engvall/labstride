@@ -44,15 +44,19 @@ export class WorkspaceRegistry {
   }
   async handle(input:unknown):Promise<WorkspaceResponse> {
     const request=validated<WorkspaceRequest>('ssh-workspace-request',input as WorkspaceRequest);
-    const {operation:_operation,...base}=request;
-    const reply=(workspace:WorkspaceReceipt|null,error:TargetError['code']|null=null):WorkspaceResponse=>validated('ssh-workspace-response',{
+    const {operation:_operation,includeRoots:_includeRoots,...base}=request;
+    const reply=(workspace:WorkspaceReceipt|null,error:TargetError['code']|null=null,roots?:WorkspacePolicy['roots']):WorkspaceResponse=>validated('ssh-workspace-response',{
       ...base,outcome:error===null?'ok':error==='outcome_unknown'?'outcome_unknown':'error',workspace,
-      capabilities:error===null?[...workspaceCapabilities]:[],error:error===null?null:{code:error,message:error,evidenceId:null,retryClass:error==='outcome_unknown'?'reconcile':'none'},
+      ...(roots?{roots}:{}),
+      capabilities:error===null?roots?[...workspaceCapabilities,'workspace.root-map.v1']:[...workspaceCapabilities]:[],error:error===null?null:{code:error,message:error,evidenceId:null,retryClass:error==='outcome_unknown'?'reconcile':'none'},
     });
     let dispatched=false;
     try {
       validateWorkspaceRequest(this.policy,request);
-      if(request.method==='probe') {for(const root of this.policy.roots)withWorkspaceRoot(root.path,root.identity,()=>{});return reply(null);}
+      if(request.method==='probe') {
+        for(const root of this.policy.roots)withWorkspaceRoot(root.path,root.identity,()=>{});
+        return reply(null,null,request.includeRoots?structuredClone(this.policy.roots):undefined);
+      }
       const op=request.operation!,root=this.policy.roots.find(root=>root.id===op.inputs.rootId)!;
       const identity=workspaceIdentity(request.installationId,request.targetId,op.workspaceId);
       const saved=this.db.prepare('SELECT * FROM workspace_creations WHERE operation_id=?').get(op.operationId);

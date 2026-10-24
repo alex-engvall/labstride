@@ -123,3 +123,27 @@ test('service loop closes exactly once after shutdown', async () => {
   await serviceLoop({ async tick() { ticks++; controller.abort(); }, async close() { closes++; } }, controller.signal, 1);
   assert.equal(ticks, 1); assert.equal(closes, 1);
 });
+
+test('authenticated helper root proof preserves full target mount identity across coordinator mount namespaces', async t => {
+  const { workspaceFixture } = await import('./helpers/workspace-fixture.mjs');
+  const { WorkspaceRegistry } = await import('../packages/target-helper/workspaces.ts');
+  const { verifyRootMapping } = await import('../packages/operations/runtime.ts');
+  const f = workspaceFixture(t), registry = new WorkspaceRegistry(f.policy, f.dependencies); t.after(() => registry.close());
+  const { operation: _operation, ...base } = f.request;
+  const request = { ...base, method: 'probe' };
+  const legacy = await registry.handle(request); assert.equal(legacy.outcome, 'ok'); assert.equal(legacy.roots, undefined);
+  const proof = await registry.handle({ ...request, includeRoots: true });
+  assert.equal(proof.outcome, 'ok'); assert.deepEqual(proof.roots, f.policy.roots);
+  assert(proof.capabilities.includes('workspace.root-map.v1'));
+  const root = f.policy.roots[0], spec = { sourceRoot: root.path, rootId: root.id, targetId: f.policy.targetId };
+  const mapping = { schemaVersion: '1.0', ...spec, identity: root.identity };
+  verifyRootMapping(spec, mapping, proof);
+  assert.throws(() => verifyRootMapping(spec, { ...mapping, identity: { ...root.identity, mountId: root.identity.mountId + 1 } }, proof), /root_mapping_mismatch/);
+  assert.throws(() => verifyRootMapping(spec, mapping, legacy), /root_mapping_mismatch/);
+  const foreignView = structuredClone(proof); foreignView.roots[0].identity.inode++;
+  assert.throws(() => verifyRootMapping(spec, mapping, foreignView), /root_mapping_mismatch/);
+  // Model the coordinator seeing a different mount namespace while retaining
+  // the same physical object; the target proof remains the full authority.
+  const otherNamespace = structuredClone(proof); otherNamespace.roots[0].identity.mountId++;
+  verifyRootMapping(spec, { ...mapping, identity: otherNamespace.roots[0].identity }, otherNamespace);
+});

@@ -20,7 +20,7 @@ Node 24.22.0, Linux, SQLite and Codex daemon 0.163.0 were examined. The existing
 
 The dedicated organization App installation was independently checked through its own installation token: exactly the intended repository, organization Issue Fields(read), the configured repository grants, six real field definitions and their current option IDs, qualified actor-bearing request history and operation-specific field write capability. GitHub reports a null human repository role for this installation token; the adapter verifies `viewerCanSetFields` on the independently enrolled issue and again before writes. Broad CLI access is not counted as that credential verification. These read-only checks do not prove mutation delivery.
 
-The initial complete Node regression run passed 517 tests with zero failures; eight root/sshd cases were explicitly skipped under the coding identity. The final targeted run passed 25 tests; type checking, generated documentation/schema validation and all six Python tests passed. The final full Node run passed 520 of 528 tests, with zero failures and the same eight explicit root/sshd skips. Retain the distinction between controlled peers and live providers.
+The initial complete Node regression run passed 517 tests with zero failures; eight root/sshd cases were explicitly skipped under the coding identity. The final targeted run passed 25 tests; type checking, generated documentation/schema validation and all six Python tests passed. After the mount-namespace correction, the final full Node run passed 521 of 529 tests, with zero failures and the same eight explicit root/sshd skips. Retain the distinction between controlled peers and live providers.
 
 `tests/installed-operations.test.mjs` exercises the disabled-broker boundary, transactional step deduplication/reopen, pause gates, actual SIGKILL after managed intent, actual service-lock holder death, accepted waiting, defaults/unsupported choices, current-head CI decisions, scoped credential refusal, backup and shutdown.
 
@@ -29,6 +29,12 @@ The initial complete Node regression run passed 517 tests with zero failures; ei
 `tests/self-build-workflow.test.mjs` composes an actual isolated checkout, transactional advancement, controlled Codex/GitHub peers, real commits/bundle verification/local pushes, current-revision readiness, a follow-up commit in the same PR and a lost PR-creation reply. It asserts a single session/initial turn/PR, preserved human title and unknown outcome without duplicate PR creation.
 
 The native adapter regression additionally covers installation-token null roles without treating a declared grant as sufficient evidence. Existing GitHub tests cover duplicate/inert/unauthorized transitions and manual projection conflicts. Those are regression coverage, not a substitute for the full newly installed live scenario.
+
+## Installed startup finding and correction
+
+The first disabled bootstrap passed CLI doctor with zero runs. A real systemd start then correctly refused a mismatched local mount ID: systemd mount isolation presents another mount namespace. The corrective profile preserves `PrivateTmp`, `ProtectSystem`, `ProtectHome` and the full authoritative target mount check. Connector 1.3.0 adds opt-in `workspace.root-map.v1` proof to the versioned workspace probe. The authenticated helper validates its complete root identity and returns the root/path/identity binding. The coordinator compares that full target proof with the protected mapping, then verifies the same physical object in its namespace. Legacy probes omit the optional fields and remain compatible. All 77 focused helper/workspace/runtime regressions passed. A focused regression checks both views and rejects wrong mount IDs, missing proof and a substituted inode.
+
+The unused disabled bootstrap may be preserved in full before correction only after confirming zero runs, operations, reservations, created workspaces and an empty source root. No pending effect, existing pilot workspace or database downgrade is eligible for this installation correction.
 
 ## Open live gates
 

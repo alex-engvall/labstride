@@ -58,8 +58,9 @@ function checkRequest(e, request) {
   const common = ['schemaVersion','requestId','installationId','targetId','targetRevision','method'];
   const workspace = request?.schemaVersion === '2.0';
   const runtime = request?.schemaVersion === '3.0';
+  const rootProof = workspace && request.method === 'probe' && request.includeRoots === true;
   if (!request || !(workspace || runtime ? ['probe','create','inspect'] : ['probe','reserve','inspect']).includes(request.method)) fail('unsupported_capability');
-  if (!keys(request, request.method === 'probe' ? common : [...common, 'operation']) || !['1.0','2.0','3.0'].includes(request.schemaVersion) ||
+  if (!keys(request, request.method === 'probe' ? [...common,...(rootProof?['includeRoots']:[])] : [...common, 'operation']) || !['1.0','2.0','3.0'].includes(request.schemaVersion) ||
     !/^[A-Za-z0-9_.:-]{1,256}$/.test(request.requestId) || request.installationId !== e.installationId ||
     request.targetId !== e.targetId || request.targetRevision !== e.revision) fail('identity_mismatch');
   if (request.method !== 'probe') {

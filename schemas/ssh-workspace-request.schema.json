@@ -38,6 +38,9 @@
     },
     "operation": {
       "$ref": "operation.schema.json"
+    },
+    "includeRoots": {
+      "const": true
     }
   },
   "required": [
@@ -71,7 +74,16 @@
       "else": {
         "required": [
           "operation"
-        ]
+        ],
+        "not": {
+          "required": [
+            "includeRoots"
+          ],
+          "type": "object",
+          "properties": {
+            "includeRoots": {}
+          }
+        }
       }
     }
   ]

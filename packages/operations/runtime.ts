@@ -68,15 +68,25 @@ export async function preflight(spec: OperationalInstallationV1, checkRuntime = 
     if (!target || !pin) throw Error('target_unavailable');
     const connector = await workspaceTargetResolver(spec.host).resolve(freezeProfile('preflight', compilation.configuration.snapshot.digest, { ...pin, configuration: target.configuration }, spec.host));
     const response = await connector.invoke({ schemaVersion: '2.0', requestId: 'preflight', installationId: spec.configuration.installationId,
-      targetId: spec.targetId, targetRevision: target.configuration.revision as number, method: 'probe' });
+      targetId: spec.targetId, targetRevision: target.configuration.revision as number, method: 'probe', includeRoots: true });
     if (response.outcome !== 'ok') throw Error('target_unavailable');
     // The separately administered root mapping must match the protected helper
     // policy; mere ability to run an SSH command cannot establish that mapping.
     const mapping = JSON.parse(readProtected(spec.rootMappingFile).toString('utf8'));
-    if (mapping.schemaVersion !== '1.0' || mapping.sourceRoot !== spec.sourceRoot || mapping.targetId !== spec.targetId || mapping.rootId !== spec.rootId ||
-      !sameIdentity(rootIdentity(spec.sourceRoot, mapping.identity.uid), mapping.identity)) throw Error('root_mapping_mismatch');
+    verifyRootMapping(spec, mapping, response);
   }
   return { ok: true as const, ...dependencies, compiled: compilation.configuration, diagnostics: [] };
+}
+export function verifyRootMapping(spec: Pick<OperationalInstallationV1, 'sourceRoot' | 'targetId' | 'rootId'>, mapping: any, input: unknown) {
+  const proof = validated('ssh-workspace-response', input as import('../../contracts/generated/ssh-workspace-response.ts').TrustedWorkspaceHelperResponseV2);
+  const root = proof.roots?.find(root => root.id === spec.rootId);
+  if (mapping.schemaVersion !== '1.0' || mapping.sourceRoot !== spec.sourceRoot || mapping.targetId !== spec.targetId || mapping.rootId !== spec.rootId ||
+    proof.outcome !== 'ok' || proof.method !== 'probe' || proof.targetId !== spec.targetId || !(proof.capabilities as readonly string[]).includes('workspace.root-map.v1') ||
+    !root || root.path !== spec.sourceRoot || !sameIdentity(root.identity, mapping.identity)) throw Error('root_mapping_mismatch');
+  // The authenticated helper checks the FULL mount identity in the target's
+  // namespace. A systemd sandbox sees another mount ID for that same inode.
+  const local = rootIdentity(spec.sourceRoot, mapping.identity.uid);
+  if (local.device !== root.identity.device || local.inode !== root.identity.inode || local.uid !== root.identity.uid) throw Error('root_mapping_mismatch');
 }
 const audit = { actorId: 'local-operator', reason: 'Activate reviewed installed configuration', evidenceRefs: ['installation:owned-file'] };
 export async function openOperationalRuntime(spec: OperationalInstallationV1) {
