@@ -2,6 +2,8 @@
 
 The generic deployment action invokes an operator-selected GitHub Actions workflow. It does not know Laravel, Cloudflare, systemd, a hosting panel, a database engine or a production directory.
 
+Development runtime preparation is a separate [recipe-owned runtime action](36-recipe-owned-runtimes.md). Its database/service/URL resources do not attest a production deployment.
+
 ## Required recipe contract
 
 Declare source repository, allowed source revision policy, workflow identity, target environment, inputs, build/artifact verification, health verification and rollback/recovery capability. Deployment output includes deployed revision or immutable artifact identity, target resource identifier, safe URL if appropriate and health result.

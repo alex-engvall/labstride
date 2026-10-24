@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Runtime create input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "target": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "rootId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "workspaceOperationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "recipe": {
+      "title": "Recipe pin",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ]
+    }
+  },
+  "required": [
+    "target",
+    "rootId",
+    "workspaceOperationId",
+    "recipe"
+  ]
+}

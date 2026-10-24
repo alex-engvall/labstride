@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Installed runtime recipe v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "driver": {
+      "title": "Protected recipe driver",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/(?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+$",
+          "maxLength": 4096
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "path",
+        "integrity"
+      ]
+    },
+    "configuration": {
+      "type": "object"
+    },
+    "resources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "title": "Resource slot",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,15}$"
+          },
+          "type": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,63}$"
+          }
+        },
+        "required": [
+          "key",
+          "type"
+        ]
+      }
+    },
+    "cleanup": {
+      "title": "Recipe disposal declaration",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "actionId": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        },
+        "actionVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "trigger": {
+          "$ref": "contract-common.schema.json#/$defs/id"
+        }
+      },
+      "required": [
+        "actionId",
+        "actionVersion",
+        "trigger"
+      ]
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 30000
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "driver",
+    "configuration",
+    "resources",
+    "cleanup",
+    "timeoutMs"
+  ]
+}

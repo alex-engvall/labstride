@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0",
+  "requirement": "LS-SSH-005",
+  "implementationStatus": "implemented",
+  "environment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "node": "24.22.0",
+    "ownership": "real invoking UID; outside sandbox ancestor remapping"
+  },
+  "action": {
+    "id": "labstride.runtime-create",
+    "version": "1.0.0",
+    "artifactIntegrity": "8a060a18147d3d68d079123034adef206841934440ea26806a469b2c4889a661"
+  },
+  "connector": {
+    "id": "labstride.connector.ssh",
+    "version": "1.2.0",
+    "artifactIntegrity": "e8166e43348d9f424d31bae2438237ba399c1a0c049876b2f89127d3bf487cc3"
+  },
+  "executed": {
+    "sourceOnlyWithoutAgent": true,
+    "actualSQLiteResource": true,
+    "actualLoopbackHttpProcess": true,
+    "independentWorkspaceNamespacesAndPorts": true,
+    "recipeSelectedDisposalDeclarations": true,
+    "duplicateAndConcurrentAllocation": true,
+    "actualHelperSigkill": true,
+    "pendingInspectionDoesNotReplayCreate": true,
+    "deadHttpPendingReceiptDoesNotRestart": true,
+    "workerLostReplyAndCoordinatorReopen": true,
+    "transactionalCoreResourceInventory": true,
+    "pinnedCompositionWithRealHelperSubprocess": true,
+    "originalV1V2HelperReplies": true,
+    "foreignPathsAndUserChangesRetained": true,
+    "actualCoordinatorSigkill": true
+  },
+  "qualificationGates": {
+    "newV3RealSshRuntimePath": "not_run; root-operated isolated SSH test is present",
+    "installedPilotV3IdentitySeparation": "not_run; existing five pilot workspaces unchanged",
+    "AC30": "partial runtime/configuration evidence; cleanup execution remains W05",
+    "generalWorkflowAdvancement": "W04",
+    "installedServiceAndPolling": "W06"
+  },
+  "rollback": {
+    "retainRegistriesAndResources": true,
+    "retainOriginalPinsAndDrivers": true,
+    "automaticDeletionOrDownMigration": false
+  },
+  "exampleDriverIntegrity": "fe3ab625669034cb619a2be87199abc3cb96556071d96b2364a75224868f5d7c",
+  "checks": {
+    "focusedLinuxTests": {
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0
+    },
+    "typeContracts": 66,
+    "pythonTests": 6,
+    "schemaExamplePairs": 51,
+    "regressionSuite": {
+      "tests": 509,
+      "passed": 501,
+      "failed": 0,
+      "skipped": 8,
+      "skipReason": "root-operated isolated OpenSSH tests; this invoking account is non-root"
+    }
+  }
+}

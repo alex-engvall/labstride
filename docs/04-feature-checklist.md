@@ -392,13 +392,13 @@ Implementation issue: [#22](https://github.com/alex-engvall/labstride/issues/22)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W03 |
+| MVP | P0 | implemented | W03 |
 
 Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 - Source-only workspace creation works; two runtime recipes have distinct resource namespaces.
 
-Verification evidence: None; not implemented.
+Verification evidence: [Real Linux SQLite/HTTP recipe resources, public action, process-kill and worker recovery; installed SSH qualification remains open](evidence/W03.3-runtimes-2026-10-24.md), evidence/W03.3-runtime-receipt-2026-10-24.json
 
 Implementation issue: [#23](https://github.com/alex-engvall/labstride/issues/23).
 

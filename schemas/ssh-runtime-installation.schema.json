@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Trusted runtime installation v3",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "3.0"
+    },
+    "workspacePolicy": {
+      "$ref": "ssh-workspace-policy.schema.json"
+    },
+    "runtimePolicy": {
+      "$ref": "ssh-runtime-policy.schema.json"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "workspacePolicy",
+    "runtimePolicy"
+  ]
+}
