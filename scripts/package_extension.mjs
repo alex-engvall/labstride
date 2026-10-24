@@ -31,7 +31,7 @@ if (connector && manifest.id !== 'labstride.connector.ssh') throw Error('Provide
 const sessionCommand = manifest.kind === 'action' && manifest.id === 'labstride.session-command';
 const workspace = manifest.kind === 'action' && manifest.id === 'labstride.workspace-create';
 const runtime = manifest.kind === 'action' && manifest.id === 'labstride.runtime-create';
-const githubProvider = manifest.kind === 'provider' && manifest.id === 'labstride.github.native';
+const githubProvider = manifest.kind === 'provider' && ['labstride.github.native','labstride.github.project'].includes(manifest.id);
 const selfBuild = manifest.kind === 'action' && manifest.id === 'labstride.self-build';
 const githubWorkflow = manifest.kind === 'action' && manifest.id === 'labstride.github-workflow';
 const cleanup = manifest.kind === 'action' && manifest.id === 'labstride.workspace-cleanup';

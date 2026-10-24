@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "Effective safe configuration view v1",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "profile": {
+      "enum": [
+        "public",
+        "native-self-build"
+      ]
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "installationId": {
+      "type": "string"
+    },
+    "stateDirectory": {
+      "type": "string"
+    },
+    "revision": {
+      "type": "string"
+    },
+    "repositories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "credentialReferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "project": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "repository",
+        "project"
+      ]
+    },
+    "pollIntervalSeconds": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "fields": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "enum": [
+              "project_v2",
+              "organization_issue_field",
+              "native_issue",
+              "label",
+              "issue_form"
+            ]
+          },
+          "scopeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fieldId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": [
+              "string",
+              "boolean",
+              "number",
+              "date",
+              "single-select",
+              "multi-select"
+            ]
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "allowManagedProgress": {
+            "type": "boolean",
+            "description": "Opt in to disjoint managed progress values on a single-select request field; controls remain human-owned."
+          }
+        },
+        "required": [
+          "source",
+          "scopeId",
+          "fieldId",
+          "type"
+        ]
+      }
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "connector": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "connector"
+        ]
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "activeRuns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "perIssue": {
+          "const": 1
+        },
+        "perDeploymentTarget": {
+          "const": 1
+        },
+        "metadataRetentionDays": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "development": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "ciReview": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "maxRepairs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "unattendedMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 2592000000
+        }
+      },
+      "required": [
+        "activeRuns",
+        "perIssue",
+        "perDeploymentTarget",
+        "metadataRetentionDays"
+      ]
+    },
+    "broker": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "const": false
+            }
+          },
+          "required": [
+            "enabled"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "const": true
+            },
+            "url": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "oidcAudience": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "url",
+            "oidcAudience"
+          ]
+        }
+      ]
+    },
+    "session": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "const": false
+            },
+            "fallback": {
+              "const": "provider_polling_and_operation_reconciliation"
+            }
+          },
+          "required": [
+            "enabled",
+            "fallback"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "const": true
+            },
+            "backendIdentity": {
+              "type": "string"
+            },
+            "backendVersion": {
+              "type": "string"
+            },
+            "hooks": {
+              "const": "disabled"
+            },
+            "atomicGuards": {
+              "const": "unsupported"
+            },
+            "continuity": {
+              "const": "requires_independent_client_evidence"
+            }
+          },
+          "required": [
+            "enabled",
+            "backendIdentity",
+            "backendVersion",
+            "hooks",
+            "atomicGuards",
+            "continuity"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "profile",
+    "enabled",
+    "installationId",
+    "stateDirectory",
+    "revision",
+    "repositories",
+    "credentialReferences",
+    "pollIntervalSeconds",
+    "fields",
+    "targets",
+    "limits",
+    "broker",
+    "session"
+  ]
+}

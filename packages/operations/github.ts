@@ -1,10 +1,10 @@
 import { createPrivateKey } from 'node:crypto';
 import { SignJWT } from 'jose';
 import { readProtected } from '../target-helper/filesystem.ts';
-import type { OperationalInstallationV1 } from '../../contracts/generated/operational-installation.ts';
+import type { Installation } from './installation.ts';
 import { GitHubError } from '../core/github.ts';
 
-export function credentialResolver(spec: OperationalInstallationV1, transport: typeof fetch = fetch) {
+export function credentialResolver(spec: Installation, transport: typeof fetch = fetch) {
   const tokens = new Map<string, { token: string; expires: number }>();
   return async (reference: string): Promise<string> => {
     const binding = spec.credentials[reference];

@@ -31,6 +31,8 @@ import type { DeploymentObservers } from '../../packages/core/deployments.ts';
 import { configuredMergeAction } from '../../packages/github-merge/action.ts';
 import { mergeAction, mergeVersion } from '../../packages/core/merges.ts';
 import type { MergeProvider } from '../../packages/core/merges.ts';
+import type { RequestListener } from 'node:http';
+import { LifecycleError } from '../../packages/core/lifecycle.ts';
 
 // Trusted embedding API. A workflow listener requires explicit broker options; no background timer.
 export function startExecution(dataDir: string, options: {
@@ -38,7 +40,7 @@ export function startExecution(dataDir: string, options: {
   installedSessions?: { host: HostProfile; providerIds: string[] };
   github?: GitHubOptions;
   installedTargets?: { host: HostProfile };
-  workflowBroker?: { host: HostProfile; provider: WorkflowProvider; port: number; observers?: DeploymentObservers };
+  workflowBroker?: { host: HostProfile; provider: WorkflowProvider; port: number; observers?: DeploymentObservers; diagnostics?: RequestListener; allowEffects?: () => boolean };
   githubMerge?: { host: HostProfile; provider: MergeProvider };
   additionalActions?: (store: ReturnType<typeof startCoordinator>['store']) => ReadonlyMap<string, import('../../packages/core/execution.ts').ActionAdapter>;
   cleanup?: Omit<CleanupOptions, 'inspect'> & { inspect?: CleanupOptions['inspect'] };
@@ -53,8 +55,14 @@ export function startExecution(dataDir: string, options: {
     if (options.installedTargets) actionOptions.adapters.set(actionKey(reserveAction, reserveVersion), configuredTargetAction(runtime.store, options.installedTargets.host));
     if (options.installedTargets) actionOptions.adapters.set(actionKey(workspaceAction, workspaceVersion), configuredWorkspaceAction(runtime.store, options.installedTargets.host));
     if (options.installedTargets) actionOptions.adapters.set(actionKey(runtimeAction, runtimeVersion), configuredRuntimeAction(runtime.store, options.installedTargets.host));
-    if (options.workflowBroker) actionOptions.adapters.set(actionKey(workflowAction, workflowVersion),
-      configuredWorkflowAction(runtime.store, options.workflowBroker.host, options.workflowBroker.provider, options.workflowBroker.observers));
+    if (options.workflowBroker) {
+      const adapter = configuredWorkflowAction(runtime.store, options.workflowBroker.host, options.workflowBroker.provider, options.workflowBroker.observers);
+      const allowed = () => { if (options.workflowBroker?.allowEffects?.() === false) throw new LifecycleError('effect_blocked'); };
+      actionOptions.adapters.set(actionKey(workflowAction, workflowVersion), { ...adapter,
+        async validate(operation) { allowed(); await adapter.validate(operation); },
+        async start(operation, claim) { allowed(); return adapter.start(operation, claim); },
+      });
+    }
     if (options.githubMerge) actionOptions.adapters.set(actionKey(mergeAction, mergeVersion),
       configuredMergeAction(runtime.store, options.githubMerge.host, options.githubMerge.provider));
     const observationOptions = { ...options.observations, sessions: new Map(options.observations.sessions),projections:new Map(options.observations.projections) };
@@ -72,7 +80,8 @@ export function startExecution(dataDir: string, options: {
     const controls = createControlWorker(runtime.store, actionOptions);
     const observations = createObservationWorker(runtime.store, observationOptions);
     const github = options.github && createGitHubWorker(runtime.store, options.github);
-    const broker = options.workflowBroker && createWorkflowBroker(runtime.store, options.workflowBroker.provider);
+    const broker = options.workflowBroker && createWorkflowBroker(runtime.store, options.workflowBroker.provider, undefined,
+      { handler: options.workflowBroker.diagnostics, allowEffects: options.workflowBroker.allowEffects });
     const ready = broker ? new Promise<void>((resolve, reject) => {
       broker.once('error', reject);
       broker.listen(options.workflowBroker!.port, '127.0.0.1', () => resolve());

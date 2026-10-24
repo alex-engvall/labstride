@@ -98,7 +98,7 @@ export async function compileConfiguration(input: unknown, dependencies: Compile
     return failure();
   }
   const capture = (path: string, error: unknown) => diagnostics.push({
-    code: error instanceof ConfigurationError ? error.code : 'configuration_invalid', path,
+    code: error instanceof ConfigurationError ? error.code : ['credential_unavailable','credential_expired','permission_denied','provider_unavailable','invalid_cursor','graphql_errors','rate_limited'].includes(String((error as {code?:string})?.code)) ? String((error as {code:string}).code) : 'configuration_invalid', path,
     message: error instanceof ConfigurationError ? error.message : 'Verify the installed artifact, reference, schema, permission or capability.',
   });
   if (config.broker.enabled === false) {
@@ -107,7 +107,7 @@ export async function compileConfiguration(input: unknown, dependencies: Compile
       capture('/broker', new ConfigurationError('unsupported_capability', '/broker', 'Workflow dispatch requires an enabled broker.'));
   } else try {
     const broker = new URL(config.broker.url);
-    if (broker.protocol !== 'https:' || broker.username || broker.password || broker.hostname === 'example.invalid' || broker.hostname.endsWith('.example.invalid'))
+    if (broker.protocol !== 'https:' || broker.username || broker.password || broker.search || broker.hash || broker.hostname === 'example.invalid' || broker.hostname.endsWith('.example.invalid'))
       invalid('/broker/url', 'Configure a real credential-free HTTPS broker URL.');
   } catch { capture('/broker/url', new ConfigurationError('configuration_invalid', '/broker/url', 'Configure a real credential-free HTTPS broker URL.')); }
   let lock: ExtensionLock;

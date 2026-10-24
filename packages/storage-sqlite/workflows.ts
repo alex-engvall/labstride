@@ -45,6 +45,21 @@ export function workspaceStart(compiled: CompiledConfiguration, steps: BoundStep
 }
 
 export class WorkflowStore extends WorkflowBrokerStore {
+  runProjectionStatus(runId: string) {
+    this.get('run', runId);
+    return this.db.prepare('SELECT p.id,d.state,d.last_error FROM projections p JOIN deliveries d ON d.projection_id=p.id WHERE p.run_id=? ORDER BY p.id')
+      .all(runId).map(row => ({ id: String(row.id), state: String(row.state), code: row.last_error === null ? null : /^[a-z_]{1,100}$/.test(String(row.last_error)) ? String(row.last_error) : 'projection_blocked' }));
+  }
+  reconcileRunObservations(runId: string, context: AuditContext, authority: LocalPolicyAuthority): void {
+    this.assertOperator(authority);
+    this.get('run', runId);
+    this.transaction(() => {
+      for (const row of this.db.prepare("SELECT d.id FROM deliveries d LEFT JOIN operations o ON o.id=d.operation_id LEFT JOIN projections p ON p.id=d.projection_id WHERE (o.run_id=? OR p.run_id=?) AND d.state='blocked'").all(runId, runId)) {
+        this.resumeObservation(String(row.id), context);
+      }
+      for (const row of this.db.prepare('SELECT id FROM sessions WHERE run_id=?').all(runId)) this.resumeSessionObservation(String(row.id), context);
+    });
+  }
   managedSessionStart(operationId: string): ManagedSessionStartV1 | null {
     const row = this.db.prepare("SELECT digest,request,response FROM managed_effects WHERE operation_id=? AND name='session-start-input'").get(operationId);
     if (!row) return null;
@@ -267,7 +282,7 @@ export class WorkflowStore extends WorkflowBrokerStore {
             operation: { ...base, kind: 'operation', id, runId: run.id, workspaceId: first.workspaceId, request: descriptor, state: 'prepared', effectBoundary: 'not_crossed' },
             outbox: { ...base, kind: 'outbox', id: `intent-${id}`, runId: run.id, operationId: id, intentKey: id, payload: { schemaVersion: '1.0', operationId: id } },
             resourceKey: descriptor.actionId === workflowAction ? workflowResource(enrolledWorkflow(snapshot, descriptor)) :
-              descriptor.actionId === mergeAction ? mergeResource(enrolledMerge(snapshot, descriptor).enrollment) : `workspace:${first.workspaceId}`, capacityClass: 'development',
+              descriptor.actionId === mergeAction ? mergeResource(enrolledMerge(snapshot, descriptor).enrollment) : `workspace:${first.workspaceId}`, capacityClass: descriptor.actionId === workflowAction ? 'ciReview' : 'development',
           }, audit);
           this.db.prepare('INSERT INTO workflow_steps VALUES (?,?,?)').run(run.id, position, id);
           this.db.prepare('DELETE FROM workflow_diagnostics WHERE run_id=?').run(run.id);

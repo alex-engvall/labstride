@@ -2,7 +2,7 @@
 
 ## CLI scope
 
-The bounded [local issue-to-review profile](37-local-self-build.md) implements the JSON CLI, disabled administrative bootstrap and locked service loop. The table below retains the full command targets; keep/release, extension inspection, automated restore/upgrade and complete broker diagnostics remain open.
+The [prepared-host public profile](40-public-installation.md) implements personal Project polling, agent-free workspaces, shared diagnostics, safe inspection and recovery controls. The [local issue-to-review profile](37-local-self-build.md) retains its native-field/Codex integration. Both use the CLI and one locked coordinator loop. Automated restore/upgrade and installed/live acceptance gates remain open.
 
 ## Full command targets
 
@@ -20,7 +20,7 @@ The bounded [local issue-to-review profile](37-local-self-build.md) implements t
 | labstride extensions inspect | Report pinned versions, capabilities and integrity |
 | labstride backup/restore | Controlled consistent backup and recovery workflow |
 
-Commands should offer human-readable output plus versioned JSON and stable exit codes. No command implies success when only an asynchronous request was accepted.
+Commands offer versioned JSON by default, explicit `--json`, optional `--human` formatting and exit codes 0/1. The credential-free version command retains its strict version-only arguments. No command implies success when only an asynchronous request was accepted.
 
 ## Version output
 
