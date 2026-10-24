@@ -60,3 +60,7 @@ Observation history may be read again with deduplication, but rebuilding an obse
 Measure queue age, active workspaces, action duration, unknown outcomes, failed reconciliation, projection conflicts, stale leases, CI repair attempts and cleanup blockers. Avoid issues/prompts as metric labels. Logs have stable codes, operation IDs and redacted safe messages.
 
 Default redacted metadata retention is 90 days, configurable. Session transcript retention is controlled by its provider. Preserve records needed to reconcile unresolved work even if their normal retention date passes.
+
+## Optional cleanup assessment commands
+
+The [W05.1 assessment profile](20-workspace-cleanup.md) adds `runs keep RUN_ID true|false` and `runs cleanup RUN_ID` to the existing CLI configuration-file interface. Keep changes use local-operator authority and expected workspace revisions. Cleanup requests require a frozen `operator_request` cleanup policy; the completion trigger queues its own deduplicated assessments. `runs show` and `runs list` include cleanup requests, selected operations, decisions, evidence and blockers. These commands never set a directory to deleted; #29 owns the qualified removal executor.

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "4.0",
+  "requestId": "cleanup-example",
+  "installationId": "example-installation",
+  "targetId": "source",
+  "targetRevision": 1,
+  "method": "inspect",
+  "inspection": {
+    "schemaVersion": "1.0",
+    "requestId": "cleanup-example",
+    "installationId": "example-installation",
+    "targetId": "source",
+    "workspaceId": "example-workspace",
+    "creationOperationId": "example-create",
+    "receiptDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "policyDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "observedAt": "2026-10-24T12:00:00Z",
+    "blockers": [
+      "untracked_work"
+    ],
+    "counts": {
+      "tracked": 0,
+      "untracked": 1,
+      "ignored": 0,
+      "unpushed": 0
+    },
+    "remoteRefsDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "outcome": "ok"
+}

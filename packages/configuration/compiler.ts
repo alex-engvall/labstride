@@ -189,6 +189,15 @@ export async function compileConfiguration(input: unknown, dependencies: Compile
       }
     } catch (error) { capture(`/workflows/${name}`, error); }
   }
+  if (config.cleanup) try {
+    const cleanup=config.cleanup, pin=pins.get(cleanup.actionId);
+    if (!pin || pin.kind!=='action' || pin.version!==cleanup.actionVersion || !pin.capabilities.includes('cleanup.assess.v1') || !inspected.has(pin.id))
+      invalid('/cleanup','Pin an installed cleanup assessment action with the selected version and capability.');
+    if (cleanup.regenerableIgnoredPaths.some(path=>path==='.git'||path.startsWith('.git/')))
+      invalid('/cleanup','Git metadata cannot be declared regenerable.');
+    if (cleanup.completion==='merge_only' && Object.values(config.workflows).flat().some(step=>step.action==='labstride.github-workflow'))
+      invalid('/cleanup','Merge-only completion is restricted to workflows without delivery actions.');
+  } catch(error) { capture('/cleanup',error); }
   const signatures = new Set<string>(), ruleIds = new Set<string>();
   for (const rule of config.rules) {
     try {

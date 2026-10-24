@@ -490,13 +490,13 @@ Implementation issue: [#25](https://github.com/alex-engvall/labstride/issues/25)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W05 |
+| MVP | P0 | implemented | W05 |
 
 Specification: [20-workspace-cleanup.md](20-workspace-cleanup.md).
 
 - Selecting another cleanup action/trigger changes behavior without editing core; no fixed retention timer exists.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W05.1-cleanup-2026-10-24.md
 
 Implementation issue: [#28](https://github.com/alex-engvall/labstride/issues/28).
 
@@ -504,13 +504,13 @@ Implementation issue: [#28](https://github.com/alex-engvall/labstride/issues/28)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W05 |
+| MVP | P0 | implemented | W05 |
 
 Specification: [20-workspace-cleanup.md](20-workspace-cleanup.md).
 
 - Failed/unknown deploy, active use or keep blocks cleanup even if the PR is merged.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W05.1-cleanup-2026-10-24.md
 
 Implementation issue: [#28](https://github.com/alex-engvall/labstride/issues/28).
 
@@ -518,13 +518,13 @@ Implementation issue: [#28](https://github.com/alex-engvall/labstride/issues/28)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W05 |
+| MVP | P0 | implemented | W05 |
 
 Specification: [20-workspace-cleanup.md](20-workspace-cleanup.md).
 
 - Tracked changes, untracked/undeclared ignored files and unpushed commits preserve the directory.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W05.1-cleanup-2026-10-24.md
 
 Implementation issue: [#28](https://github.com/alex-engvall/labstride/issues/28).
 

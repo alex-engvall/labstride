@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0",
+  "runId": "example-run",
+  "workspaceId": "example-workspace",
+  "sessionId": "example-session",
+  "path": "/srv/example/workspaces/source",
+  "state": "idle",
+  "lastTurnId": "example-turn",
+  "observedAt": "2026-10-24T12:00:00Z"
+}

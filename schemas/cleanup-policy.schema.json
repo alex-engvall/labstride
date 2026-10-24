@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cleanup policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "trigger": {
+      "enum": [
+        "completion_verified",
+        "operator_request"
+      ]
+    },
+    "actionId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "actionVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "completion": {
+      "enum": [
+        "merge_and_deployment",
+        "merge_only"
+      ]
+    },
+    "regenerableIgnoredPaths": {
+      "type": "array",
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(?!.*(?:^|/)\\.\\.?(?:/|$))[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+        "maxLength": 512
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "trigger",
+    "actionId",
+    "actionVersion",
+    "completion",
+    "regenerableIgnoredPaths"
+  ]
+}

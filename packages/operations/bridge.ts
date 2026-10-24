@@ -13,7 +13,7 @@ import { assertSeparate } from '../storage-sqlite/paths.ts';
 
 const maxWire = 24 * 1024 * 1024;
 export interface BridgeBinding { runId: string; workspaceId: string; path: string; receiptDigest: string }
-export interface BridgeRequest { schemaVersion: '1.0'; method: 'catalog' | 'start' | 'turn' | 'observe' | 'bundle' | 'interrupt';
+export interface BridgeRequest { schemaVersion: '1.0'; method: 'catalog' | 'start' | 'turn' | 'observe' | 'bundle' | 'interrupt' | 'cleanup-observe';
   binding?: BridgeBinding; sessionId?: string; parameters?: Record<string, unknown> }
 export interface BridgePort { call(request: BridgeRequest): Promise<any> }
 export class BridgeClient implements BridgePort {
@@ -178,6 +178,20 @@ export function createCodexBridge(policy: BridgePolicy, rpc: any = new UnixRpc(p
       const sessionId = request.sessionId;
       if (!sessionId || !/^[a-z0-9-]{1,128}$/i.test(sessionId)) throw Error('identity_mismatch');
       bindings.set(sessionId, binding);
+      if (request.method === 'cleanup-observe') {
+        // Read metadata only. No resume, report recovery, turn or interrupt.
+        const read = async () => {
+          const {thread} = await rpc.call('thread/read',{threadId:sessionId,includeTurns:false});
+          if(thread?.id!==sessionId || thread.cwd!==binding.path || thread.source?.subAgent || thread.historyMode!=='legacy') throw Error('identity_mismatch');
+          const history = await rpc.call('thread/turns/list',{threadId:sessionId,limit:1,sortDirection:'desc',itemsView:'summary'});
+          if(!Array.isArray(history.data)||history.data.length>1)throw Error('history_unavailable');
+          const turn=history.data[0];
+          return {state:thread.status?.type==='idle' && (!turn || ['completed','interrupted','failed'].includes(turn.status))?'idle':thread.status?.type==='active'?'active':'unknown',lastTurnId:turn?.id??null};
+        };
+        const first=await read(), second=await read();
+        if(digest(first)!==digest(second))throw Error('stale_revision');
+        return validated('managed-cleanup-observation',{schemaVersion:'1.0',runId:binding.runId,workspaceId:binding.workspaceId,sessionId,path:binding.path,...second,observedAt:new Date().toISOString()});
+      }
       const before = await observe(binding, sessionId, request.method === 'turn' && parameters.expectedTurnId === null);
       if (request.method === 'observe') {
         // Metadata-only reattachment preserves the app's current settings.

@@ -267,6 +267,17 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   CREATE TRIGGER deployment_order_check_no_delete BEFORE DELETE ON deployment_order_checks BEGIN SELECT RAISE(ABORT, 'immutable_order_check'); END;
   CREATE TRIGGER deployment_successor_no_update BEFORE UPDATE ON deployment_successors BEGIN SELECT RAISE(ABORT, 'immutable_successor'); END;
   CREATE TRIGGER deployment_successor_no_delete BEFORE DELETE ON deployment_successors BEGIN SELECT RAISE(ABORT, 'immutable_successor'); END;
+` }, { version: 18, sql: `
+  CREATE TABLE cleanup_requests (id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES runs(id),
+    workspace_id TEXT NOT NULL REFERENCES workspaces(id), trigger TEXT NOT NULL CHECK(trigger IN ('completion_verified','operator_request')),
+    state TEXT NOT NULL CHECK(state IN ('requested','blocked','eligible','pending_executor','outcome_unknown','retained')),
+    decision_id TEXT, operation TEXT CHECK(operation IS NULL OR json_valid(operation)), result TEXT CHECK(result IS NULL OR json_valid(result)));
+  CREATE TRIGGER cleanup_request_identity_immutable BEFORE UPDATE OF id,run_id,workspace_id,trigger ON cleanup_requests BEGIN SELECT RAISE(ABORT,'immutable_cleanup_request'); END;
+  CREATE TRIGGER cleanup_operation_immutable BEFORE UPDATE OF operation ON cleanup_requests WHEN OLD.operation IS NOT NULL AND NEW.operation IS NOT OLD.operation BEGIN SELECT RAISE(ABORT,'immutable_cleanup_operation'); END;
+  CREATE TABLE cleanup_decisions (id TEXT PRIMARY KEY, request_id TEXT NOT NULL REFERENCES cleanup_requests(id),
+    payload TEXT NOT NULL CHECK(json_valid(payload)));
+  CREATE TRIGGER cleanup_decision_no_update BEFORE UPDATE ON cleanup_decisions BEGIN SELECT RAISE(ABORT,'immutable_cleanup_decision'); END;
+  CREATE TRIGGER cleanup_decision_no_delete BEFORE DELETE ON cleanup_decisions BEGIN SELECT RAISE(ABORT,'immutable_cleanup_decision'); END;
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

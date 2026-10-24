@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cleanup action input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "policy": {
+      "$ref": "cleanup-policy.schema.json"
+    },
+    "decisionId": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "workspaceId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "policy",
+    "decisionId",
+    "workspaceId"
+  ]
+}

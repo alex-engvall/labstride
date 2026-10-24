@@ -277,3 +277,13 @@ test('a changed latest turn or an incomplete full-view reply cannot supply a rep
     await assert.rejects(f.bridge.call({ schemaVersion: '1.0', method: 'observe', binding: f.binding, sessionId: 'managed-thread' }), /stale_revision/);
   }
 });
+
+test('cleanup observes native sessions without resume, turn, interrupt, or transcript recovery',async t=>{
+  const f=await fixture(t);f.state.latest={id:'completed-work',status:'completed'};
+  const request={schemaVersion:'1.0',method:'cleanup-observe',binding:f.binding,sessionId:'managed-thread'};
+  const observed=await f.bridge.call(request);assert.equal(observed.state,'idle');assert.equal(observed.lastTurnId,'completed-work');
+  assert.equal(f.requests.some(r=>['thread/resume','turn/start','turn/interrupt'].includes(r.method)),false);
+  assert.equal(f.requests.some(r=>r.params?.itemsView==='full'),false);
+  f.state.latest.status='inProgress';assert.equal((await f.bridge.call(request)).state,'active');
+  f.state.historyError={code:-32600,message:'history unavailable'};await assert.rejects(f.bridge.call(request));
+});

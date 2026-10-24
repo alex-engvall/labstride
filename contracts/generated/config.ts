@@ -210,4 +210,16 @@ export interface LabstrideInstallationConfigurationV1 {
       disabledValues: [FieldValue, ...FieldValue[]];
     };
   };
+  cleanup?: CleanupPolicyV1;
+}
+export interface CleanupPolicyV1 {
+  schemaVersion: "1.0";
+  trigger: "completion_verified" | "operator_request";
+  actionId: string;
+  actionVersion: string;
+  completion: "merge_and_deployment" | "merge_only";
+  /**
+   * @maxItems 128
+   */
+  regenerableIgnoredPaths: string[];
 }

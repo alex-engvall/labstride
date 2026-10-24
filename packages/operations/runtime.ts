@@ -119,6 +119,18 @@ export async function openOperationalRuntime(spec: OperationalInstallationV1) {
         if (!binding || typeof binding === 'string' || binding.permissions.contents !== 'write') return null;
         return { appId: Number(binding.appId), installationId: binding.installationId, repositoryIds: binding.repositoryIds, contents: 'write' };
       } }) } : undefined,
+    cleanup: spec.configuration.cleanup ? { host:spec.host,
+      async keepItem(context) {
+        const snapshot=execution.store.runConfiguration(context.run.id)!;
+        const adapter=checked.adapter.withConfiguration(snapshot.configuration);
+        adapter.beginTick();return adapter.item(context.request.issueId);
+      },
+      async managedSession(context) {
+        const receipt=execution.store.workspaceReceipt(context.run.id),session=context.managed!;
+        return new BridgeClient(spec.agent.bridgeSocket).call({schemaVersion:'1.0',method:'cleanup-observe',sessionId:session.sessionId,
+          binding:{runId:context.run.id,workspaceId:context.workspace.id,path:session.path,receiptDigest:digest(receipt)}});
+      }
+    } : undefined,
     dependencies: { policyAuthority: authority, localWorkspaceRoots: [spec.sourceRoot] } });
   try { await execution.ready; } catch (error) { await execution.close(); throw error; }
   const store = execution.store;

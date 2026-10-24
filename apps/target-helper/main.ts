@@ -1,3 +1,4 @@
+import { inspectCleanup } from '../../packages/target-helper/cleanup.ts';
 import { WorkspaceRegistry } from '../../packages/target-helper/workspaces.ts';
 import { validateWorkspaceRequest } from '../../packages/target-helper/workspace-contracts.ts';
 import type { WorkspacePolicy } from '../../packages/target-helper/workspace-contracts.ts';
@@ -29,6 +30,11 @@ export async function serve(policyFile: string, input: AsyncIterable<Uint8Array>
     return;
   }
   if(runtimeInstallation)policyInput=runtimeInstallation.workspacePolicy;
+  if ((request as {schemaVersion?:string})?.schemaVersion === '4.0') {
+    const policy=validated<WorkspacePolicy>('ssh-workspace-policy',policyInput as WorkspacePolicy);
+    output(JSON.stringify(await inspectCleanup(policy,request)));
+    return;
+  }
   if ((request as {schemaVersion?:string})?.schemaVersion === '2.0') {
     const policy=validated<WorkspacePolicy>('ssh-workspace-policy',policyInput as WorkspacePolicy);
     validateWorkspaceRequest(policy,request);

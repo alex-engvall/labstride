@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "4.0",
+  "requestId": "cleanup-example",
+  "installationId": "example-installation",
+  "targetId": "source",
+  "targetRevision": 1,
+  "method": "inspect",
+  "workspaceId": "example-workspace",
+  "creationOperationId": "example-create",
+  "receiptDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "policy": {
+    "schemaVersion": "1.0",
+    "trigger": "operator_request",
+    "actionId": "labstride.workspace-cleanup",
+    "actionVersion": "1.0.0",
+    "completion": "merge_only",
+    "regenerableIgnoredPaths": [
+      "node_modules",
+      "build/cache"
+    ]
+  }
+}
