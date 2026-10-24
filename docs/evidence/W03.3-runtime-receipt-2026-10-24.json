@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "requirement": "LS-SSH-005",
-  "implementationStatus": "implemented",
+  "implementationStatus": "verified_for_tested_linux_profile",
   "environment": {
     "os": "Linux",
     "architecture": "x86_64",
@@ -36,8 +36,8 @@
     "actualCoordinatorSigkill": true
   },
   "qualificationGates": {
-    "newV3RealSshRuntimePath": "not_run; root-operated isolated SSH test is present",
-    "installedPilotV3IdentitySeparation": "not_run; existing five pilot workspaces unchanged",
+    "newV3RealSshRuntimePath": "passed; installed isolated Linux helper/SSH profile",
+    "installedPilotV3IdentitySeparation": "passed; actual helper, coordinator and coding identities",
     "AC30": "partial runtime/configuration evidence; cleanup execution remains W05",
     "generalWorkflowAdvancement": "W04",
     "installedServiceAndPolling": "W06"
@@ -57,13 +57,78 @@
     "typeContracts": 66,
     "pythonTests": 6,
     "schemaExamplePairs": 51,
-    "regressionSuite": {
+    "localRegressionSuite": {
       "tests": 509,
       "passed": 501,
       "failed": 0,
       "skipped": 8,
       "skipReason": "root-operated isolated OpenSSH tests; this invoking account is non-root"
-    }
+    },
+    "pilotRegressionSuite": {
+      "tests": 509,
+      "passed": 509,
+      "failed": 0,
+      "skipped": 0
+    },
+    "actualHelperUidFocusedTests": {
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0
+    },
+    "pilotTypeCheck": "66 generated contracts checked; pinned TypeScript compiler passed via direct Node invocation (pilot npm launcher lacks the usual bin PATH)"
   },
-  "implementationPullRequest": "https://github.com/engshort/labstride/pull/63"
+  "implementationPullRequest": "https://github.com/engshort/labstride/pull/63",
+  "pilotProof": {
+    "qualifiedRuntimeResources": 4,
+    "qualifiedSourceWorkspaces": 2,
+    "actualHttpResponses": 2,
+    "distinctDatabaseIdentities": 2,
+    "codingUidAndProtectedParents": true,
+    "codingEditsPreserved": true,
+    "roleReadIsolation": true,
+    "oldRegistryRowsAndPolicyLauncherUnchanged": true,
+    "oldWorkspaceCount": 5,
+    "newRegisteredCheckouts": 3,
+    "incompleteOriginalRuntimeRetained": 1,
+    "unobservedOriginalSourceRetainedUnknown": 1,
+    "receiptDigests": [
+      "986d3ca3b74456e5e02134a64a74d7017c7889d67aafdb12f6062073d5842f46",
+      "271c3cbe93b7b54c90f5d19209858f3e6ae51c11f13dd05dd3f5c2a97d69bf01",
+      "02b0e3353ae9e41ef9fc5a00cd6aaf28784a0bf5c16f0f60b4a7a8d28fdf85b5",
+      "af0813da6b7502e0bb4a8df7083a3410b444a6f05e42d984e34ae3c20ee1635e"
+    ],
+    "newQualifiedResourceNames": [
+      "rt-9188942bce624e8a56de48c87e92c9bee95d6a35-http",
+      "rt-799643ba2fe4be745563718c654cfa37ab6aa7eb-db",
+      "rt-73f2bb9b3ec1371b4adcf722be1fbd875c7bc6d1-http",
+      "rt-786eb295832b0ae9153e662d3f2beb9a6e14d3bc-db"
+    ],
+    "processTeardownVerified": true,
+    "regression": {
+      "tests": 509,
+      "passed": 509,
+      "failed": 0,
+      "skipped": 0
+    },
+    "helperUidFocusedTests": {
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0
+    },
+    "testedImplementationCommit": "2028b1da6de1abe64f90d9e2aa1d98b9d3484dc5",
+    "profileConfigurationDigest": "590747da9651923c62989646768da9f231a3ad6b1985dcc4e95534fe61d80143"
+  },
+  "accessCleanup": {
+    "temporaryRootAccessRevoked": true,
+    "freshSshLoginDenied": true,
+    "localTemporaryKeyFilesDeleted": true,
+    "originalAccessEntriesRetained": true
+  },
+  "sharedLauncherActivation": false,
+  "retainedUnknowns": {
+    "partialRuntimeCreation": 1,
+    "sourceOperationWithoutSufficientTargetEvidence": 1,
+    "completedByReplayOrAlternateLocator": false,
+    "note": "Earlier mixed operator phase recorded storage_failure. Original unknown cases remain retained; subsequent independent ordered cases provide the complete qualified profile."
+  }
 }

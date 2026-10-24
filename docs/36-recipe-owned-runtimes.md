@@ -9,7 +9,7 @@ W03.3 / [#23](https://github.com/engshort/labstride/issues/23) implements LS-SSH
 3. Supply public SQLite and loopback HTTP recipes; verify their actual independent resources, process interruptions and source-only operation without an agent.
 4. Update specification, requirement/checklist and scoped AC30 evidence together. Keep cleanup execution with W05, general ordered workflow advancement with W04 and installed service operation with W06.
 
-This is a trusted embedding API and public extension contribution, not automatic activation of an installed daemon. Evidence distinguishes Linux subprocess tests from real SSH and installed-pilot qualification.
+This is a trusted embedding API and public extension contribution, not automatic activation of an installed daemon. Evidence distinguishes local subprocess tests from the separately executed installed Linux/SSH and role-isolation qualification; that qualification does not activate the shared launcher or general workflow service.
 
 ## Action and recipe pins
 
