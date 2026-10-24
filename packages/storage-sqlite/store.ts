@@ -1,5 +1,5 @@
 import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync, realpathSync } from 'node:fs';
+import { lstatSync, mkdirSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { checkChange, LifecycleError } from '../core/lifecycle.ts';
@@ -17,7 +17,7 @@ const tables: Record<Kind, string> = {
   deployment: 'deployments', session: 'sessions', outbox: 'outbox', projection: 'projections',
   resource: 'resources', evidence: 'evidence',
 };
-export interface StoreDependencies extends PolicyDependencies { clock?: Clock; identities?: IdentityProvider; localWorkspaceRoots?: readonly string[]; readOnly?: boolean }
+export interface StoreDependencies extends PolicyDependencies { clock?: Clock; identities?: IdentityProvider; localWorkspaceRoots?: readonly string[]; readOnly?: boolean; existingOnly?: boolean }
 function classify(error: unknown): LifecycleError {
   if (error instanceof LifecycleError) return error;
   const code = (error as { errcode?: number }).errcode;
@@ -39,17 +39,18 @@ export class SqliteStore implements StateStore {
     const canonical = canonicalPath(dataDir);
     for (const root of dependencies.localWorkspaceRoots ?? []) assertSeparate(canonical, root);
     try {
-      if (!dependencies.readOnly) mkdirSync(dataDir, { recursive: true, mode: 0o700 });
+      if (!dependencies.readOnly && !dependencies.existingOnly) mkdirSync(dataDir, { recursive: true, mode: 0o700 });
       this.dataDir = realpathSync(dataDir);
       assertDatabaseFiles(this.dataDir);
+      if (dependencies.existingOnly) lstatSync(join(this.dataDir, 'state.sqlite'));
     } catch { throw new LifecycleError('unsafe_state_path'); }
     try { this.db = new DatabaseSync(join(this.dataDir, 'state.sqlite'), { timeout: 5000, readOnly: dependencies.readOnly ?? false }); }
     catch (error) { throw classify(error); }
     try {
-      if (dependencies.readOnly) verifySchema(this.db);
-      else {
+      if (dependencies.readOnly || dependencies.existingOnly) verifySchema(this.db);
+      if (!dependencies.readOnly) {
         this.db.exec('PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL');
-        migrate(this.db);
+        if (!dependencies.existingOnly) migrate(this.db);
         const mode = this.db.prepare('PRAGMA journal_mode=WAL').get();
         if (mode!.journal_mode !== 'wal') throw new LifecycleError('storage_failure');
       }

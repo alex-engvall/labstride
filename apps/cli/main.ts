@@ -61,11 +61,11 @@ export async function cli(argv: string[], output?: (value: unknown) => void) {
     const view = extensionView(spec); emit(view); if (view.extensions.some(extension => !extension.ok)) process.exitCode = 1; return;
   }
   if (args[0] === 'backup' && args.length === 2) { await backupDatabase(spec.stateDirectory, args[1]); emit({ schemaVersion: '1.0', code: 'backup_created', restoreRequiresReconciliation: true }); return; }
-  if (args[0] === 'serve' && (args.length === 1 || args.length === 2 && args[1] === '--diagnostics-only')) {
+  if (args[0] === 'serve' && (args.length === 1 || args.length === 2 && ['--diagnostics-only','--reconcile-only'].includes(args[1]))) {
     const release = await acquireServiceLock(spec.stateDirectory), controller = new AbortController();
     const stop = () => controller.abort(); process.once('SIGINT', stop); process.once('SIGTERM', stop);
     try {
-      const runtime = args[1] === '--diagnostics-only' ? await openDiagnosticsOnly(spec) : await openOperationalRuntime(spec);
+      const runtime = args[1] === '--diagnostics-only' ? await openDiagnosticsOnly(spec) : await openOperationalRuntime(spec, { mode: args[1] === '--reconcile-only' ? 'reconcile-only' : 'normal' });
       await serviceLoop(runtime, controller.signal);
     } finally { await release(); process.removeListener('SIGINT', stop); process.removeListener('SIGTERM', stop); } return;
   }
@@ -79,7 +79,7 @@ export async function cli(argv: string[], output?: (value: unknown) => void) {
   if (args[0] === 'recovery' && args.length === 2 && ['status','begin','resume'].includes(args[1])) {
     if (args[1] === 'status') { emit(readStatus(spec.stateDirectory).recovery); return; }
     readStatus(spec.stateDirectory);
-    const release = args[1] === 'begin' ? await acquireServiceLock(spec.stateDirectory) : undefined;
+    const release = await acquireServiceLock(spec.stateDirectory);
     const authority = createLocalPolicyAuthority();
     try {
       const store = new CleanupStore(spec.stateDirectory, { policyAuthority: authority });

@@ -150,6 +150,8 @@ Tracker: [#9](https://github.com/alex-engvall/labstride/issues/9).
 
 **W06.1 public delivery:** [Prepared-host installation and diagnostics](40-public-installation.md) add a v2 public profile, personal Project/no-agent composition, independent safe diagnostics, signed runner qualification, inspection and restore fencing controls. [Local evidence](evidence/W06.1-public-operations-2026-10-24.md) covers AC29 blockers and actual temporary checkout/recovery behavior. Installed SSH/systemd/runner and session qualification remain open; LS-OPS-001 and W06 remain `in_progress`, AC29 remains `not_run`, and AC35/AC36 are unchanged. W06.2 / #31 retains automatic restore/upgrade.
 
+**W06.1 recovery/inspection correction:** [Follow-up evidence](evidence/W06.1-recovery-inspection-2026-10-24.md) covers explicit fenced reconciliation after runner qualification expires, service exclusion before recovery resume and retained frozen startup choices after an uncertain session create. It separates earlier privileged verification at `6367981` from this revision's local regression evidence. The requirement/scenario statuses above remain unchanged.
+
 ## W07 — Public examples and prerelease
 
 Tracker: [#10](https://github.com/alex-engvall/labstride/issues/10).

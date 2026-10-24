@@ -8,14 +8,19 @@ import { CleanupStore } from '../storage-sqlite/cleanup.ts';
 import { inspectExtension } from '../extensions/loader.ts';
 import { isPublic } from './installation.ts';
 import type { Installation } from './installation.ts';
+import type { ManagedSessionStartV1 } from '../../contracts/generated/managed-session-start.ts';
 
-export function readStatus(directory: string) {
+export function readStatus(directory: string, installationId?: string) {
   assertPrivateDatabase(directory, 'state.sqlite');
   lstatSync(join(directory, 'state.sqlite')); // Keep ENOENT distinct; do not create a DB.
   const db = new DatabaseSync(join(directory, 'state.sqlite'), { readOnly: true });
   try {
     verifySchema(db);
     if (db.prepare('PRAGMA quick_check').get()?.quick_check !== 'ok') throw Error('storage_failure');
+    if (installationId !== undefined) {
+      const installations = db.prepare('SELECT id FROM installations').all();
+      if (installations.length !== 1 || installations[0].id !== installationId) throw Error('installation_binding_invalid');
+    }
     const recovery = db.prepare('SELECT paused,epoch FROM recovery_control WHERE id=1').get()!;
     const count = (sql: string) => Number(db.prepare(sql).get()!.n);
     const providers = db.prepare('SELECT payload FROM github_projects ORDER BY key').all().map(row => {
@@ -67,6 +72,8 @@ export function runView(store: CleanupStore, id: string) {
       conflict: execution.conflict, deploymentVerified: execution.deploymentVerified, blocker: 'blocker' in execution ? execution.blocker : null })),
     diagnostic: store.workflowDiagnostic(id), summaryDiagnostic: store.summaryDiagnostic(id), fieldConflicts: store.managedProjectionDiagnostics(id),
     session: store.managedSession(id),
+    startup: store.operations(id).filter(operation => operation.request.actionId === 'labstride.self-build')
+      .map(operation => store.managedSessionStart(operation.id)).filter((value): value is ManagedSessionStartV1 => value !== null),
     cleanup: store.cleanupRequests(id).map(request => ({ id: request.id, state: request.state, decisionId: store.cleanupDecision(request.id)?.id ?? null,
       blockers: store.cleanupDecision(request.id)?.decision.blockers ?? [] })),
     projections: store.runProjectionStatus(id) };

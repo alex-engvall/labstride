@@ -2,6 +2,7 @@ import type { AutomationContext } from '../../contracts/generated/automation-con
 import type { ExecutionInboxInput } from '../../contracts/generated/execution-inbox.ts';
 import type { AuditContext, RecordOf } from './lifecycle.ts';
 export type InboxInput = ExecutionInboxInput;
+export type ExecutionMode = 'normal' | 'reconcile-only';
 export interface InboxEntry { id: string; input: InboxInput; processed: boolean; runId: string | null }
 export interface StartPlan {
   request: RecordOf<'request'>; run: RecordOf<'run'>; workspace: RecordOf<'workspace'>;

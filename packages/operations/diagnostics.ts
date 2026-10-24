@@ -10,6 +10,7 @@ import type { Installation } from './installation.ts';
 import type { OperatorDiagnosticReportV1 } from '../../contracts/generated/diagnostic-report.ts';
 import { brokerReachable, probeReady } from './runner-probe.ts';
 import { readStatus } from './inspection.ts';
+import type { ExecutionMode } from '../core/execution.ts';
 
 export type Finding = OperatorDiagnosticReportV1['diagnostics'][number];
 const known = new Set(['credential_unavailable','credential_expired','permission_denied','provider_unavailable','invalid_cursor','graphql_errors',
@@ -32,6 +33,7 @@ export function invalidInstallation(value: unknown): OperatorDiagnosticReportV1 
     severity: 'error', status: 'unavailable', message: `Correct the installation schema (${issue.keyword}); rejected values are omitted.` })));
 }
 export async function checkInstallation(spec: Installation, runtime = true, options: {
+  mode?: ExecutionMode;
   route?: boolean; dependencies?: ReturnType<typeof installationDependencies>; transport?: typeof fetch;
   targetProbe?: (id: string) => Promise<unknown>; catalog?: () => Promise<any>; database?: boolean;
 } = {}) {
@@ -41,6 +43,14 @@ export async function checkInstallation(spec: Installation, runtime = true, opti
   // Schema rejection must precede construction of any dependencies or network effects.
   try { validated(isPublic(spec) ? 'public-installation' : 'operational-installation', spec); }
   catch { return { ok: false as const, diagnostics: invalidInstallation(spec).diagnostics }; }
+  if (options.mode === 'reconcile-only') {
+    if (!isPublic(spec)) add('configuration_invalid', '/profile', 'Reconciliation-only startup requires the public v2 installation profile.');
+    try {
+      const status = readStatus(spec.stateDirectory, spec.configuration.installationId);
+      if (!status.recovery.paused) throw Error('recovery_required');
+      add('reconciliation_only', '/stateDirectory', 'The existing recovery fence permits original receipts and independent reads only. Stop this service before recovery resume.', 'info', 'observed');
+    } catch (error) { add(diagnosticCode(error), '/stateDirectory', 'Use an existing healthy database for this installation and run recovery begin while the service is stopped.'); }
+  }
   const dependencies = options.dependencies ?? installationDependencies(spec, options.transport);
   for (const [reference, binding] of Object.entries(spec.credentials)) {
     try {
@@ -121,13 +131,13 @@ export async function checkInstallation(spec: Installation, runtime = true, opti
       try { if (options.route !== false && !await brokerReachable(spec, options.transport)) throw Error('broker_configuration_invalid');
         add(options.route === false ? 'broker_route_unchecked' : 'broker_https_observed', '/configuration/broker/url', options.route === false ? 'Startup uses bound runner evidence; Doctor separately checks the HTTPS route.' : 'HTTPS reached this installation diagnostic listener; this alone does not qualify runner authentication.', 'info', options.route === false ? 'unavailable' : 'observed'); }
       catch { add('broker_route_unavailable', '/configuration/broker/url', 'Route the configured HTTPS origin to the loopback broker diagnostics endpoint and preserve TLS verification. Start the disabled diagnostics-only listener first.'); }
-      if (!probeReady(spec)) add('runner_probe_required', '/brokerProbe', 'Enroll an exact disposable workflow/run policy, then run the signed OIDC diagnostic client through this broker route. Current matching evidence is required.');
+      if (!probeReady(spec)) add('runner_probe_required', '/brokerProbe', 'Enroll an exact disposable workflow/run policy, then run the signed OIDC diagnostic client through this broker route. Current matching evidence is required for normal operation.', options.mode === 'reconcile-only' ? 'warning' : 'error');
     }
   }
   if (options.database) {
     try {
       const status = readStatus(spec.stateDirectory);
-      if (status.recovery.paused) add('recovery_required', '/stateDirectory', 'Recovery is fenced. Reconcile every unresolved operation before recovery resume.');
+      if (status.recovery.paused) add('recovery_required', '/stateDirectory', 'Recovery is fenced. Reconcile every unresolved operation before recovery resume.', options.mode === 'reconcile-only' ? 'info' : 'error');
       if (status.projections.pending || status.projections.blocked || status.projections.conflict) add('projection_backlog', '/stateDirectory', 'Inspect run projection identities and blockers; reconcile observations without overwriting manual values.', 'warning', 'observed');
       if (!status.providers.length) add('provider_observations_missing', '/stateDirectory', 'No provider observation is recorded yet. Initial import must establish an inert baseline.', 'warning', 'unavailable');
       if (status.providers.some(provider => provider.lastError || provider.catchupPending || provider.overdue)) add('provider_observation_backlog', '/stateDirectory', 'Inspect provider errors and catch-up state. Invalid cursors and partial errors do not establish successful recovery.', 'warning', 'observed');

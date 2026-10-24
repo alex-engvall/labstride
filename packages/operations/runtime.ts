@@ -17,6 +17,7 @@ import { migrations, verifySchema } from '../storage-sqlite/migrations.ts';
 import { publishRunSummary } from './summary.ts';
 import { GitHubWorkflowProvider } from '../provider-github/workflows.ts';
 import { GitHubMergeProvider } from '../provider-github/merges.ts';
+import { readStatus } from './inspection.ts';
 
 export { loadInstallation, installationShape, installationDependencies, verifyRootMapping } from './installation.ts';
 import { isPublic } from './installation.ts';
@@ -26,25 +27,34 @@ import { runnerDiagnostics, probeReady } from './runner-probe.ts';
 export const preflight = checkInstallation;
 const audit = { actorId: 'local-operator', reason: 'Activate reviewed installed configuration', evidenceRefs: ['installation:owned-file'] };
 export async function openOperationalRuntime(spec: Installation, options: Parameters<typeof checkInstallation>[2] = {}) {
+  const mode = options.mode ?? 'normal';
+  if (!['normal', 'reconcile-only'].includes(mode)) throw Error('configuration_invalid');
+  if (mode === 'reconcile-only') {
+    if (!isPublic(spec)) throw Error('configuration_invalid');
+    validated('public-installation', spec);
+    if (!readStatus(spec.stateDirectory, spec.configuration.installationId).recovery.paused) throw Error('recovery_required');
+  }
   const checked = await preflight(spec, true, { ...options, route: false }); if (!checked.ok) throw Error('configuration_invalid');
   const authority = createLocalPolicyAuthority();
-  initializePrivateState(spec.stateDirectory);
-  const runtime = startExecution(spec.stateDirectory, { actions: { executorId: `service:${spec.configuration.installationId}`, nextAttempt: randomUUID, adapters: new Map() },
-    observations: { sessions: new Map(), projections: new Map() }, installedTargets: { host: spec.host }, dependencies: { policyAuthority: authority, localWorkspaceRoots: isPublic(spec) ? [] : [spec.sourceRoot] } });
-  try {
-    runtime.store.activateOperationalProfile(checked.compiled, spec.policy, authority, audit);
-    await runtime.close();
-  } catch (error) { await runtime.close(); throw error; }
+  if (mode === 'normal') {
+    initializePrivateState(spec.stateDirectory);
+    const runtime = startExecution(spec.stateDirectory, { actions: { executorId: `service:${spec.configuration.installationId}`, nextAttempt: randomUUID, adapters: new Map() },
+      observations: { sessions: new Map(), projections: new Map() }, installedTargets: { host: spec.host }, dependencies: { policyAuthority: authority, localWorkspaceRoots: isPublic(spec) ? [] : [spec.sourceRoot] } });
+    try {
+      runtime.store.activateOperationalProfile(checked.compiled, spec.policy, authority, audit);
+      await runtime.close();
+    } catch (error) { await runtime.close(); throw error; }
+  }
   // Adapters capture this exact store instance, so compose after activation and
   // close it with the single execution runtime.
   const execution = startExecution(spec.stateDirectory, { actions: { executorId: `service:${spec.configuration.installationId}`, nextAttempt: randomUUID, adapters: new Map() },
-    serialized: true,
+    serialized: true, mode,
     additionalActions: !isPublic(spec) ? store => new Map([[actionKey('labstride.self-build', '0.1.0'), configuredSelfBuildAction(store, spec, checked.adapter as GitHubIssueFieldsAdapter, checked.client, checked.rest)]]) : undefined,
     observations: { sessions: new Map(), projections: new Map() },
     installedTargets: { host: spec.host }, github: { compiled: checked.compiled, adapter: checked.adapter, buildPlan: (steps, observed) => workspaceStart(checked.compiled, steps, observed) },
-    workflowBroker: spec.brokerListener ? { host: spec.host, port: spec.brokerListener.port, provider: new GitHubWorkflowProvider(checked.credential),
+    workflowBroker: spec.brokerListener ? { host: spec.host, port: spec.brokerListener.port, provider: new GitHubWorkflowProvider(checked.credential, options.transport),
       diagnostics: runnerDiagnostics(spec), allowEffects: isPublic(spec) ? () => probeReady(spec) : undefined } : undefined,
-    githubMerge: spec.mergeEnabled ? { host: spec.host, provider: new GitHubMergeProvider({ credential: checked.credential,
+    githubMerge: spec.mergeEnabled ? { host: spec.host, provider: new GitHubMergeProvider({ credential: checked.credential, fetch: options.transport,
       identity(reference) {
         const binding = spec.credentials[reference];
         if (!binding || typeof binding === 'string' || binding.permissions.contents !== 'write') return null;
@@ -70,7 +80,7 @@ export async function openOperationalRuntime(spec: Installation, options: Parame
   const store = execution.store;
   return { ...execution, authority,
     async tick() {
-      store.advanceWorkflows(spec.host);
+      if (mode === 'normal') store.advanceWorkflows(spec.host);
       await execution.tick(); await execution.drain();
       if (isPublic(spec)) return;
       for (const run of store.runs()) {
