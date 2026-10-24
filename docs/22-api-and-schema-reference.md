@@ -94,3 +94,7 @@ The [W02.3 runtime contract](32-github-reconciliation.md) adds version `1.0` sch
 ## Optional runtime recipes
 
 [W03.3](36-recipe-owned-runtimes.md) adds the pinned runtime-create action, recipe/driver/receipt contracts and v3 helper request/response/installation. The v3 installation embeds unchanged v2 workspace policy; v1 reservations and v2 source replies retain their wire shapes. Source-only operation does not invoke the runtime action. Runtime resource disposal declarations do not grant or execute cleanup.
+
+## Optional owned-directory deletion
+
+[W05.2](20-workspace-cleanup.md) adds SSH helper [request v5](../schemas/ssh-cleanup-delete-request.schema.json), [response v5](../schemas/ssh-cleanup-delete-response.schema.json), [action input v2](../schemas/cleanup-delete-input.schema.json), [preparation v1](../schemas/cleanup-preparation.schema.json) and [tombstone v1](../schemas/cleanup-tombstone.schema.json). These are structured messages to the enrolled helper, not new HTTP endpoints or permission grants. Existing wire versions and assessment-only action pins remain supported. Target registry v3 and coordinator migration 19 retain identity-bound recovery metadata outside removed directories.

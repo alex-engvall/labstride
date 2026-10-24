@@ -10,8 +10,8 @@ import { createCleanupWorker } from '../packages/core/cleanup-worker.ts';
 
 async function fixture(t,{direct=false}={}){
  const x=await successorFixture(t,{direct,configure(f){const artifactPath=join(f.root,'cleanup.json');const r=spawnSync(process.execPath,['scripts/package_extension.mjs','packages/action-workspace-cleanup',artifactPath],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
- f.dependencies.lock.extensions.push({id:'labstride.workspace-cleanup',version:'1.0.0',kind:'action',artifactPath,integrity:createHash('sha256').update(readFileSync(artifactPath)).digest('hex'),permissions:[],capabilities:['cleanup.assess.v1'],configuration:{}});
- f.config.cleanup={schemaVersion:'1.0',trigger:'operator_request',actionId:'labstride.workspace-cleanup',actionVersion:'1.0.0',completion:'merge_and_deployment',regenerableIgnoredPaths:[]};}});
+ f.dependencies.lock.extensions.push({id:'labstride.workspace-cleanup',version:JSON.parse(readFileSync(artifactPath)).manifest.version,kind:'action',artifactPath,integrity:createHash('sha256').update(readFileSync(artifactPath)).digest('hex'),permissions:[],capabilities:['cleanup.assess.v1'],configuration:{}});
+ f.config.cleanup={schemaVersion:'1.0',trigger:'operator_request',actionId:'labstride.workspace-cleanup',actionVersion:JSON.parse(readFileSync(artifactPath)).manifest.version,completion:'merge_and_deployment',regenerableIgnoredPaths:[]};}});
  x.store.requestCleanup(x.earlier.runId,'completion-check',localAuthority,context);
  const options={host:x.f.dependencies.host,mergeProvider:x.mergeProviders[0],observers:x.observers,inspect:async()=>{throw Error('No target deletion fixture in this scoped completion test');}};
  return {...x,get store(){return x.store;},options,worker:()=>createCleanupWorker(x.store,options)};

@@ -52,7 +52,7 @@ const edges: Partial<Record<Kind, Record<string, readonly string[]>>> = {
     ready: ['in_use', 'retained', 'cleanup_pending', 'error', 'outcome_unknown'],
     in_use: ['ready', 'retained', 'error', 'outcome_unknown'],
     retained: ['ready', 'cleanup_pending', 'error', 'outcome_unknown'],
-    cleanup_pending: ['retained', 'deleting', 'error', 'outcome_unknown'], deleting: ['deleted', 'error', 'outcome_unknown'],
+    cleanup_pending: ['retained', 'deleting', 'error', 'outcome_unknown'], deleting: ['deleted', 'retained', 'error', 'outcome_unknown'],
   },
   operation: { prepared: ['claimed', 'cancelled', 'outcome_unknown'], claimed: ['running', 'failed', 'cancelled', 'outcome_unknown'],
     running: ['succeeded', 'failed', 'cancelled', 'outcome_unknown', 'superseded'] },

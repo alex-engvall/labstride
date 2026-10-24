@@ -886,7 +886,7 @@
       "title": "Delete only the proven owned directory",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W05",
       "depends_on_work_packages": [
@@ -898,7 +898,9 @@
         "Root/parent/symlink/mount substitution and foreign paths are rejected before removal."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W05.2-deletion-2026-10-24.md"
+      ],
       "github_issue": 29,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/29"
     },
@@ -907,7 +909,7 @@
       "title": "Recover interrupted deletion",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W05",
       "depends_on_work_packages": [
@@ -919,7 +921,9 @@
         "A durable target tombstone permits reconciliation without deleting another resource; duplicate requests return the original result."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W05.2-deletion-2026-10-24.md"
+      ],
       "github_issue": 29,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/29"
     },

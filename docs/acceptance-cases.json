@@ -247,7 +247,9 @@
       "status": "not_run",
       "evidence": [
         "evidence/W05.1-cleanup-2026-10-24.md",
-        "W05.1 scoped local preservation/blocker checks passed; installed quiescence and removal integration remain with W05.2/#29. Full scenario stays not_run."
+        "W05.1 scoped local preservation/blocker checks passed; installed quiescence and removal integration remain with W05.2/#29. Full scenario stays not_run.",
+        "evidence/W05.2-deletion-2026-10-24.md",
+        "W05.2 scoped isolated directory removal, preservation and recovery evidence only. Privileged process/mount/ownership and installed SSH/lifecycle qualification remain unexecuted; full scenario stays not_run."
       ]
     },
     {
@@ -261,7 +263,9 @@
       "status": "not_run",
       "evidence": [
         "evidence/W05.1-cleanup-2026-10-24.md",
-        "W05.1 scoped local preservation/blocker checks passed; installed quiescence and removal integration remain with W05.2/#29. Full scenario stays not_run."
+        "W05.1 scoped local preservation/blocker checks passed; installed quiescence and removal integration remain with W05.2/#29. Full scenario stays not_run.",
+        "evidence/W05.2-deletion-2026-10-24.md",
+        "W05.2 scoped isolated directory removal, preservation and recovery evidence only. Privileged process/mount/ownership and installed SSH/lifecycle qualification remain unexecuted; full scenario stays not_run."
       ]
     },
     {
@@ -275,7 +279,9 @@
       "expected": "Trusted helper refuses deletion and unrelated paths survive.",
       "status": "not_run",
       "evidence": [
-        "evidence/W03.1-ssh-boundary-2026-10-23.md"
+        "evidence/W03.1-ssh-boundary-2026-10-23.md",
+        "evidence/W05.2-deletion-2026-10-24.md",
+        "W05.2 scoped isolated directory removal, preservation and recovery evidence only. Privileged process/mount/ownership and installed SSH/lifecycle qualification remain unexecuted; full scenario stays not_run."
       ]
     },
     {
@@ -289,7 +295,9 @@
       "expected": "Tombstone proves deletion; history survives; a second path is never touched.",
       "status": "not_run",
       "evidence": [
-        "evidence/W01.1-retention-2026-10-21.md"
+        "evidence/W01.1-retention-2026-10-21.md",
+        "evidence/W05.2-deletion-2026-10-24.md",
+        "W05.2 scoped isolated directory removal, preservation and recovery evidence only. Privileged process/mount/ownership and installed SSH/lifecycle qualification remain unexecuted; full scenario stays not_run."
       ]
     },
     {
@@ -435,7 +443,9 @@
       "evidence": [
         "W03.3 scoped runtime/configuration proof passed on installed Linux/SSH: source-only checkout, independent SQLite/HTTP namespaces, actual role isolation, recipe-owned disposal declarations and same-resource reply-loss/process recovery. Full cleanup trigger/effect stays with LS-CLN-001/W05; AC30 remains not_run. See evidence/W03.3-runtimes-2026-10-24.md.",
         "evidence/W05.1-cleanup-2026-10-24.md",
-        "W05.1 locally proves configured source-only/optional SQLite runtime triggers and alternate pinned assessment actions. Full cleanup effect and installed lifecycle integration remain with W05.2/#29; AC30 stays not_run."
+        "W05.1 locally proves configured source-only/optional SQLite runtime triggers and alternate pinned assessment actions. Full cleanup effect and installed lifecycle integration remain with W05.2/#29; AC30 stays not_run.",
+        "evidence/W05.2-deletion-2026-10-24.md",
+        "W05.2 scoped isolated directory removal, preservation and recovery evidence only. Privileged process/mount/ownership and installed SSH/lifecycle qualification remain unexecuted; full scenario stays not_run."
       ]
     },
     {

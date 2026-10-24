@@ -97,7 +97,7 @@
       "Implement safe target deletion with durable tombstones."
     ],
     "first_verifiable_outcome": "One eligible directory is removed; blocked and unrelated paths remain intact.",
-    "status": "planned",
+    "status": "in_progress",
     "github_issue": 8,
     "github_issue_url": "https://github.com/alex-engvall/labstride/issues/8"
   },

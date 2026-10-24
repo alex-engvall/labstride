@@ -36,9 +36,9 @@ The helper validates bounded JSON, schema version, target identity, operation di
 
 The separate SQLite registry uses schema version 1, synchronous durable commits, immutable reservation rows and unique operation/workspace identities. Different digests or owners conflict. Source locators are derived from installation/target/workspace identity. Existing paths are never adopted. Success means `state=reserved`, no created checkout and no disposable resource claim. Core workspace state remains unchanged.
 
-Root ancestors must have protected ownership and permissions. The helper holds a directory descriptor, checks device/inode/UID/Linux mount ID, refuses links and rechecks identity before commit. Registry state must be private and outside source roots. Unmanaged databases and linked database/sidecar paths are rejected. There is no recursive traversal, arbitrary shell, clone, session, deployment or deletion operation.
+Root ancestors must have protected ownership and permissions. The helper holds a directory descriptor, checks device/inode/UID/Linux mount ID, refuses links and rechecks identity before commit. Registry state must be private and outside source roots. Unmanaged databases and linked database/sidecar paths are rejected. The W03.1 reservation boundary provides no recursive traversal, arbitrary shell, clone, session, deployment or deletion operation; later qualified capabilities are documented separately.
 
-Root authority can defeat this boundary. Separate directories do not isolate hostile code sharing an OS UID. Target restart/remount may change a mount ID; requalification is an explicit operator task. W05 must add quiescence, safe movement/deletion, dirty/unpushed checks and tombstones before cleanup is available.
+Root authority can defeat this boundary. Separate directories do not isolate hostile code sharing an OS UID. Target restart/remount may change a mount ID; requalification is an explicit operator task. [W05.1/W05.2](20-workspace-cleanup.md) add source preservation and an optional qualified v5 deletion boundary; their isolated evidence does not establish installed deletion safety.
 
 ## Durable execution and recovery
 

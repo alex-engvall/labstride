@@ -58,7 +58,7 @@ def main():
             links += 1
 
     pairs = {
-        **{name:name for name in ['cleanup-policy','cleanup-inspection','cleanup-decision','cleanup-action-input','ssh-cleanup-request','ssh-cleanup-response','managed-cleanup-observation']},
+        **{name:name for name in ['cleanup-delete-input','cleanup-preparation','cleanup-tombstone','ssh-cleanup-delete-request','ssh-cleanup-delete-response','cleanup-policy','cleanup-inspection','cleanup-decision','cleanup-action-input','ssh-cleanup-request','ssh-cleanup-response','managed-cleanup-observation']},
         'config': 'installation.template', 'extension': 'extension', 'cli-version': 'cli-version',
         'operational-installation': 'operational-installation', 'self-build-input': 'self-build-input', 'managed-result': 'managed-result', 'managed-session-start': 'managed-session-start',
         'operation': 'operation', 'receipt': 'receipt', 'event': 'event',

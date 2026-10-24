@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Trusted cleanup deletion request v5",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "5.0"
+    },
+    "requestId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "installationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetRevision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "method": {
+      "enum": [
+        "prepare",
+        "inspect",
+        "commit",
+        "release"
+      ]
+    },
+    "operation": {
+      "$ref": "operation.schema.json"
+    },
+    "authorization": {
+      "anyOf": [
+        {
+          "title": "Fresh cleanup commit authorization",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "decisionId": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "preparedDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "decisionId",
+            "preparedDigest",
+            "expiresAt"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "requestId",
+    "installationId",
+    "targetId",
+    "targetRevision",
+    "method",
+    "operation",
+    "authorization"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "method": {
+            "const": "commit"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "authorization": {
+            "type": "object"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "authorization": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

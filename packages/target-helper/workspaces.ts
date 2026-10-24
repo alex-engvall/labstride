@@ -1,3 +1,4 @@
+import { createCleanupTables, assertWorkspaceAvailable } from './cleanup-state.ts';
 import { DatabaseSync } from 'node:sqlite';
 import { chmodSync, chownSync, closeSync, constants, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,7 +18,7 @@ export interface WorkspaceDependencies {
 }
 const syncDirectory = (path:string) => {const fd=openSync(path,constants.O_RDONLY|constants.O_DIRECTORY|constants.O_NOFOLLOW);try{fsyncSync(fd);}finally{closeSync(fd);}};
 const absent = (path:string) => {try{lstatSync(path);}catch(e){if((e as NodeJS.ErrnoException).code==='ENOENT')return;throw e;}throw new TargetError('resource_busy');};
-const legacyPolicy = (policy:WorkspacePolicy) => {const {codingGid:_gid,sources:_sources,...base}=policy;return {...base,schemaVersion:'1.0' as const};};
+const legacyPolicy = (policy:WorkspacePolicy) => {const {codingGid:_gid,sources:_sources,cleanup:_cleanup,...base}=policy;return {...base,schemaVersion:'1.0' as const};};
 export class WorkspaceRegistry {
   private db: DatabaseSync;
   readonly policy:WorkspacePolicy;
@@ -40,7 +41,9 @@ export class WorkspaceRegistry {
       CREATE TRIGGER IF NOT EXISTS workspace_identity_immutable BEFORE UPDATE OF operation_id,workspace_id,request_digest,request ON workspace_creations
         BEGIN SELECT RAISE(ABORT,'immutable'); END;
       CREATE TRIGGER IF NOT EXISTS workspace_creation_retained BEFORE DELETE ON workspace_creations BEGIN SELECT RAISE(ABORT,'immutable'); END;
-      PRAGMA user_version=2; COMMIT;`);
+      `);
+    createCleanupTables(this.db);
+    this.db.exec('PRAGMA user_version=3; COMMIT');
   }
   async handle(input:unknown):Promise<WorkspaceResponse> {
     const request=validated<WorkspaceRequest>('ssh-workspace-request',input as WorkspaceRequest);
@@ -57,7 +60,8 @@ export class WorkspaceRegistry {
         for(const root of this.policy.roots)withWorkspaceRoot(root.path,root.identity,()=>{});
         return reply(null,null,request.includeRoots?structuredClone(this.policy.roots):undefined);
       }
-      const op=request.operation!,root=this.policy.roots.find(root=>root.id===op.inputs.rootId)!;
+      const op=request.operation!; assertWorkspaceAvailable(this.db, op.workspaceId);
+      const root=this.policy.roots.find(root=>root.id===op.inputs.rootId)!;
       const identity=workspaceIdentity(request.installationId,request.targetId,op.workspaceId);
       const saved=this.db.prepare('SELECT * FROM workspace_creations WHERE operation_id=?').get(op.operationId);
       if(saved) {
@@ -136,10 +140,10 @@ export class WorkspaceRegistry {
       return reply(null,code);
     }
   }
-  private checkPublished(path:string,receipt:WorkspaceReceipt):void {
+  checkPublished(path:string,receipt:WorkspaceReceipt,fenced=false):void {
     const stat=lstatSync(path),child=lstatSync(join(path,'source'));
     if(!stat.isDirectory() || stat.isSymbolicLink() || stat.uid!==this.policy.helperUid || stat.gid!==this.policy.codingGid ||
-      (stat.mode&0o777)!==0o750 || !child.isDirectory() || child.isSymbolicLink() || child.uid!==this.policy.helperUid || child.gid!==this.policy.codingGid ||
+      !((fenced?[0o700,0o750]:[0o750]).includes(stat.mode&0o777)) || !child.isDirectory() || child.isSymbolicLink() || child.uid!==this.policy.helperUid || child.gid!==this.policy.codingGid ||
       !sameIdentity(directoryIdentity(path),receipt.directoryIdentity))throw new TargetError('identity_mismatch');
     // source is deliberately group-writable: observe only its top descriptor,
     // never execute Git or traverse coding-controlled content during inspection.
@@ -159,5 +163,14 @@ export class WorkspaceRegistry {
     return this.handle({schemaVersion:'2.0',requestId:operationId,installationId:this.policy.installationId,
       targetId:this.policy.targetId,targetRevision:this.policy.targetRevision,method:'inspect',operation});
   }
+  beginUse(operationId:string,workspaceId:string):void {
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      assertWorkspaceAvailable(this.db,workspaceId);
+      this.db.prepare('INSERT INTO workspace_uses VALUES (?,?,1) ON CONFLICT(operation_id) DO UPDATE SET active=1').run(operationId,workspaceId);
+      this.db.exec('COMMIT');
+    }catch(error){this.db.exec('ROLLBACK');throw error;}
+  }
+  endUse(operationId:string):void { this.db.prepare('UPDATE workspace_uses SET active=0 WHERE operation_id=?').run(operationId); }
   close(){this.db.close();}
 }

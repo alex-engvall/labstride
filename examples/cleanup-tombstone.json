@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "targetRevision": 1,
+  "workspaceId": "ws-example-001",
+  "creationOperationId": "op-example-001",
+  "receiptDigest": "5e0c1a1dd2a6e64e3ac8763062e08e70ce2ef717de15d8b945cc57fa6f8eb3f1",
+  "operationId": "cleanup-delete-example",
+  "requestDigest": "a15f8d62efe97324bed33089bd362bdfce37969a5929cc0c19d3131049cc755b",
+  "policyDigest": "6ceb13eb38d22c52d26c5fea2b4f4116b1d44a1829b1b5c6de7896b7593148a9",
+  "directoryIdentity": {
+    "device": 1,
+    "inode": 2,
+    "mountId": 3,
+    "uid": 1234
+  },
+  "deletedAt": "2026-10-24T12:00:01Z"
+}

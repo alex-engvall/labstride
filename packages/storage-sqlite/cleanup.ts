@@ -1,3 +1,5 @@
+import type { TrustedCleanupDeletionResponseV5 as DeletionResponse } from '../../contracts/generated/ssh-cleanup-delete-response.ts';
+import type { CleanupPreparationV1 } from '../../contracts/generated/cleanup-preparation.ts';
 import { WorkflowStore } from './workflows.ts';
 import { controlContext } from './scheduling.ts';
 import { validated } from './validation.ts';
@@ -44,8 +46,8 @@ export class CleanupStore extends WorkflowStore {
   }
   cleanupRequests(runId?: string) {
     return this.db.prepare('SELECT * FROM cleanup_requests WHERE (? IS NULL OR run_id=?) ORDER BY rowid').all(runId ?? null, runId ?? null)
-      .map(row => ({ id: String(row.id), runId: String(row.run_id), workspaceId: String(row.workspace_id), state: String(row.state),
-        decisionId: row.decision_id as string | null, operation: row.operation ? validated('operation', JSON.parse(String(row.operation))) as RecordOf<'operation'>['request'] : null }));
+      .map(row => ({ id: String(row.id), runId: String(row.run_id), workspaceId: String(row.workspace_id), state: this.cleanupExecution(String(row.id))?.stage==='deleted'?'deleted':String(row.state),
+        deletion: this.cleanupExecution(String(row.id)), decisionId: row.decision_id as string | null, operation: row.operation ? validated('operation', JSON.parse(String(row.operation))) as RecordOf<'operation'>['request'] : null }));
   }
   cleanupDecision(requestId: string): { id: string; decision: CleanupDecisionV1 } | null {
     const row = this.db.prepare('SELECT d.id,d.payload FROM cleanup_requests r JOIN cleanup_decisions d ON d.id=r.decision_id WHERE r.id=?').get(requestId);
@@ -67,7 +69,9 @@ export class CleanupStore extends WorkflowStore {
         target: order ? this.deploymentOrderContext(op.id) : null,
         state: enrollment.deployment ? this.get('deployment', deploymentId(op.id)).state : null };
     });
-    const context = { run, request, workspace, configDigest: snapshot.digest, policy: snapshot.configuration.cleanup,
+    const execution=this.cleanupExecution(requestId);
+    const {commitContextDigest:_commitContext,...deletion}=execution??{};
+    const context = { cleanupRequestId:requestId, deletion:execution?deletion:null, run, request, workspace, configDigest: snapshot.digest, policy: snapshot.configuration.cleanup,
       latestGeneration: Number(this.db.prepare('SELECT max(generation) AS n FROM requests WHERE installation_id=? AND provider_id=? AND issue_id=?')
         .get(request.installationId, request.providerId, request.issueId)!.n),
       policyStatus: this.policyStatus(request.installationId),
@@ -173,4 +177,93 @@ export class CleanupStore extends WorkflowStore {
     if(previous?.result && previous.result!==canonical(result))throw new LifecycleError('identity_conflict');
     this.db.prepare('UPDATE cleanup_requests SET state=?,result=? WHERE id=?').run(result.result.outputs.cleanupDisposition === 'retain' ? 'retained' : 'pending_executor', canonical(result), requestId);
   }
+  cleanupExecution(requestId: string): { operation: RecordOf<'operation'>['request']; stage: string; commitContextDigest:string|null; authorization: import('../../contracts/generated/ssh-cleanup-delete-request.ts').TrustedCleanupDeletionRequestV5['authorization']; observation: DeletionResponse | null } | null {
+    const row = this.db.prepare('SELECT * FROM cleanup_executions WHERE request_id=?').get(requestId);
+    return row ? { operation: validated('operation', JSON.parse(String(row.operation))), stage: String(row.stage), commitContextDigest:row.commit_context as string|null, authorization:row.authorization?JSON.parse(String(row.authorization)):null,
+      observation: row.observation ? validated('ssh-cleanup-delete-response', JSON.parse(String(row.observation))) : null } : null;
+  }
+  beginCleanupDeletion(requestId: string): RecordOf<'operation'>['request'] {
+    return this.transaction(() => {
+      const context = this.cleanupContext(requestId), decision = this.cleanupDecision(requestId), saved = this.cleanupRequests().find(r => r.id === requestId)!;
+      const pin = this.runConfiguration(context.run.id)!.extensionLock.extensions.find(p => p.id === context.policy.actionId && p.version === context.policy.actionVersion);
+      if (this.cleanupExecution(requestId) || saved.state !== 'pending_executor' || !pin?.capabilities.includes('cleanup.execute.v1')) throw new LifecycleError('effect_blocked');
+      this.assertCleanupFresh(context, decision);
+      const receipt = this.workspaceReceipt(context.run.id), op = this.cleanupOperation(context, decision!.id);
+      op.operationId = `cleanup-delete-${digest([requestId, op.operationId])}`;
+      op.inputs = { schemaVersion: '2.0', policy: context.policy, decisionId: decision!.id, workspaceId: context.workspace.id,
+        creationOperationId: receipt.operationId, receiptDigest: digest(receipt) };
+      op.requestDigest = requestDigest(op); validated('cleanup-delete-input', op.inputs);
+      this.db.prepare("INSERT INTO cleanup_executions VALUES (?,?,?,'preparing',NULL,NULL,NULL)").run(requestId, context.workspace.id, canonical(op));
+      const workspace = context.workspace;
+      if (workspace.state !== 'cleanup_pending') this.write([{expectedRevision:workspace.revision,record:{...workspace,state:'cleanup_pending',revision:workspace.revision+1,updatedAt:this.clock.now()}}],
+        {actorId:'cleanup',reason:'Reserve workspace before target fencing',evidenceRefs:[`cleanup-decision:${decision!.id}`]});
+      return op;
+    });
+  }
+  private assertCleanupFresh(context: ReturnType<CleanupStore['cleanupContext']>, saved: ReturnType<CleanupStore['cleanupDecision']>): void {
+    const age = saved ? Date.parse(this.clock.now()) - Date.parse(saved.decision.observedAt) : Infinity;
+    if (!saved?.decision.eligible || saved.decision.contextDigest !== context.contextDigest || this.cleanupLocalBlockers(context).length ||
+      age < 0 || age > 30000 || saved.decision.recoveryEpoch !== this.recoveryEpoch()) throw new LifecycleError('effect_blocked');
+  }
+  authorizeCleanupDeletion(requestId: string, preparation: CleanupPreparationV1) {
+    return this.transaction(() => {
+      const context = this.cleanupContext(requestId), saved = this.cleanupExecution(requestId), decision = this.cleanupDecision(requestId);
+      if (!saved || saved.stage !== 'prepared' || digest(saved.observation?.preparation) !== digest(preparation)) throw new LifecycleError('effect_blocked');
+      this.assertCleanupFresh(context, decision);
+      const authorization={decisionId:decision!.id,preparedDigest:digest(preparation),expiresAt:new Date(Date.parse(this.clock.now())+30000).toISOString()};
+      this.db.prepare("UPDATE cleanup_executions SET stage='committing',authorization=? WHERE request_id=?").run(canonical(authorization),requestId);
+      const workspace=context.workspace;
+      this.write([{expectedRevision:workspace.revision,record:{...workspace,state:'deleting',revision:workspace.revision+1,updatedAt:this.clock.now()}}],
+        {actorId:'cleanup',reason:'Authorize the original protected move',evidenceRefs:[`cleanup-decision:${decision!.id}`]});
+      this.db.prepare('UPDATE cleanup_executions SET commit_context=? WHERE request_id=?').run(this.cleanupContext(requestId).contextDigest,requestId);
+      return authorization;
+    });
+  }
+  assertCleanupCommitAllowed(requestId:string, authorization:unknown):void {
+    const saved=this.cleanupExecution(requestId);
+    if(!saved || saved.stage!=='committing' || digest(saved.authorization)!==digest(authorization) ||
+      this.cleanupContext(requestId).contextDigest!==saved.commitContextDigest ||
+      !saved.authorization || Date.parse(saved.authorization.expiresAt)<=Date.parse(this.clock.now()))throw new LifecycleError('effect_blocked');
+  }
+  observeCleanupDeletion(requestId: string, input: unknown): DeletionResponse {
+    const reply = validated('ssh-cleanup-delete-response', input as DeletionResponse);
+    return this.transaction(() => {
+      const saved = this.cleanupExecution(requestId); if (!saved) throw new LifecycleError('not_found');
+      const op = saved.operation, snapshot=this.runConfiguration(op.runId)!, receipt=this.workspaceReceipt(op.runId);
+      const expected={schemaVersion:'1.0',installationId:snapshot.configuration.installationId,targetId:op.targetId,
+        targetRevision:snapshot.configuration.targets[op.targetId].configuration.revision,workspaceId:op.workspaceId,
+        creationOperationId:receipt.operationId,receiptDigest:digest(receipt),operationId:op.operationId,requestDigest:op.requestDigest,policyDigest:digest(op.inputs.policy)};
+      if (reply.requestId!==op.operationId || reply.installationId!==expected.installationId || reply.targetId!==op.targetId || reply.targetRevision!==expected.targetRevision ||
+        (reply.state==='deleted')!==(reply.tombstone!==null)) throw new LifecycleError('identity_conflict');
+      for (const bound of [reply.preparation,reply.tombstone]) if(bound) for(const key of Object.keys(expected) as (keyof typeof expected)[])
+        if(digest(bound[key])!==digest(expected[key])) throw new LifecycleError('identity_conflict');
+      if(reply.preparation && (reply.preparation.inspection.blockers.length || !reply.preparation.inspection.remoteRefsDigest)) throw new LifecycleError('identity_conflict');
+      if(saved.stage==='deleted') {
+        if(digest(saved.observation?.tombstone)!==digest(reply.tombstone))throw new LifecycleError('identity_conflict');
+        return reply;
+      }
+      if(reply.tombstone) {
+        // Success must come from independent reconciliation of protected state,
+        // never solely from an extension's reported action result.
+        if(reply.method!=='inspect' || digest(reply.tombstone.directoryIdentity)!==digest(receipt.directoryIdentity))throw new LifecycleError('identity_conflict');
+        const workspace=this.get('workspace',op.workspaceId), now=this.clock.now(), ref=`target:tombstone:${digest(reply.tombstone)}`;
+        const audit={actorId:'cleanup',reason:'Reconciled protected deletion tombstone',evidenceRefs:[ref]};
+        if(workspace.state!=='deleting')throw new LifecycleError('identity_conflict');
+        const evidence:RecordOf<'evidence'>={schemaVersion:'1.0',id:`cleanup-evidence-${digest(reply.tombstone)}`,revision:1,createdAt:now,updatedAt:now,
+          kind:'evidence',runId:op.runId,workspaceId:op.workspaceId,operationId:receipt.operationId,category:'cleanup',subjectId:op.operationId,
+          sourceSha:op.source.sha,targetId:op.targetId,outcome:'verified',reference:ref,tombstoneRef:ref,correctsId:null};
+        this.write([{expectedRevision:null,record:evidence},{expectedRevision:workspace.revision,record:{...workspace,state:'deleted',revision:workspace.revision+1,updatedAt:now}}],audit);
+      }
+      const stage=reply.state==='outcome_unknown'?saved.stage:reply.state==='prepared'&&saved.stage==='committing'?'committing':reply.state;
+      this.db.prepare('UPDATE cleanup_executions SET stage=?,observation=? WHERE request_id=?').run(stage,canonical(reply),requestId);
+      if(['blocked','released'].includes(stage)) {
+        this.db.prepare("UPDATE cleanup_requests SET state='retained' WHERE id=?").run(requestId);
+        const workspace=this.get('workspace',op.workspaceId);
+        if(['cleanup_pending','deleting'].includes(workspace.state))this.write([{expectedRevision:workspace.revision,record:{...workspace,state:'retained',revision:workspace.revision+1,updatedAt:this.clock.now()}}],
+          {actorId:'cleanup',reason:'Target confirmed pre-move retention',evidenceRefs:[`target:cleanup:${op.operationId}:${stage}`]});
+      }
+      return reply;
+    });
+  }
+
 }

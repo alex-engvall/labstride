@@ -147,6 +147,19 @@
           "credentialFile"
         ]
       }
+    },
+    "cleanup": {
+      "title": "Qualified cleanup profile",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "const": "linux-exclusive-writers.v1"
+        }
+      },
+      "required": [
+        "profile"
+      ]
     }
   },
   "required": [

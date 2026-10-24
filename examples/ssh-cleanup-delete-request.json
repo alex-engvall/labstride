@@ -1,0 +1,44 @@
+{
+  "installationId": "installation-example",
+  "targetId": "target-example",
+  "targetRevision": 1,
+  "schemaVersion": "5.0",
+  "requestId": "cleanup-delete-example",
+  "method": "prepare",
+  "operation": {
+    "schemaVersion": "1.0",
+    "operationId": "cleanup-delete-example",
+    "runId": "run-example-001",
+    "workspaceId": "ws-example-001",
+    "actionId": "labstride.workspace-cleanup",
+    "actionVersion": "1.1.0",
+    "configDigest": "1111111111111111111111111111111111111111111111111111111111111111",
+    "source": {
+      "repositoryId": "repo-example",
+      "repository": "example/source",
+      "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "targetId": "target-example",
+    "deadline": "2026-10-21T14:00:00Z",
+    "inputs": {
+      "schemaVersion": "2.0",
+      "policy": {
+        "schemaVersion": "1.0",
+        "trigger": "operator_request",
+        "actionId": "labstride.workspace-cleanup",
+        "actionVersion": "1.1.0",
+        "completion": "merge_only",
+        "regenerableIgnoredPaths": [
+          "node_modules",
+          "build/cache"
+        ]
+      },
+      "decisionId": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "workspaceId": "ws-example-001",
+      "creationOperationId": "op-example-001",
+      "receiptDigest": "5e0c1a1dd2a6e64e3ac8763062e08e70ce2ef717de15d8b945cc57fa6f8eb3f1"
+    },
+    "requestDigest": "a15f8d62efe97324bed33089bd362bdfce37969a5929cc0c19d3131049cc755b"
+  },
+  "authorization": null
+}

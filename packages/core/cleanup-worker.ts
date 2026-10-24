@@ -1,3 +1,5 @@
+import type { TrustedCleanupDeletionRequestV5 } from '../../contracts/generated/ssh-cleanup-delete-request.ts';
+import type { CleanupPreparationV1 } from '../../contracts/generated/cleanup-preparation.ts';
 import { randomUUID } from 'node:crypto';
 import { digest } from '../configuration/json.ts';
 import { fieldValue } from '../configuration/values.ts';
@@ -17,6 +19,7 @@ export type CleanupContext = ReturnType<CleanupStore['cleanupContext']>;
 export interface CleanupOptions {
   host: HostProfile;
   inspect(request: TrustedCleanupInspectionRequestV4, context: CleanupContext): Promise<unknown>;
+  deleteTarget?(request: TrustedCleanupDeletionRequestV5, context: CleanupContext): Promise<unknown>;
   mergeProvider?: MergeProvider;
   observers?: DeploymentObservers;
   // These ports perform independent reads, with identities validated below.
@@ -33,7 +36,11 @@ export function createCleanupWorker(store: CleanupStore, options: CleanupOptions
     try{return await Promise.race([work,new Promise<never>((_resolve,reject)=>{timer=setTimeout(()=>reject(Error('observation_timeout')),ms);})]);}
     finally{clearTimeout(timer);}
   }
-  async function assess(requestId: string) {
+  async function assess(requestId: string, preparation?: CleanupPreparationV1): Promise<CleanupDecisionV1> {
+    if (!preparation && store.cleanupExecution(requestId)) {
+      await executeDeletion(requestId);
+      return store.cleanupDecision(requestId)!.decision;
+    }
     let context = store.cleanupContext(requestId);
     const snapshot = store.runConfiguration(context.run.id)!;
     const blockers = store.cleanupLocalBlockers(context), evidenceRefs: string[] = [];
@@ -74,10 +81,12 @@ export function createCleanupWorker(store: CleanupStore, options: CleanupOptions
       const request: TrustedCleanupInspectionRequestV4 = { schemaVersion: '4.0', requestId, method: 'inspect',
         installationId: context.request.installationId, targetId: context.workspace.targetId, targetRevision: target.configuration.revision as number,
         workspaceId: context.workspace.id, creationOperationId: receipt.operationId, receiptDigest: digest(receipt), policy: context.policy };
-      const reply = validated('ssh-cleanup-response', await read(options.inspect(request, context),60000) as import('../../contracts/generated/ssh-cleanup-response.ts').TrustedCleanupInspectionResponseV4);
+      const reply = preparation ? {schemaVersion:'4.0' as const,requestId:request.requestId,installationId:request.installationId,targetId:request.targetId,targetRevision:request.targetRevision,
+        method:'inspect' as const,outcome:'ok' as const,inspection:preparation.inspection} :
+        validated('ssh-cleanup-response', await read(options.inspect(request, context),60000) as import('../../contracts/generated/ssh-cleanup-response.ts').TrustedCleanupInspectionResponseV4);
       for (const key of ['requestId', 'installationId', 'targetId', 'targetRevision', 'method'] as const) if (reply[key] !== request[key]) throw Error();
       inspection = reply.inspection;
-      if (reply.outcome !== 'ok' || !inspection || inspection.requestId !== requestId || inspection.installationId !== request.installationId ||
+      if (reply.outcome !== 'ok' || !inspection || inspection.requestId !== (preparation?.operationId ?? requestId) || inspection.installationId !== request.installationId ||
         inspection.targetId !== request.targetId || inspection.workspaceId !== request.workspaceId || inspection.creationOperationId !== request.creationOperationId ||
         inspection.receiptDigest !== request.receiptDigest || inspection.policyDigest !== digest(context.policy) || !fresh(inspection.observedAt)) throw Error();
       for (const blocker of inspection.blockers) add(blocker);
@@ -124,9 +133,12 @@ export function createCleanupWorker(store: CleanupStore, options: CleanupOptions
     const decision: CleanupDecisionV1 = { schemaVersion: '1.0', requestId, contextDigest: context.contextDigest, policyDigest: digest(context.policy),
       recoveryEpoch: context.recoveryEpoch, observedAt, eligible: blockers.length === 0, blockers, evidenceRefs, inspection, observations };
     const decisionId = store.recordCleanupDecision(context, decision);
-    if (!decision.eligible) return decision;
+    if (!decision.eligible || preparation) return decision;
     const prior = store.cleanupRequests().find(r => r.id === requestId)!;
-    if (prior.operation && prior.state !== 'outcome_unknown') return decision;
+    if (prior.operation && prior.state !== 'outcome_unknown') {
+      if(prior.state==='pending_executor')await executeDeletion(requestId);
+      return decision;
+    }
     const pin = snapshot.extensionLock.extensions.find(pin => pin.id === context.policy.actionId && pin.version === context.policy.actionVersion && pin.kind === 'action');
     if (!pin?.capabilities.includes('cleanup.assess.v1')) throw Error('unsupported_capability');
     const loaded = await loadExtension(freezeProfile(context.run.id, snapshot.digest, pin, options.host), options.host);
@@ -142,7 +154,76 @@ export function createCleanupWorker(store: CleanupStore, options: CleanupOptions
         validated<Claim>('execution-record',{ schemaVersion:'1.0',kind:'claim',id:operation.operationId,operationId:operation.operationId,attemptId:operation.operationId,executorId:'cleanup-assessment',resourceKey:`cleanup:${operation.workspaceId}`,requestDigest:operation.requestDigest,fencingNumber:1,createdAt:store.cleanupNow() }));
       loaded.checkOutput(result); store.finishCleanupAssessment(requestId, result);
     } catch { /* The durable possible invocation stays unknown. Never start again. */ }
+    if(store.cleanupRequests().find(r=>r.id===requestId)?.state==='pending_executor')await executeDeletion(requestId);
     return decision;
+  }
+  async function executeDeletion(requestId: string): Promise<void> {
+    let context=store.cleanupContext(requestId), saved=store.cleanupExecution(requestId);
+    if(saved && ['deleted','blocked','released'].includes(saved.stage))return;
+    const snapshot=store.runConfiguration(context.run.id)!, pin=snapshot.extensionLock.extensions.find(p=>p.id===context.policy.actionId&&p.version===context.policy.actionVersion);
+    if(!pin?.capabilities.includes('cleanup.execute.v1') || !options.deleteTarget)return;
+    const services={target:{
+      async binding(operation:RecordOf<'operation'>['request']) {
+        const original=store.cleanupExecution(requestId)?.operation;
+        if(!original || digest(original)!==digest(operation))throw Error('identity_mismatch');
+        return {installationId:context.request.installationId,revision:snapshot.configuration.targets[operation.targetId].configuration.revision};
+      },
+      async invoke(request:TrustedCleanupDeletionRequestV5) {
+        validated('ssh-cleanup-delete-request',request);
+        const execution=store.cleanupExecution(requestId);
+        if(!execution || digest(execution.operation)!==digest(request.operation) || request.installationId!==context.request.installationId ||
+          request.targetId!==execution.operation.targetId || request.targetRevision!==snapshot.configuration.targets[request.targetId].configuration.revision ||
+          request.method==='commit'&&(execution.stage!=='committing'||digest(execution.authorization)!==digest(request.authorization)) ||
+          request.method==='prepare'&&(execution.stage!=='preparing'||execution.observation!==null))throw Error('effect_blocked');
+        if(request.method==='commit')store.assertCleanupCommitAllowed(requestId,request.authorization);
+        const reply=validated('ssh-cleanup-delete-response',await read(options.deleteTarget!(request,store.cleanupContext(requestId)),60000) as import('../../contracts/generated/ssh-cleanup-delete-response.ts').TrustedCleanupDeletionResponseV5);
+        for(const key of ['requestId','installationId','targetId','targetRevision','method'] as const)if(reply[key]!==request[key])throw Error('identity_mismatch');
+        return reply;
+      },
+    }};
+    const loaded=await loadExtension(freezeProfile(context.run.id,snapshot.digest,pin,options.host),options.host,services);
+    type DeletionAction=ActionAdapter & {commit(operation:RecordOf<'operation'>['request'],authorization:NonNullable<TrustedCleanupDeletionRequestV5['authorization']>):Promise<import('./execution.ts').BoundResult>;
+      release(operation:RecordOf<'operation'>['request']):Promise<import('./execution.ts').BoundResult>};
+    const adapter=loaded.instance as DeletionAction;
+    if(typeof adapter.commit!=='function'||typeof adapter.release!=='function')throw Error('unsupported_capability');
+    const first=!saved;
+    const operation=saved?.operation??store.beginCleanupDeletion(requestId);
+    loaded.checkInput(operation.inputs);await adapter.validate(operation);
+    // Reconciliation talks directly to the configured trusted connector. An
+    // extension's result can never manufacture target deletion evidence.
+    const inspect=async()=>{
+      const b=await services.target.binding(operation);
+      const reply=await services.target.invoke({schemaVersion:'5.0',requestId:operation.operationId,installationId:b.installationId,targetId:operation.targetId,
+        targetRevision:b.revision as number,method:'inspect',operation,authorization:null});
+      return store.observeCleanupDeletion(requestId,reply);
+    };
+    if(first) {
+      try {
+        const result=await adapter.start(operation,validated<Claim>('execution-record',{schemaVersion:'1.0',kind:'claim',id:operation.operationId,operationId:operation.operationId,
+          attemptId:operation.operationId,executorId:'cleanup-deletion',resourceKey:`cleanup:${operation.workspaceId}`,requestDigest:operation.requestDigest,fencingNumber:1,createdAt:store.cleanupNow()}));
+        loaded.checkOutput(result);
+      } catch { /* Preserve possible preparation; inspect the original operation. */ }
+    }
+    let reply=await inspect(); saved=store.cleanupExecution(requestId)!;
+    if(['deleted','blocked','released'].includes(reply.state))return;
+    if(reply.state==='prepared' && reply.preparation && saved.stage!=='committing') {
+      const decision=await assess(requestId,reply.preparation);
+      if(decision.eligible) {
+        const authorization=store.authorizeCleanupDeletion(requestId,reply.preparation);
+        try {const result=await adapter.commit(operation,authorization);loaded.checkOutput(result);}catch{/* Inspect; never repeat commit. */}
+        reply=await inspect();
+        if(reply.state!=='prepared')return;
+      }
+      // A refused or undelivered pre-move commit may release only the original
+      // fenced directory. Moving/removing states are completed by inspection.
+      try {const result=await adapter.release(operation);loaded.checkOutput(result);}catch{/* Retain the fence on uncertainty. */}
+      await inspect();
+    } else if(reply.state==='prepared' || reply.state==='fenced') {
+      // Preparation/commit may have been interrupted. Do not replay start or
+      // revive stale authorization: reconcile a known pre-move release instead.
+      try {const result=await adapter.release(operation);loaded.checkOutput(result);}catch{/* Keep unknown. */}
+      await inspect();
+    }
   }
   return { assess, async tick() {
     if (running) return; running = true;
@@ -152,7 +233,7 @@ export function createCleanupWorker(store: CleanupStore, options: CleanupOptions
         const now = Date.parse(store.cleanupNow()); if ((nextRead.get(request.id) ?? 0) > now) continue;
         const config = store.runConfiguration(request.runId)!.configuration;
         nextRead.set(request.id, now + config.github.pollIntervalSeconds * 1000);
-        try { await assess(request.id); } catch { store.cleanupAssessmentUnavailable(request.id); }
+        try { await assess(request.id); } catch { if(!store.cleanupExecution(request.id))store.cleanupAssessmentUnavailable(request.id); }
       }
     } finally { running = false; }
   } };

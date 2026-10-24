@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Trusted cleanup deletion response v5",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "5.0"
+    },
+    "requestId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "installationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetRevision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "method": {
+      "enum": [
+        "prepare",
+        "inspect",
+        "commit",
+        "release"
+      ]
+    },
+    "state": {
+      "enum": [
+        "blocked",
+        "fenced",
+        "prepared",
+        "moving",
+        "removing",
+        "deleted",
+        "released",
+        "outcome_unknown"
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 32,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z_]+$"
+      }
+    },
+    "preparation": {
+      "anyOf": [
+        {
+          "$ref": "cleanup-preparation.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "tombstone": {
+      "anyOf": [
+        {
+          "$ref": "cleanup-tombstone.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "requestId",
+    "installationId",
+    "targetId",
+    "targetRevision",
+    "method",
+    "state",
+    "blockers",
+    "preparation",
+    "tombstone"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "deleted"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "tombstone": {
+            "type": "object"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "tombstone": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "prepared"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "preparation": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ]
+}
