@@ -646,7 +646,7 @@
       "acceptance_criteria": [
         "Source-only workspace creation works; two runtime recipes have distinct resource namespaces."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/engshort/labstride/pull/63",
       "verification_evidence": [
         "[Real Linux SQLite/HTTP recipe resources, public action, process-kill and worker recovery; installed SSH qualification remains open](evidence/W03.3-runtimes-2026-10-24.md)",
         "evidence/W03.3-runtime-receipt-2026-10-24.json"

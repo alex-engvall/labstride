@@ -64,5 +64,6 @@
       "skipped": 8,
       "skipReason": "root-operated isolated OpenSSH tests; this invoking account is non-root"
     }
-  }
+  },
+  "implementationPullRequest": "https://github.com/engshort/labstride/pull/63"
 }
