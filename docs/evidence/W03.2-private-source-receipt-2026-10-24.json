@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "1.0",
+  "recordedOn": "2026-10-24",
+  "environment": {
+    "os": "Debian 13",
+    "kernelFamily": "Linux",
+    "architecture": "x86_64",
+    "node": "24.22.0"
+  },
+  "scope": {
+    "qualification": "real private GitHub source checkout and recovery",
+    "requestAdmission": "bounded trusted operator composition",
+    "compilerProviderDescriptor": "public fixture",
+    "fullAC36Profile": "previous actual Project-based GitHub/Linux/Codex proof"
+  },
+  "source": {
+    "visibility": "private",
+    "identityMatchedByHelper": true,
+    "exactRequestedRevisionVerified": true,
+    "requestedRevisionSha256": "beab5564fdaf16d4a79f1c3a4fd888412824d220f9938cf941af02ca862d1cc6",
+    "privateRepositoryIdentityPublished": false
+  },
+  "authorization": {
+    "separateFineGrainedReadCredential": true,
+    "selectedPrivateRepositoriesReturned": 1,
+    "selectedRepositoryMatched": true,
+    "privateMetadataAndExactCommitRead": true,
+    "uploadPackHttpStatus": 200,
+    "receivePackHttpStatus": 403,
+    "receivePackRefusedBeforeMutation": true,
+    "repositoryWriteSubmitted": false,
+    "serverReportedTokenExpiryUtc": "2026-10-24T22:00:00Z",
+    "tokenOnlyInProtectedOperatorAndHelperFiles": true,
+    "credentialTransport": "authenticated SSH stdin"
+  },
+  "artifacts": {
+    "workspaceActionVersion": "1.0.0",
+    "workspaceActionSha256": "074b6a47db682a6b96c6152e87b1ce41bbe506517875dcdf94f0dbf00db5b765",
+    "sshConnectorVersion": "1.1.0",
+    "sshConnectorSha256": "0671e99833c93926f5c8c2a928701f4a8a435156e0c09bb643e4ccb1702fbc34",
+    "compiledConfigurationDigest": "29cf04805cb497cef1420dc20d63f8ded03e1028fc45327d19dd3f5790f3a3c5"
+  },
+  "recovery": {
+    "actualSshReplyLost": true,
+    "ownCoordinatorKilled": true,
+    "processUidExecutableAncestryVerified": true,
+    "signalsUsedPidfds": true,
+    "originalUnknownOutcomeObserved": true,
+    "originalOperationRecovered": true,
+    "originalDirectoryRecovered": true,
+    "originalHandleRecovered": true,
+    "targetAndCoordinatorFullReceiptMatched": true,
+    "sourceAuthorizationUnavailableDuringRecovery": true,
+    "invalidAuthorizationHttpStatus": 401,
+    "originalCredentialRestored": true,
+    "codingAccountEditPreserved": true,
+    "additionalRecoveryAndStatusProcessesRetainedOriginal": true,
+    "finalOperationState": "succeeded",
+    "finalWorkspaceState": "ready",
+    "finalRunState": "ready",
+    "privateRunCount": 1,
+    "privateWorkspaceCount": 1,
+    "privateOperationCount": 1,
+    "privateResourceCount": 1,
+    "operationIdentitySha256": "adfbc19cf7672b7c25ba37ae6bb056be12ffb9121394e5ef82b18900fdf6bfef",
+    "locatorSha256": "63ff651f13b597ef9109ae4a40d6f666d7d01ec7d64af5794809ccf1ae858ead",
+    "handleSha256": "adfbc19cf7672b7c25ba37ae6bb056be12ffb9121394e5ef82b18900fdf6bfef",
+    "requestDigest": "97bae6b1966e0b6ba15adf32dd6c534cb00e92b38640611046c849817f52c7d7"
+  },
+  "isolation": {
+    "schemaVersion": "1.0",
+    "sourceCredentialAbsentFromCheckoutConfigReceiptsAndLogs": true,
+    "regularFilesScanned": 3362,
+    "nonRegularFilesExcluded": 0,
+    "rawAndBasicEncodedCredentialChecked": true,
+    "codingAccountCannotReadCredentialOrRegistries": true,
+    "beforeCreations": 4,
+    "afterCreations": 5,
+    "originalReservationsRetained": 1,
+    "originalRowsAndReceiptsUnchanged": true,
+    "originalFourWorkspacesInspectedOverSsh": true,
+    "allGitDatabasesDistinct": true,
+    "onePrivateRunWorkspaceOperationResource": true,
+    "finalConsistentBackupsRetained": true,
+    "allWorkspacesRetained": true
+  },
+  "retention": {
+    "originalFourCreationsRetained": true,
+    "totalRetainedCreations": 5,
+    "originalReservationsRetained": 1,
+    "consistentBackupsRetained": true,
+    "automaticDeletionIntroduced": false
+  },
+  "acceptance": {
+    "LS-SSH-003": "verified for tested Linux source-checkout profile",
+    "LS-SSH-004": "verified for tested Linux source-checkout profile",
+    "AC08": "previous public two-issue profile retained",
+    "AC09": "private source actual SSH/coordinator loss additionally passed",
+    "AC36": "previous full actual-client/human-turn profile retained"
+  },
+  "limits": [
+    "No private GitHub-admitted session scenario was added.",
+    "No other OS, power-loss, multi-tenant isolation or token-renewal qualification.",
+    "Configured credential files must remain present and safely owned; expiry does not permit replay.",
+    "Native issue-field installed polling and general workflow advancement remain with their owning packages."
+  ],
+  "validation": {
+    "unchangedFullLinuxRegressionBaseline": {
+      "total": 478,
+      "passed": 478,
+      "skipped": 0,
+      "failed": 0
+    },
+    "additionalFocusedLinuxRegression": {
+      "total": 31,
+      "passed": 31,
+      "skipped": 0,
+      "failed": 0
+    },
+    "generatedContracts": 57,
+    "schemaExamplePairs": 42
+  },
+  "accessCleanup": {
+    "temporaryRootAccessRevoked": true,
+    "retainedOriginalEntriesVerified": true,
+    "strictSshAuthenticationRefused": true,
+    "temporaryPrivateAndPublicKeyFilesRemoved": true,
+    "sharedServiceRestarted": false
+  }
+}
