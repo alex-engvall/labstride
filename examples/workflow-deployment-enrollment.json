@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "repository": {
+    "name": "example/workflows",
+    "nodeId": "R_workflows",
+    "id": "1001",
+    "ownerId": "7"
+  },
+  "workflowId": "201",
+  "workflowPath": ".github/workflows/deploy.yml",
+  "ref": "refs/heads/trusted",
+  "workflowSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "targetId": "application-test",
+  "environment": "production",
+  "credentialRef": "secret:workflow",
+  "inputs": {},
+  "deployment": {
+    "schemaVersion": "1.0",
+    "recipe": {
+      "id": "example.release",
+      "version": "1.0.0",
+      "digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    },
+    "observer": {
+      "id": "labstride.observer.local-json",
+      "version": "1.0.0",
+      "configuration": {
+        "endpoint": "http://127.0.0.1:9010/state"
+      }
+    },
+    "maxObservationAgeMs": 30000,
+    "observationTimeoutMs": 15000,
+    "recovery": {
+      "methods": [
+        "manual",
+        "forward_fix"
+      ],
+      "steps": [
+        "Inspect the original target and authorize a separate forward fix."
+      ],
+      "migration": {
+        "strategy": "irreversible",
+        "limits": [
+          "Switching an application release cannot undo database migrations."
+        ]
+      },
+      "rollback": {
+        "supported": false,
+        "qualification": null
+      }
+    }
+  }
+}

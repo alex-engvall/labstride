@@ -24,6 +24,7 @@ import { configuredWorkflowAction } from '../../packages/workflow-broker/action.
 import { createWorkflowBroker } from '../../packages/workflow-broker/server.ts';
 import { workflowAction, workflowVersion } from '../../packages/core/workflow-broker.ts';
 import type { WorkflowProvider } from '../../packages/core/workflow-broker.ts';
+import type { DeploymentObservers } from '../../packages/core/deployments.ts';
 
 // Trusted embedding API. A workflow listener requires explicit broker options; no background timer.
 export function startExecution(dataDir: string, options: {
@@ -31,7 +32,7 @@ export function startExecution(dataDir: string, options: {
   installedSessions?: { host: HostProfile; providerIds: string[] };
   github?: GitHubOptions;
   installedTargets?: { host: HostProfile };
-  workflowBroker?: { host: HostProfile; provider: WorkflowProvider; port: number };
+  workflowBroker?: { host: HostProfile; provider: WorkflowProvider; port: number; observers?: DeploymentObservers };
   additionalActions?: (store: ReturnType<typeof startCoordinator>['store']) => ReadonlyMap<string, import('../../packages/core/execution.ts').ActionAdapter>;
   serialized?: boolean;
 }) {
@@ -45,7 +46,7 @@ export function startExecution(dataDir: string, options: {
     if (options.installedTargets) actionOptions.adapters.set(actionKey(workspaceAction, workspaceVersion), configuredWorkspaceAction(runtime.store, options.installedTargets.host));
     if (options.installedTargets) actionOptions.adapters.set(actionKey(runtimeAction, runtimeVersion), configuredRuntimeAction(runtime.store, options.installedTargets.host));
     if (options.workflowBroker) actionOptions.adapters.set(actionKey(workflowAction, workflowVersion),
-      configuredWorkflowAction(runtime.store, options.workflowBroker.host, options.workflowBroker.provider));
+      configuredWorkflowAction(runtime.store, options.workflowBroker.host, options.workflowBroker.provider, options.workflowBroker.observers));
     const observationOptions = { ...options.observations, sessions: new Map(options.observations.sessions),projections:new Map(options.observations.projections) };
     if(options.github?.adapter.projection)observationOptions.projections.set(options.github.adapter.providerId,options.github.adapter.projection(runtime.store));
     if (resolver) {

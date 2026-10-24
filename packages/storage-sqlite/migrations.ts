@@ -231,6 +231,10 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
     payload TEXT NOT NULL CHECK(json_valid(payload)), consumed INTEGER NOT NULL DEFAULT 0 CHECK(consumed IN (0,1)));
   CREATE TABLE workflow_receipts (operation_id TEXT PRIMARY KEY REFERENCES workflow_claims(operation_id),
     payload TEXT NOT NULL CHECK(json_valid(payload)));
+` }, { version: 15, sql: `
+  CREATE TABLE deployment_evidence (id TEXT PRIMARY KEY, operation_id TEXT NOT NULL REFERENCES workflow_dispatches(operation_id),
+    payload TEXT NOT NULL CHECK(json_valid(payload)));
+  CREATE INDEX deployment_evidence_operation ON deployment_evidence(operation_id);
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

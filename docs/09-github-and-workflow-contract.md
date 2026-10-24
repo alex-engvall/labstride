@@ -66,6 +66,8 @@ The [isolated W00.2 probe](27-oidc-discovery-probe.md) implements a narrower pus
 
 The receipt binds operation ID, attempt, input digest, source SHA, target, executor run ID/attempt, conclusion and resource observations. The coordinator verifies workflow identity and actual conclusion through GitHub. Success for deploy also requires the configured target health/revision evidence. A green workflow alone is insufficient where the health requirement exists.
 
+The opt-in [W04.2 deployment profile](19-deploy-and-recipes.md) implements this combination with a trusted read-only observer registry, immutable evidence and atomic operation/deployment completion. Only matching receipt/run success plus independently observed healthy exact-source target state can create a verified deployment. Workflow-only enrollments remain separate. Failure/uncertainty retains target and cleanup blockers; explicit recipe recovery limits remain visible. [Local evidence](evidence/W04.2-deployment-verification-2026-10-24.md) does not pass the remaining live Actions/target or complete cleanup/recovery gates.
+
 Download artifacts only for the bound trusted run, with size/path limits and no execution. Artifact content is evidence after validation, not a command channel. Logs/artifacts contain secret-free operation metadata.
 
 ## Reconciliation and retries

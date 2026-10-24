@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-example-001",
+  "requestDigest": "efe91cc1901aa249421b4d9c78217fe677b44f4d6e30d752f9dabb0b08bcc22f",
+  "enrollmentDigest": "5436414c091cd3c2556aa3c33f0673c578575854239d790a71540c87fc560445",
+  "claim": {
+    "schemaVersion": "1.0",
+    "operationId": "op-example-001",
+    "requestDigest": "efe91cc1901aa249421b4d9c78217fe677b44f4d6e30d752f9dabb0b08bcc22f",
+    "claimId": "claim-example-001",
+    "fencingNumber": 1,
+    "executor": {
+      "provider": "github-actions",
+      "repositoryId": "1001",
+      "workflowPath": ".github/workflows/deploy.yml",
+      "workflowSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "runId": "2001",
+      "runAttempt": 1
+    }
+  },
+  "receiptDigest": "dff94703f2b955990b13ded3e680779f2c9296c3333571115b5ebbfa7b2259ae",
+  "recipe": {
+    "id": "example.release",
+    "version": "1.0.0",
+    "digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "sourceRepositoryId": "1001",
+  "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "targetId": "application-test",
+  "environment": "production",
+  "workflow": {
+    "runId": "2001",
+    "runAttempt": 1,
+    "repositoryId": "1001",
+    "repositoryNodeId": "R_workflows",
+    "repository": "example/workflows",
+    "ownerId": "7",
+    "workflowId": "201",
+    "workflowPath": ".github/workflows/deploy.yml",
+    "refName": "trusted",
+    "workflowSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "event": "workflow_dispatch",
+    "status": "completed",
+    "conclusion": "success",
+    "name": "labstride:op-example-001:efe91cc1901aa249421b4d9c78217fe677b44f4d6e30d752f9dabb0b08bcc22f",
+    "createdAt": "2026-10-21T13:00:00Z"
+  },
+  "probeRequest": {
+    "schemaVersion": "1.0",
+    "observationId": "observation-example",
+    "targetId": "application-test",
+    "environment": "production",
+    "configuration": {
+      "endpoint": "http://127.0.0.1:9010/state"
+    }
+  },
+  "target": {
+    "schemaVersion": "1.0",
+    "observationId": "observation-example",
+    "targetId": "application-test",
+    "environment": "production",
+    "resourceId": "example-release",
+    "sourceRepositoryId": "1001",
+    "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "health": "healthy",
+    "observedAt": "2026-10-21T13:00:00Z"
+  },
+  "observedAt": "2026-10-21T13:00:00Z",
+  "recoveryEpoch": 0,
+  "status": "verified",
+  "blocker": "none"
+}

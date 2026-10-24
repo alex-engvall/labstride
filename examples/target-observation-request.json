@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0",
+  "observationId": "observation-example",
+  "targetId": "application-test",
+  "environment": "production",
+  "configuration": {
+    "endpoint": "http://127.0.0.1:9010/state"
+  }
+}

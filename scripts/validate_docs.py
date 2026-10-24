@@ -93,6 +93,11 @@ def main():
         'ssh-runtime-installation': 'ssh-runtime-installation',
         'ssh-runtime-request': 'ssh-runtime-request',
         'ssh-runtime-response': 'ssh-runtime-response',
+        'deployment-profile': 'deployment-profile',
+        'target-observation-request': 'target-observation-request',
+        'target-observation': 'target-observation',
+        'deployment-evidence': 'deployment-evidence',
+        'workflow-enrollment': 'workflow-deployment-enrollment',
     }
     validators, examples = validators_for(ROOT / 'schemas'), {}
     for name, example in pairs.items():

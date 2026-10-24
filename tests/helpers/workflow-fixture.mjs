@@ -16,13 +16,14 @@ import { createWorkflowBroker } from '../../packages/workflow-broker/server.ts';
 import { createWorkflowVerifier, workflowIssuer } from '../../packages/workflow-broker/identity.ts';
 
 const keys = generateKeyPair('RS256');
-export async function workflowFixture(t, { variant = 'a', dispatch = 'normal', prepared = false, checkoutSource = false, deadlineMs } = {}) {
+export async function workflowFixture(t, { variant = 'a', dispatch = 'normal', prepared = false, checkoutSource = false, deadlineMs, deployment, observers, followup = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'labstride-workflow-')), state = join(root, 'state');
   let store, server;
   t.after(async () => { if (server?.listening) await new Promise(resolve => server.close(resolve)); store?.close(); rmSync(root, { recursive: true, force: true }); });
   const f = configurationFixture(root), enrollment = { schemaVersion: '1.0', repository: { name: 'example/workflows', nodeId: 'R_workflows', id: '101', ownerId: '7' },
     workflowId: variant === 'a' ? '201' : '202', workflowPath: `.github/workflows/delivery-${variant}.yml`, ref: 'refs/heads/trusted', workflowSha: (variant === 'a' ? 'b' : 'c').repeat(40),
     targetId: variant === 'a' ? 'target-a' : 'target-b', environment: variant === 'a' ? 'production' : 'replacement', credentialRef: 'secret:repository', inputs: { recipe: 'record-release' } };
+  if (deployment) enrollment.deployment = structuredClone(deployment);
   if (variant === 'b') f.config.targets['target-b'] = structuredClone(f.config.targets['target-a']);
   if (checkoutSource) {
     const repo = join(root, 'application');
@@ -39,6 +40,7 @@ export async function workflowFixture(t, { variant = 'a', dispatch = 'normal', p
     permissions: ['network.github'], capabilities: ['workflow.dispatch.v1'], configuration: { enrollments: { selected: enrollment } } };
   f.dependencies.lock.extensions.push(pin);
   f.config.workflows.prepare = [{ id: 'deliver', action: pin.id, inputs: { target: enrollment.targetId, enrollment: 'selected', source: 'context.source' } }];
+  if (followup) f.config.workflows.prepare.push({ id: 'followup', action: 'test.action', inputs: { target: enrollment.targetId, source: 'context.source', note: 'Only after successful delivery' } });
   const compilation = await f.compile(); assert.equal(compilation.ok, true, JSON.stringify(compilation.diagnostics));
   const compiled = compilation.configuration; let now = '2026-10-23T12:00:00.000Z';
   const dependencies = { ...policyDependencies, clock: { now: () => now } };
@@ -67,7 +69,7 @@ export async function workflowFixture(t, { variant = 'a', dispatch = 'normal', p
     async run(_enrollment, id, attempt) { if (readError) throw Error('provider_down'); const run = runs.find(run => run.runId === id && run.runAttempt === attempt); if (!run) throw Error('missing_run'); return structuredClone(run); },
     async find() { if (readError) throw Error('provider_down'); return discover ? structuredClone(runs) : []; },
   };
-  const options = () => ({ executorId: 'coordinator', nextAttempt: () => 'dispatch-attempt', adapters: new Map([[actionKey(pin.id, pin.version), configuredWorkflowAction(store, f.dependencies.host, provider)]]) });
+  const options = () => ({ executorId: 'coordinator', nextAttempt: () => 'dispatch-attempt', adapters: new Map([[actionKey(pin.id, pin.version), configuredWorkflowAction(store, f.dependencies.host, provider, observers)]]) });
   const worker = () => createWorker(store, options());
   const sign = async (patch = {}, key = privateKey) => {
     const iat = Math.floor(Date.parse(now) / 1000);

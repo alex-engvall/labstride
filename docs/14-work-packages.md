@@ -107,6 +107,8 @@ Tracker: [#7](https://github.com/alex-engvall/labstride/issues/7).
 
 **W04.1 progress:** [Authenticated workflow execution](38-workflow-broker.md) implements pinned enrollment, independent OIDC/run-attempt verification, atomic runner claims and one-time effect permission, dispatch/receipt recovery and target serialization. [Local evidence](evidence/W04.1-workflow-broker-2026-10-24.md) covers actual HTTP, independent durable effects and coordinator process death. Live Actions/HTTPS, dedicated dispatch credentials and installed credential separation remain open. #25 owns target health/revision and recipe recovery; full AC10/11/12/23/34/35 are not declared passed.
 
+**W04.2 progress:** Optional [deployment profiles](19-deploy-and-recipes.md) combine bound receipts and exact GitHub attempt conclusions with independent target revision/health observations. [Local evidence](evidence/W04.2-deployment-verification-2026-10-24.md) covers target/service state, atomic finalization, coordinator process death, retained failure/uncertainty and explicit recipe recovery limits. LS-DEP-003/006 are implemented for that controlled profile, not verified for a live installed delivery environment. #25 remains incomplete; AC11/AC16 retain live/integrated gates, W05 owns cleanup execution and #27 owns stale-release ordering.
+
 ## W05 — Directory cleanup action
 
 Tracker: [#8](https://github.com/alex-engvall/labstride/issues/8).

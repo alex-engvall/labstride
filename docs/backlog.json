@@ -722,7 +722,7 @@
       "title": "Validate bound receipts and target health",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W04",
       "depends_on_work_packages": [
@@ -734,7 +734,9 @@
         "Mismatched operation/digest/source/run/attempt results are rejected; required health failure cannot produce verified deploy."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04.2-deployment-verification-2026-10-24.md"
+      ],
       "github_issue": 25,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/25"
     },
@@ -787,7 +789,7 @@
       "title": "Report recipe-specific recovery",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W04",
       "depends_on_work_packages": [
@@ -799,7 +801,9 @@
         "Rollback is used only for a tested supported recipe; irreversible migration limits remain visible."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04.2-deployment-verification-2026-10-24.md"
+      ],
       "github_issue": 25,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/25"
     },
