@@ -103,7 +103,7 @@ Tracker: [#7](https://github.com/alex-engvall/labstride/issues/7).
 
 **Requirements:** LS-GH-006, LS-GH-007, LS-DEP-001, LS-DEP-002, LS-DEP-003, LS-DEP-004, LS-DEP-005, LS-DEP-006, LS-SEC-002
 
-**Bounded local delivery:** [The issue-to-review profile](37-local-self-build.md) adds ordered checkout/coding/publication and current-head CI observation. [Evidence](evidence/W04-W06-local-self-build-2026-10-24.md) distinguishes controlled local integration from live acceptance. The first live agent canary exposed a native history-profile mismatch; the [bounded correction](evidence/W04-W06-native-history-2026-10-24.md) preserves its unknown delivery and qualifies a separate legacy-history Plan probe. Broker claims, automatic merge and deployment remain open. W04 stays `in_progress`.
+**Bounded local delivery:** [The issue-to-review profile](37-local-self-build.md) adds ordered checkout/coding/publication and current-head CI observation. [Evidence](evidence/W04-W06-local-self-build-2026-10-24.md) distinguishes controlled local integration from live acceptance. The first live agent canary exposed a native history-profile mismatch; the [bounded correction](evidence/W04-W06-native-history-2026-10-24.md) preserves its unknown delivery and qualifies a separate legacy-history Plan probe. The [report-journal correction](evidence/W04-W06-report-journal-2026-10-24.md) addresses native tool calls omitted by legacy history; installation and live publication remain separate gates. The [shallow-publication correction](evidence/W04-W06-shallow-publication-2026-10-24.md) separates local preparation from remote intent and adds evidence-bound lost-acknowledgement recovery. The [bounded-report observation correction](evidence/W04-W06-bounded-report-observation-2026-10-24.md) avoids reloading large native transcripts for journaled reports and later ordinary conversation. Broker claims, automatic merge and deployment remain open. W04 stays `in_progress`.
 
 ## W05 — Directory cleanup action
 
@@ -134,7 +134,7 @@ Tracker: [#9](https://github.com/alex-engvall/labstride/issues/9).
 
 **Requirements:** LS-OPS-001, LS-OPS-002, LS-OPS-003, LS-OPS-004, LS-OPS-005
 
-**Bounded local delivery:** [The operational CLI/bootstrap](37-local-self-build.md) implements disabled installation, a locked persistent loop, dedicated App preflight, controls, summaries and SQLite backup. Installed doctor, scoped credentials, negative access probes, idle process restart and two isolated No agent runs passed the bounded pilot. Full recovery/upgrade and clean-install acceptance remain open. W06 stays `in_progress`; W07 is not completed by this slice.
+**Bounded local delivery:** [The operational CLI/bootstrap](37-local-self-build.md) implements disabled installation, a locked persistent loop, dedicated App preflight, controls, summaries and SQLite backup. Installed doctor, scoped credentials, negative access probes, idle process restart and two isolated No agent runs passed the bounded pilot. The [version canary slice](evidence/W06-version-canary-2026-10-24.md) adds credential-free release/development identity output; it does not close the native publication gate. Full recovery/upgrade and clean-install acceptance remain open. W06 stays `in_progress`; W07 is not completed by this slice.
 
 ## W07 — Public examples and prerelease
 

@@ -216,6 +216,7 @@ export class WorkflowStore extends GitHubStore {
     return this.get('workspace', String(rows[0].id));
   }
   workflowDiagnostic(runId: string): string | null { return this.db.prepare('SELECT code FROM workflow_diagnostics WHERE run_id=?').get(runId)?.code as string ?? null; }
+  clearWorkflowDiagnostic(runId: string): void { this.db.prepare('DELETE FROM workflow_diagnostics WHERE run_id=?').run(runId); }
   workflowError(runId: string, code: string): void {
     if (!/^[a-z_]{1,100}$/.test(code)) code = 'workflow_blocked';
     this.db.prepare('INSERT INTO workflow_diagnostics VALUES (?,?) ON CONFLICT(run_id) DO UPDATE SET code=excluded.code').run(runId, code);
@@ -282,13 +283,15 @@ export class WorkflowStore extends GitHubStore {
       return { dispatch: true, response: null };
     });
   }
-  finishManagedEffect(operationId: string, name: string, response: unknown): void {
+  finishManagedEffect(operationId: string, name: string, response: unknown, evidenceRefs?: string[]): void {
     const payload = canonical(response); if (Buffer.byteLength(payload) > 262144) throw new LifecycleError('invalid_payload');
+    if (evidenceRefs && (!evidenceRefs.length || evidenceRefs.length > 16 || evidenceRefs.some(ref => typeof ref !== 'string' || !ref || ref.length > 4096))) throw new LifecycleError('invalid_payload');
     this.transaction(() => {
       const prior = this.db.prepare('SELECT response FROM managed_effects WHERE operation_id=? AND name=?').get(operationId, name);
       if (!prior) throw new LifecycleError('not_found');
       if (prior.response !== null && prior.response !== payload) throw new LifecycleError('identity_conflict');
       this.db.prepare('UPDATE managed_effects SET response=? WHERE operation_id=? AND name=?').run(payload, operationId, name);
+      if (prior.response === null && evidenceRefs) this.log(operationId, 'managed_effect_observed', { schemaVersion: '1.0', name, evidenceRefs });
     });
   }
   readManagedEffect(operationId: string, name: string): unknown | null {

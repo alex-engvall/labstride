@@ -58,7 +58,7 @@ def main():
             links += 1
 
     pairs = {
-        'config': 'installation.template', 'extension': 'extension',
+        'config': 'installation.template', 'extension': 'extension', 'cli-version': 'cli-version',
         'operational-installation': 'operational-installation', 'self-build-input': 'self-build-input', 'managed-result': 'managed-result', 'managed-session-start': 'managed-session-start',
         'operation': 'operation', 'receipt': 'receipt', 'event': 'event',
         'session-request': 'session-request', 'session-observation': 'session-observation',

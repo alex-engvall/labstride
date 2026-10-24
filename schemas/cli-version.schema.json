@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Labstride version v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "source": { "enum": ["release", "development"] },
+    "installedRevision": { "type": ["string", "null"], "maxLength": 40, "pattern": "^[a-f0-9]{40}$" },
+    "nodeVersion": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$" }
+  },
+  "required": ["schemaVersion", "source", "installedRevision", "nodeVersion"],
+  "oneOf": [
+    { "properties": { "source": { "const": "release" }, "installedRevision": { "type": "string" } } },
+    { "properties": { "source": { "const": "development" }, "installedRevision": { "type": "null" } } }
+  ]
+}

@@ -3,14 +3,19 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
-import { loadInstallation, installationShape, preflight, openOperationalRuntime, inspectDatabase, backupDatabase } from '../../packages/operations/runtime.ts';
-import { acquireServiceLock, serviceLoop } from '../../packages/operations/loop.ts';
-import { createLocalPolicyAuthority } from '../../packages/core/policy.ts';
-import { WorkflowStore } from '../../packages/storage-sqlite/workflows.ts';
-import { serveBridge } from '../../packages/operations/bridge.ts';
-import { readProtected } from '../../packages/target-helper/filesystem.ts';
+import { versionInfo } from '../../packages/operations/version.ts';
 
 export async function cli(argv: string[], output: (value: unknown) => void = value => process.stdout.write(JSON.stringify(value) + '\n')) {
+  if (argv[0] === 'version') {
+    if (!(argv.length === 1 || (argv.length === 2 && argv[1] === '--json'))) throw Error('usage');
+    output(versionInfo()); return;
+  }
+  const { loadInstallation, installationShape, preflight, openOperationalRuntime, inspectDatabase, backupDatabase } = await import('../../packages/operations/runtime.ts');
+  const { acquireServiceLock, serviceLoop } = await import('../../packages/operations/loop.ts');
+  const { createLocalPolicyAuthority } = await import('../../packages/core/policy.ts');
+  const { WorkflowStore } = await import('../../packages/storage-sqlite/workflows.ts');
+  const { serveBridge } = await import('../../packages/operations/bridge.ts');
+  const { readProtected } = await import('../../packages/target-helper/filesystem.ts');
   const args = [...argv], configIndex = args.indexOf('--config');
   let path = '/etc/labstride/installation.json';
   if (configIndex >= 0) { if (!args[configIndex + 1]) throw Error('usage'); path = resolve(args[configIndex + 1]); args.splice(configIndex, 2); }
