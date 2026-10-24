@@ -43,11 +43,29 @@ function codingGit(path: string, args: string[]): string {
 export function createCodexBridge(policy: BridgePolicy, rpc: any = new UnixRpc(policy.backendSocket, 15000)) {
   const bindings = new Map<string, BridgeBinding>();
   let initialized: Promise<void> | undefined;
+  // A new thread has no pageable rollout until its first user message. This
+  // witness is intentionally process-local: disconnect/restart loses it and
+  // cannot convert a pre-existing unknown delivery into permission to resend.
+  const fresh = new Map<string, string>(), activity = new Set<string>();
+  let witnessEpoch = 0;
+  const freshBinding = (binding: BridgeBinding) => digest(binding);
   const reportSchema: any = JSON.parse(readFileSync(new URL('../../schemas/managed-result.schema.json', import.meta.url), 'utf8'));
   delete reportSchema.$schema; delete reportSchema.title;
   for (const key of ['runId', 'sessionId', 'turnId']) { delete reportSchema.properties[key]; reportSchema.required = reportSchema.required.filter((name: string) => name !== key); }
-  rpc.onDisconnect = () => { initialized = undefined; };
+  rpc.onDisconnect = () => { initialized = undefined; witnessEpoch++; fresh.clear(); activity.clear(); };
   rpc.onNotification = (message: any) => {
+    const threadId = message.params?.threadId ?? message.params?.thread?.id;
+    const method = String(message.method ?? '');
+    const activityEvent = method.startsWith('turn/') || method.startsWith('item/') || method === 'model/rerouted' ||
+      method.startsWith('thread/') && !['thread/started', 'thread/readState/changed', 'thread/name/updated', 'thread/project/updated'].includes(method) &&
+      !(method === 'thread/status/changed' && message.params?.status?.type === 'idle');
+    // MCP startup metadata is emitted for a newly created thread. It is not a
+    // user turn, pending question or settings change and does not consume it.
+    if (typeof threadId === 'string' && activityEvent) {
+      fresh.delete(threadId);
+      if (activity.size >= 4096) { witnessEpoch++; fresh.clear(); activity.clear(); }
+      activity.add(threadId);
+    }
     if (message.method !== 'item/tool/call' || message.params?.tool !== 'labstride_report' || !bindings.has(message.params.threadId)) return;
     let success = false;
     try { validated('managed-result', { ...message.params.arguments, runId: bindings.get(message.params.threadId)!.runId,
@@ -72,24 +90,37 @@ export function createCodexBridge(policy: BridgePolicy, rpc: any = new UnixRpc(p
     accessSync(binding.path, constants.W_OK);
     return receipt;
   }
-  async function observe(binding: BridgeBinding, sessionId: string) {
+  async function observe(binding: BridgeBinding, sessionId: string, allowFresh = false) {
     const { thread } = await rpc.call('thread/read', { threadId: sessionId, includeTurns: false });
-    if (thread?.id !== sessionId || thread.cwd !== binding.path || thread.source?.subAgent) throw Error('identity_mismatch');
-    const history = await rpc.call('thread/turns/list', { threadId: sessionId, limit: 1, sortDirection: 'desc', itemsView: 'summary' });
+    if (thread?.id !== sessionId || thread.cwd !== binding.path || thread.source?.subAgent || thread.historyMode !== 'legacy') throw Error('identity_mismatch');
+    let history;
+    try { history = await rpc.call('thread/turns/list', { threadId: sessionId, limit: 1, sortDirection: 'desc', itemsView: 'summary' }); }
+    catch (error: any) {
+      const expected = `thread ${sessionId} is not materialized yet; thread/turns/list is unavailable before first user message`;
+      if (!allowFresh || fresh.get(sessionId) !== freshBinding(binding) || thread.status?.type !== 'idle' ||
+        thread.preview !== '' || error?.rpcError?.code !== -32600 || error.rpcError.message !== expected) throw error;
+      // Recheck metadata after the rejection. The uninterrupted creation and
+      // activity witness covers this empty-thread case only; it is never a
+      // general inference that unavailable history means empty history.
+      const { thread: latest } = await rpc.call('thread/read', { threadId: sessionId, includeTurns: false });
+      if (fresh.get(sessionId) !== freshBinding(binding) || latest?.id !== sessionId || latest.cwd !== binding.path ||
+        latest.status?.type !== 'idle' || latest.preview !== '' || latest.source?.subAgent) throw Error('stale_revision');
+      history = { data: [] };
+    }
     if (!Array.isArray(history.data) || history.data.length > 1) throw Error('history_unavailable');
     const turn = history.data[0] ?? null;
     let report: ManagedCodingResultV1 | null = null;
     if (turn?.status === 'completed') {
-      let cursor: string | null = null;
-      for (let page = 0; page < 10; page++) {
-        const items: any = await rpc.call('thread/items/list', { threadId: sessionId, turnId: turn.id, limit: 100, sortDirection: 'desc', cursor });
-        if (!Array.isArray(items.data)) throw Error('history_unavailable');
-        for (const entry of items.data) if (entry.turnId === turn.id && entry.item?.type === 'dynamicToolCall' && entry.item.tool === 'labstride_report' && entry.item.status === 'completed' && entry.item.success === true) {
-          const candidate = validated<ManagedCodingResultV1>('managed-result', { ...entry.item.arguments, runId: binding.runId, sessionId, turnId: turn.id });
-          if (report && digest(report) !== digest(candidate)) throw Error('report_conflict'); report = candidate;
-        }
-        if (!items.nextCursor) break; cursor = items.nextCursor;
-        if (page === 9) throw Error('history_page_limit');
+      // This qualified legacy-history profile supports full turn hydration;
+      // the daemon does not implement thread/items/list. Require an explicitly
+      // full snapshot of the same latest completed turn, bounded by the RPC.
+      const full = await rpc.call('thread/turns/list', { threadId: sessionId, limit: 1, sortDirection: 'desc', itemsView: 'full' });
+      const completed = full.data?.[0];
+      if (!Array.isArray(full.data) || full.data.length !== 1 || completed.id !== turn.id || completed.status !== 'completed' ||
+        completed.itemsView !== 'full' || !Array.isArray(completed.items)) throw Error('stale_revision');
+      for (const item of completed.items) if (item.type === 'dynamicToolCall' && item.tool === 'labstride_report' && item.status === 'completed' && item.success === true) {
+        const candidate = validated<ManagedCodingResultV1>('managed-result', { ...item.arguments, runId: binding.runId, sessionId, turnId: turn.id });
+        if (report && digest(report) !== digest(candidate)) throw Error('report_conflict'); report = candidate;
       }
     }
     return { sessionId, path: binding.path, turn, state: thread.status?.type ?? 'unknown', report };
@@ -117,17 +148,19 @@ export function createCodexBridge(policy: BridgePolicy, rpc: any = new UnixRpc(p
       }
       if (request.method === 'start') {
         if (Object.keys(parameters).some(key => !['model'].includes(key)) || typeof parameters.model !== 'string') throw Error('validation_failed');
-        const result = await rpc.call('thread/start', { cwd: binding.path, model: parameters.model, sandbox: 'workspace-write',
+        const startEpoch = witnessEpoch;
+        const result = await rpc.call('thread/start', { cwd: binding.path, model: parameters.model, historyMode: 'legacy', sandbox: 'workspace-write',
           approvalPolicy: 'on-request', approvalsReviewer: 'user', allowProviderModelFallback: false, ephemeral: false,
           serviceName: 'labstride', dynamicTools: [{ name: 'labstride_report', description: 'Report a committed result for independent Labstride PR validation. Never grants approval or deployment authority.', inputSchema: reportSchema }] });
-        if (!result.thread?.id || result.thread.cwd !== binding.path) throw Error('identity_mismatch');
+        if (!result.thread?.id || result.thread.cwd !== binding.path || result.thread.historyMode !== 'legacy') throw Error('identity_mismatch');
         bindings.set(result.thread.id, binding);
+        if (startEpoch === witnessEpoch && !activity.has(result.thread.id)) fresh.set(result.thread.id, freshBinding(binding));
         return { thread: { id: result.thread.id, cwd: result.thread.cwd } };
       }
       const sessionId = request.sessionId;
       if (!sessionId || !/^[a-z0-9-]{1,128}$/i.test(sessionId)) throw Error('identity_mismatch');
       bindings.set(sessionId, binding);
-      const before = await observe(binding, sessionId);
+      const before = await observe(binding, sessionId, request.method === 'turn' && parameters.expectedTurnId === null);
       if (request.method === 'observe') {
         // Metadata-only reattachment preserves the app's current settings.
         await rpc.call('thread/resume', { threadId: sessionId, excludeTurns: true });
@@ -141,6 +174,7 @@ export function createCodexBridge(policy: BridgePolicy, rpc: any = new UnixRpc(p
         before.turn?.id !== (parameters.expectedTurnId ?? undefined) || before.turn !== null || before.state === 'active' ||
         typeof parameters.prompt !== 'string' || parameters.prompt.length > 128000 || !['plan', 'default'].includes(String(parameters.mode))) throw Error('stale_revision');
       // Checked delivery, explicitly NOT an atomic backend compare-and-start.
+      fresh.delete(sessionId);
       const result = await rpc.call('turn/start', { threadId: sessionId, input: [{ type: 'text', text: parameters.prompt }],
         collaborationMode: { mode: parameters.mode, settings: { model: parameters.model, reasoning_effort: parameters.reasoning, developer_instructions: null } } });
       if (!result.turn?.id) throw Error('outcome_unknown');

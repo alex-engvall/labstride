@@ -35,7 +35,15 @@ export class UnixRpc {
           const pending = this.pending.get(value.id);
           if (!pending) return; // Late response to a timed-out command has no new authority.
           this.pending.delete(value.id); clearTimeout(pending.timer);
-          if (value.error) pending.reject(new Error('rpc_rejected'));
+          if (value.error) {
+            // Keep the conservative public error code. Bounded protocol detail
+            // permits an opt-in caller to recognize one exact read rejection;
+            // unknown failures still never authorize another mutation.
+            const error = new Error('rpc_rejected');
+            if (Number.isSafeInteger(value.error.code) && typeof value.error.message === 'string' && value.error.message.length <= 4096)
+              error.rpcError = { code: value.error.code, message: value.error.message };
+            pending.reject(error);
+          }
           else if (!Object.hasOwn(value, 'result')) pending.reject(new Error('invalid_payload'));
           else pending.resolve(value.result);
         } else this.onNotification(value);
