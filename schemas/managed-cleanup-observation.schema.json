@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Managed cleanup observation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "runId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "sessionId": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "idle",
+        "active",
+        "unknown"
+      ]
+    },
+    "lastTurnId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "runId",
+    "workspaceId",
+    "sessionId",
+    "path",
+    "state",
+    "lastTurnId",
+    "observedAt"
+  ]
+}

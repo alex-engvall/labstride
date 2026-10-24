@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cleanup inspection v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "requestId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "installationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "workspaceId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "creationOperationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "receiptDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "policyDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 32,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z_]+$"
+      }
+    },
+    "counts": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Protected content counts",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tracked": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "untracked": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ignored": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unpushed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "tracked",
+        "untracked",
+        "ignored",
+        "unpushed"
+      ]
+    },
+    "remoteRefsDigest": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "requestId",
+    "installationId",
+    "targetId",
+    "workspaceId",
+    "creationOperationId",
+    "receiptDigest",
+    "policyDigest",
+    "observedAt",
+    "blockers",
+    "counts",
+    "remoteRefsDigest"
+  ]
+}

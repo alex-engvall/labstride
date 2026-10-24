@@ -1,3 +1,6 @@
+import { createCleanupWorker } from '../../packages/core/cleanup-worker.ts';
+import type { CleanupOptions } from '../../packages/core/cleanup-worker.ts';
+import { configuredCleanupInspection } from '../../packages/connector-ssh/cleanup.ts';
 import { installedSessionAction } from '../../packages/extensions/session-action.ts';
 import { configuredWorkspaceAction } from '../../packages/connector-ssh/workspaces.ts';
 import { workspaceAction, workspaceVersion } from '../../packages/target-helper/workspace-contracts.ts';
@@ -38,6 +41,7 @@ export function startExecution(dataDir: string, options: {
   workflowBroker?: { host: HostProfile; provider: WorkflowProvider; port: number; observers?: DeploymentObservers };
   githubMerge?: { host: HostProfile; provider: MergeProvider };
   additionalActions?: (store: ReturnType<typeof startCoordinator>['store']) => ReadonlyMap<string, import('../../packages/core/execution.ts').ActionAdapter>;
+  cleanup?: Omit<CleanupOptions, 'inspect'> & { inspect?: CleanupOptions['inspect'] };
   serialized?: boolean;
 }) {
   const runtime = startCoordinator(dataDir, options.dependencies);
@@ -59,6 +63,10 @@ export function startExecution(dataDir: string, options: {
       actionOptions.adapters.set(actionKey(sessionAction, sessionActionVersion), installedSessionAction(runtime.store, options.installedSessions!.host, resolver.resolve));
       for (const id of options.installedSessions!.providerIds) observationOptions.sessions.set(id, pinnedSessionObserver(runtime.store, resolver.resolve));
     }
+    const cleanup = options.cleanup && createCleanupWorker(runtime.store, { ...options.cleanup,
+      mergeProvider: options.cleanup.mergeProvider ?? options.githubMerge?.provider, observers: options.cleanup.observers ?? options.workflowBroker?.observers,
+      session: options.cleanup.session ?? (async session => { const observer=observationOptions.sessions.get(session.providerId); if(!observer)throw Error('unsupported_capability');return observer.observe(session); }),
+      inspect: options.cleanup.inspect ?? configuredCleanupInspection(runtime.store, options.cleanup.host) });
     const actions = createWorker(runtime.store, actionOptions);
     const controls = createControlWorker(runtime.store, actionOptions);
     const observations = createObservationWorker(runtime.store, observationOptions);
@@ -80,10 +88,10 @@ export function startExecution(dataDir: string, options: {
         if (options.serialized) {
           await controls.tick(); await controls.drain();
           await actions.tick(); await actions.drain();
-          await github?.tick(); await observations.tick();
+          await github?.tick(); await observations.tick(); await cleanup?.tick();
           return;
         }
-        if (!observationJob) observationJob = (async () => { await github?.tick(); await observations.tick(); })().catch(error => { observationError = error; })
+        if (!observationJob) observationJob = (async () => { await github?.tick(); await observations.tick(); await cleanup?.tick(); })().catch(error => { observationError = error; })
           .finally(() => { observationJob = undefined; });
         await controls.tick(); await actions.tick();
       },

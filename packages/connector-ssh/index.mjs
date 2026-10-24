@@ -56,6 +56,13 @@ function enrollment(configuration) {
 }
 function checkRequest(e, request) {
   const common = ['schemaVersion','requestId','installationId','targetId','targetRevision','method'];
+  if (request?.schemaVersion === '4.0') {
+    if (!keys(request,[...common,'workspaceId','creationOperationId','receiptDigest','policy']) || request.method!=='inspect' ||
+      request.installationId!==e.installationId || request.targetId!==e.targetId || request.targetRevision!==e.revision ||
+      ![request.requestId,request.workspaceId,request.creationOperationId].every(id=>typeof id==='string'&&/^[A-Za-z0-9_.:-]{1,256}$/.test(id)) ||
+      !/^[a-f0-9]{64}$/.test(request.receiptDigest)) fail('validation_failed');
+    const bytes=Buffer.from(JSON.stringify(request));if(bytes.length>262144)fail('validation_failed');return bytes;
+  }
   const workspace = request?.schemaVersion === '2.0';
   const runtime = request?.schemaVersion === '3.0';
   const rootProof = workspace && request.method === 'probe' && request.includeRoots === true;

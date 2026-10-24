@@ -8,8 +8,8 @@ import { mergeTarget } from './merge-target.mjs';
 import { configuredMergeAction } from '../../packages/github-merge/action.ts';
 import { GitHubMergeProvider } from '../../packages/provider-github/merges.ts';
 
-export async function successorFixture(t) {
-  let e;
+export async function successorFixture(t, options = {}) {
+  let e; const mergeProviders=[];
   const x=await orderingFixture(t,{configure(f){
     e={schemaVersion:'1.0',repository:{name:f.source.repository,nodeId:f.source.repositoryId,id:1001},targetId:'target-a',
       baseBranch:'main',method:'merge',credentialRef:'secret:repository',protectionCredentialRef:'secret:project',
@@ -21,12 +21,14 @@ export async function successorFixture(t) {
     const packed=spawnSync(process.execPath,['scripts/package_extension.mjs','packages/action-github-merge',artifactPath],{encoding:'utf8'});assert.equal(packed.status,0,packed.stderr);
     f.dependencies.lock.extensions.push({id:'labstride.github-merge',version:'1.0.0',kind:'action',artifactPath,
       integrity:createHash('sha256').update(readFileSync(artifactPath)).digest('hex'),permissions:['network.github'],capabilities:['merge.current-revision.v1'],configuration:{enrollments:{selected:e}}});
+    if(options.configure)options.configure(f);
     f.config.workflows.prepare.unshift({id:'merge',action:'labstride.github-merge',inputs:{schemaVersion:'1.0',enrollment:'selected',target:'target-a',source:'context.source',pullRequest:11,expectedHead:f.source.sha}});
   }});
   async function merge(op,sha,suffix){
     const directory=join(x.root,suffix);mkdirSync(directory);
     const target=await mergeTarget(t,directory,e,op.source.sha);target.state.mergeSha=sha;target.save();
     const provider=new GitHubMergeProvider({credential:async reference=>reference,identity:()=>({appId:e.appId,installationId:e.installationId,repositoryIds:[e.repository.id],contents:'write'}),fetch:target.transport});
+    mergeProviders.push(provider);
     const adapter=configuredMergeAction(x.store,x.f.dependencies.host,provider),record=x.store.get('operation',op.operationId);
     const claim=x.store.claim(op.operationId,'merge-test','attempt');x.store.beginEffect(claim);
     const result=await adapter.start(op,claim);assert.equal(result.result.status,'succeeded',JSON.stringify(result));
@@ -38,6 +40,7 @@ export async function successorFixture(t) {
   }
   const a=await merge(x.op,x.b,'merge-a');
   const second=x.admit('-b');const b=await merge(second,x.c,'merge-b');
-  await x.start(b);await x.deliver(b);await x.reconcile(b);await x.start(a);
-  return {...x,get store(){return x.store;},get url(){return x.url;},earlier:a,successor:b,mergeEnrollment:e};
+  if(options.direct){await x.start(a);await x.deliver(a);await x.reconcile(a);}
+  else {await x.start(b);await x.deliver(b);await x.reconcile(b);await x.start(a);}
+  return {...x,get store(){return x.store;},get url(){return x.url;},earlier:a,successor:b,mergeEnrollment:e,mergeProviders};
 }

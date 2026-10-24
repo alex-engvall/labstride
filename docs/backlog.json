@@ -817,7 +817,7 @@
       "title": "Make cleanup a replaceable action",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W05",
       "depends_on_work_packages": [
@@ -829,7 +829,9 @@
         "Selecting another cleanup action/trigger changes behavior without editing core; no fixed retention timer exists."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W05.1-cleanup-2026-10-24.md"
+      ],
       "github_issue": 28,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/28"
     },
@@ -838,7 +840,7 @@
       "title": "Require completion and honor keep",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W05",
       "depends_on_work_packages": [
@@ -850,7 +852,9 @@
         "Failed/unknown deploy, active use or keep blocks cleanup even if the PR is merged."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W05.1-cleanup-2026-10-24.md"
+      ],
       "github_issue": 28,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/28"
     },
@@ -859,7 +863,7 @@
       "title": "Protect unsaved and unpushed work",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W05",
       "depends_on_work_packages": [
@@ -871,7 +875,9 @@
         "Tracked changes, untracked/undeclared ignored files and unpushed commits preserve the directory."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W05.1-cleanup-2026-10-24.md"
+      ],
       "github_issue": 28,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/28"
     },

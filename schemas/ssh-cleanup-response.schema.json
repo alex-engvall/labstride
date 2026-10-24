@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Trusted cleanup inspection response v4",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "4.0"
+    },
+    "requestId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "installationId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "targetRevision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "method": {
+      "const": "inspect"
+    },
+    "inspection": {
+      "anyOf": [
+        {
+          "$ref": "cleanup-inspection.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "outcome": {
+      "enum": [
+        "ok",
+        "outcome_unknown"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "requestId",
+    "installationId",
+    "targetId",
+    "targetRevision",
+    "method",
+    "inspection",
+    "outcome"
+  ]
+}

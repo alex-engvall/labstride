@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "policy": {
+    "schemaVersion": "1.0",
+    "trigger": "operator_request",
+    "actionId": "labstride.workspace-cleanup",
+    "actionVersion": "1.0.0",
+    "completion": "merge_only",
+    "regenerableIgnoredPaths": [
+      "node_modules",
+      "build/cache"
+    ]
+  },
+  "decisionId": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "workspaceId": "example-workspace"
+}

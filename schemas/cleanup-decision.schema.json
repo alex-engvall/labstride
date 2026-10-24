@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cleanup decision v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "requestId": {
+      "$ref": "contract-common.schema.json#/$defs/id"
+    },
+    "contextDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "policyDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "recoveryEpoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "eligible": {
+      "type": "boolean"
+    },
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 64,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z_]+$"
+      }
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      }
+    },
+    "inspection": {
+      "anyOf": [
+        {
+          "$ref": "cleanup-inspection.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observations": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "merge": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "repositoryId": {
+              "type": "string"
+            },
+            "pullRequest": {
+              "type": "integer"
+            },
+            "head": {
+              "type": "string"
+            },
+            "baseBranch": {
+              "type": "string"
+            },
+            "merged": {
+              "type": "boolean"
+            },
+            "mergeSha": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mergedBy": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "repositoryId",
+            "pullRequest",
+            "head",
+            "baseBranch",
+            "merged",
+            "mergeSha",
+            "mergedBy"
+          ]
+        },
+        "targets": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "$ref": "target-observation.schema.json"
+          }
+        },
+        "sessions": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "session-observation.schema.json"
+          }
+        },
+        "managed": {
+          "anyOf": [
+            {
+              "$ref": "managed-cleanup-observation.schema.json"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "keep": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "bindingDigest": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "retained": {
+              "type": "boolean"
+            },
+            "observedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": [
+            "bindingDigest",
+            "retained",
+            "observedAt"
+          ]
+        }
+      },
+      "required": [
+        "merge",
+        "targets",
+        "sessions",
+        "managed",
+        "keep"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "requestId",
+    "contextDigest",
+    "policyDigest",
+    "recoveryEpoch",
+    "observedAt",
+    "eligible",
+    "blockers",
+    "evidenceRefs",
+    "inspection",
+    "observations"
+  ]
+}

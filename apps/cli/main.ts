@@ -13,7 +13,7 @@ export async function cli(argv: string[], output: (value: unknown) => void = val
   const { loadInstallation, installationShape, preflight, openOperationalRuntime, inspectDatabase, backupDatabase } = await import('../../packages/operations/runtime.ts');
   const { acquireServiceLock, serviceLoop } = await import('../../packages/operations/loop.ts');
   const { createLocalPolicyAuthority } = await import('../../packages/core/policy.ts');
-  const { WorkflowStore } = await import('../../packages/storage-sqlite/workflows.ts');
+  const { CleanupStore: WorkflowStore } = await import('../../packages/storage-sqlite/cleanup.ts');
   const { serveBridge } = await import('../../packages/operations/bridge.ts');
   const { readProtected } = await import('../../packages/target-helper/filesystem.ts');
   const args = [...argv], configIndex = args.indexOf('--config');
@@ -58,7 +58,16 @@ export async function cli(argv: string[], output: (value: unknown) => void = val
   if (args[0] === 'runs') {
     const authority = createLocalPolicyAuthority(), store = new WorkflowStore(spec.stateDirectory, { policyAuthority: authority, localWorkspaceRoots: [spec.sourceRoot] });
     try {
-      const view = (id: string) => ({ ...store.controlStatus(id), workflowExecutions: store.workflowExecutions(id), diagnostic: store.workflowDiagnostic(id), summaryDiagnostic: store.summaryDiagnostic(id), fieldConflicts: store.managedProjectionDiagnostics(id), session: store.managedSession(id), startup: store.operations(id).filter(op => op.request.actionId === 'labstride.self-build').map(op => store.managedSessionStart(op.id)).filter(Boolean) });
+      const view = (id: string) => ({ ...store.controlStatus(id), workflowExecutions: store.workflowExecutions(id), diagnostic: store.workflowDiagnostic(id), summaryDiagnostic: store.summaryDiagnostic(id), fieldConflicts: store.managedProjectionDiagnostics(id), session: store.managedSession(id), cleanup: store.cleanupRequests(id).map(request=>({...request,decision:store.cleanupDecision(request.id)})), startup: store.operations(id).filter(op => op.request.actionId === 'labstride.self-build').map(op => store.managedSessionStart(op.id)).filter(Boolean) });
+      if (args[1] === 'keep' && args.length === 4 && ['true','false'].includes(args[3])) {
+        const workspace=store.workspace(args[2]);
+        store.setWorkspaceKeep(workspace.id,args[3]==='true',workspace.revision,authority,{actorId:'local-operator',reason:'CLI workspace keep control',evidenceRefs:['operator:local-file-authority']});
+        output(view(args[2]));return;
+      }
+      if (args[1] === 'cleanup' && args.length === 3) {
+        store.requestCleanup(args[2],`cleanup-request-${randomUUID()}`,authority,{actorId:'local-operator',reason:'CLI explicit cleanup request',evidenceRefs:['operator:local-file-authority']});
+        output(view(args[2]));return;
+      }
       if (args[1] === 'list' && args.length === 2) { output({ schemaVersion: '1.0', runs: store.runs().map(run => view(run.id)) }); return; }
       if (args[1] === 'show' && args.length === 3) { output(view(args[2])); return; }
       if (['pause', 'resume', 'cancel', 'reconcile'].includes(args[1]) && args.length === 3) {

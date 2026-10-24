@@ -18,6 +18,7 @@ export function removeGitHubMigration(db){
 }
 
 export function removeDeploymentOrderingMigration(db) {
+  db.exec('DROP TABLE IF EXISTS cleanup_decisions; DROP TABLE IF EXISTS cleanup_requests; DELETE FROM schema_migrations WHERE version=18;');
   db.exec(`DROP TABLE IF EXISTS deployment_successor_uses; DROP TABLE IF EXISTS deployment_successors; DROP TABLE IF EXISTS deployment_order_checks;
     DROP TABLE IF EXISTS deployment_orders; DROP TABLE IF EXISTS deployment_targets;
     DELETE FROM schema_migrations WHERE version=17;
