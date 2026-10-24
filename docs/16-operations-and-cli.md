@@ -8,6 +8,7 @@ The bounded [local issue-to-review profile](37-local-self-build.md) implements t
 
 | Command | Intended outcome |
 | --- | --- |
+| labstride version --json | Report packaged source revision and running Node.js version without operational configuration |
 | labstride init | Produce disabled installation template with no embedded credentials |
 | labstride config validate | Validate schemas and produce a resolved binding report |
 | labstride doctor | Check DB, credentials, provider capabilities, SSH and broker reachability |
@@ -20,6 +21,16 @@ The bounded [local issue-to-review profile](37-local-self-build.md) implements t
 | labstride backup/restore | Controlled consistent backup and recovery workflow |
 
 Commands should offer human-readable output plus versioned JSON and stable exit codes. No command implies success when only an asynchronous request was accepted.
+
+## Version output
+
+`labstride version --json` writes one [versioned JSON object](../schemas/cli-version.schema.json) to stdout and exits 0. `labstride version` currently returns the same JSON. It does not load installation configuration, resolve credentials, contact GitHub or a coordinator, invoke Git, or create state. It works from an unrelated working directory with no writable state directory. Other arguments, including `--config`, are rejected with `usage` and exit 1.
+
+A packaged release returns `{"schemaVersion":"1.0","source":"release","installedRevision":"<40-character source SHA>","nodeVersion":"v24.22.0"}`. The revision comes only from `release-manifest.json` at the executing application's root, resolved relative to its module. The existing administrative installer verifies the manifest against an operator-supplied SHA-256, verifies packaged file hashes, and installs protected release files. That installation boundary supplies trust; the version command does not authenticate arbitrary user-created manifests or recheck the complete release inventory. `nodeVersion` is always the actual running `process.version`, not the toolchain version declared in the manifest.
+
+When that metadata is absent, a development checkout returns `{"schemaVersion":"1.0","source":"development","installedRevision":null,"nodeVersion":"v24.22.0"}`. This explicitly reports no installed revision; checkout HEAD and package version are not substitutes. A copied release with missing metadata is likewise unidentified and reports development, not a claimed release revision.
+
+Metadata must contain `schemaVersion: "1.0"` and a lowercase 40-character hexadecimal `revision`. Invalid JSON/version/revision returns `release_metadata_invalid`; unreadable metadata returns `release_metadata_unreadable`. Errors use the existing `{ "schemaVersion": "1.0", "code": "..." }` shape on stderr, leave stdout empty and exit 1. Only absent metadata yields the successful development result. No state migration or coordinator restart is required by this command.
 
 ## Installation
 

@@ -20,6 +20,7 @@ The executable entry point is `node apps/cli/main.ts`; the administrative bootst
 
 | Command | Implemented behavior |
 | --- | --- |
+| `labstride version --json` | Report packaged source revision (or explicit development/null identity) and running Node version without operational access |
 | `labstride init DESTINATION` | Create a new disabled template, refusing to overwrite an existing file |
 | `labstride config validate --config FILE` | Compile exact schemas, extension pins, field bindings and qualified history using the selected credential |
 | `labstride doctor --config FILE` | Check compiled profile, dedicated installation/repository scope, Codex catalog/defaults, SSH/helper root mapping and SQLite integrity/version |
@@ -48,6 +49,6 @@ The installer leaves both services stopped and the listener disabled. Installati
 
 Require two independent issues/workspaces, duplicate Approved delivery, inert import, unauthorized actors, defaults, unsupported combinations and manual projection conflicts. Kill real processes/drop responses around checkout, thread start and publication; preserve unknowns. Complete native planning, the operator's actual approval, implementation, reconnect and a real PR with current-head CI. Exercise simultaneous manual turn start and retain uncertainty. A local fake provider is useful regression evidence but cannot pass those live gates.
 
-The self-build canary is a new issue requesting `labstride version --json` with installed revision and Node version. It must produce actual code in the same session, correct fields, green checks and a reviewable PR. The implementation deliberately does not pre-implement that canary command or fabricate its approval.
+The self-build canary is a new issue requesting `labstride version --json` with installed revision and Node version. It must produce actual code in the same session, correct fields, green checks and a reviewable PR. Issue #70 implements that bounded command with [documented release/development semantics](16-operations-and-cli.md). Its [local command evidence](evidence/W06-version-canary-2026-10-24.md) does not by itself establish native result publication, merged CI, or installed-service qualification. The earlier #68 unknown run, workspace and session remain preserved; this independent canary grants no replay authority.
 
 Pause new effects before backup/upgrade/restore. Retain the previous release and every pin needed by active runs. SQLite backup is implemented; automated restore/upgrade commands are not. Recovery must use the existing restore fencing plus independent reconciliation of external results before resumption. Do not downgrade the database, reset it, remove unknown workspaces or self-upgrade. If live gates fail, keep the coordinator disabled/stopped and preserve state, checkouts and original outcomes for inspection.

@@ -914,13 +914,15 @@
       "spec": "16-operations-and-cli.md",
       "acceptance_criteria": [
         "A fresh operator gets actionable errors for unresolved fields, permissions, SSH and broker routing.",
-        "The intended distribution supplies one CLI/service installation with local SQLite and configurable paths/limits; diagnostics explain optional hook fallback and actual session compatibility."
+        "The intended distribution supplies one CLI/service installation with local SQLite and configurable paths/limits; diagnostics explain optional hook fallback and actual session compatibility.",
+        "Version JSON reports the packaged source revision and actual Node runtime without credentials, coordinator or writable state; development checkouts explicitly report no installed revision."
       ],
       "implementation_pr": "https://github.com/engshort/labstride/pull/65",
       "verification_evidence": [
         "evidence/W04-W06-local-self-build-2026-10-24.md",
         "Bounded installed pilot: doctor, dedicated credential scope, negative access checks, idle process restart and two isolated No agent runs passed. Native approval/PR canary and full operational acceptance remain open.",
-        "evidence/W04-W06-native-history-2026-10-24.md"
+        "evidence/W04-W06-native-history-2026-10-24.md",
+        "evidence/W06-version-canary-2026-10-24.md"
       ],
       "github_issue": 30,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/30"

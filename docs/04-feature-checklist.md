@@ -566,8 +566,9 @@ Specification: [16-operations-and-cli.md](16-operations-and-cli.md).
 
 - A fresh operator gets actionable errors for unresolved fields, permissions, SSH and broker routing.
 - The intended distribution supplies one CLI/service installation with local SQLite and configurable paths/limits; diagnostics explain optional hook fallback and actual session compatibility.
+- Version JSON reports the packaged source revision and actual Node runtime without credentials, coordinator or writable state; development checkouts explicitly report no installed revision.
 
-Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, Bounded installed pilot: doctor, dedicated credential scope, negative access checks, idle process restart and two isolated No agent runs passed. Native approval/PR canary and full operational acceptance remain open., evidence/W04-W06-native-history-2026-10-24.md
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, Bounded installed pilot: doctor, dedicated credential scope, negative access checks, idle process restart and two isolated No agent runs passed. Native approval/PR canary and full operational acceptance remain open., evidence/W04-W06-native-history-2026-10-24.md, evidence/W06-version-canary-2026-10-24.md
 
 Implementation issue: [#30](https://github.com/alex-engvall/labstride/issues/30).
 

@@ -396,7 +396,8 @@
       "status": "not_run",
       "evidence": [
         "evidence/W04-W06-local-self-build-2026-10-24.md",
-        "evidence/W04-W06-native-history-2026-10-24.md"
+        "evidence/W04-W06-native-history-2026-10-24.md",
+        "evidence/W06-version-canary-2026-10-24.md"
       ]
     },
     {

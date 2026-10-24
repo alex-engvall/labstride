@@ -134,7 +134,7 @@ Tracker: [#9](https://github.com/alex-engvall/labstride/issues/9).
 
 **Requirements:** LS-OPS-001, LS-OPS-002, LS-OPS-003, LS-OPS-004, LS-OPS-005
 
-**Bounded local delivery:** [The operational CLI/bootstrap](37-local-self-build.md) implements disabled installation, a locked persistent loop, dedicated App preflight, controls, summaries and SQLite backup. Installed doctor, scoped credentials, negative access probes, idle process restart and two isolated No agent runs passed the bounded pilot. Full recovery/upgrade and clean-install acceptance remain open. W06 stays `in_progress`; W07 is not completed by this slice.
+**Bounded local delivery:** [The operational CLI/bootstrap](37-local-self-build.md) implements disabled installation, a locked persistent loop, dedicated App preflight, controls, summaries and SQLite backup. Installed doctor, scoped credentials, negative access probes, idle process restart and two isolated No agent runs passed the bounded pilot. The [version canary slice](evidence/W06-version-canary-2026-10-24.md) adds credential-free release/development identity output; it does not close the native publication gate. Full recovery/upgrade and clean-install acceptance remain open. W06 stays `in_progress`; W07 is not completed by this slice.
 
 ## W07 — Public examples and prerelease
 
