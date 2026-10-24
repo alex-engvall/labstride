@@ -1,5 +1,5 @@
 import { enrolledWorkflow } from '../workflow-broker/bindings.ts';
-import { GitHubStore } from './github.ts';
+import { MergeStore } from './merges.ts';
 import { validated } from './validation.ts';
 import { canonical, digest } from './execution.ts';
 import { BrokerError, matchingRun, workflowAction, workflowVersion, workflowResource } from '../core/workflow-broker.ts';
@@ -11,7 +11,7 @@ import type { RecordOf } from '../core/lifecycle.ts';
 
 // The coordinator's existing claim protects dispatch. This second claim binds
 // the external workflow executor; neither claim is inferred from hook progress.
-export class WorkflowBrokerStore extends GitHubStore {
+export class WorkflowBrokerStore extends MergeStore {
   workflowEnrollment(operationId: string): Enrollment {
     const op = this.get('operation', operationId).request;
     return enrolledWorkflow(this.runConfiguration(op.runId), op);

@@ -191,7 +191,8 @@
       "status": "not_run",
       "evidence": [
         "evidence/W04-W06-local-self-build-2026-10-24.md",
-        "evidence/W04-W06-shallow-publication-2026-10-24.md"
+        "evidence/W04-W06-shallow-publication-2026-10-24.md",
+        "evidence/W04.3-merge-gate-2026-10-24.md"
       ]
     },
     {
@@ -204,7 +205,8 @@
       "expected": "Delivery remains waiting/blocked, not successful.",
       "status": "not_run",
       "evidence": [
-        "evidence/W04-W06-local-self-build-2026-10-24.md"
+        "evidence/W04-W06-local-self-build-2026-10-24.md",
+        "evidence/W04.3-merge-gate-2026-10-24.md"
       ]
     },
     {

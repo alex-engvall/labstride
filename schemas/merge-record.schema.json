@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub merge intent and observation V1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "operationId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "requestDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "enrollment": {
+      "$ref": "merge-enrollment.schema.json"
+    },
+    "pullRequest": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "evidence": {
+      "$ref": "merge-evidence.schema.json"
+    },
+    "submittedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "responseSha": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mergeSha": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "outcome": {
+      "enum": [
+        "pending",
+        "confirmed",
+        "observed_external",
+        "rejected",
+        "conflict"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "operationId",
+    "requestDigest",
+    "enrollment",
+    "pullRequest",
+    "evidence",
+    "submittedAt",
+    "responseSha",
+    "mergeSha",
+    "outcome"
+  ]
+}

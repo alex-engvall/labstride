@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub merge action input V1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "enrollment": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "source": {
+      "$ref": "operation.schema.json#/properties/source"
+    },
+    "pullRequest": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "expectedHead": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "enrollment",
+    "target",
+    "source",
+    "pullRequest",
+    "expectedHead"
+  ]
+}

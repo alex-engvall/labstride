@@ -20,6 +20,9 @@ import { createCodexBridge } from '../packages/operations/bridge.ts';
 // Real checkout, bundle verification, local Git push and SQLite sequencing.
 // GitHub and Codex wire responses are controlled peers, not live qualification.
 async function setup(t, { losePrReply = false, loseStartReply = false, supported = true, nativeReports = false, losePushReply = false, prepareFailure = false, loseReadyReply = false } = {}) {
+  // The in-process helper and coordinator must share the fixture's clock;
+  // otherwise its fixed one-day request expires with the real calendar.
+  t.mock.timers.enable({ apis: ['Date'], now: new Date('2026-10-23T12:00:00.000Z') });
   const source = workspaceFixture(t, undefined, { priorHistory: true }); source.policy.installationId = 'installation-a'; source.policy.targetId = 'target-a';
   const registry = new WorkspaceRegistry(source.policy, source.dependencies); t.after(() => registry.close());
   const options = { sourceRoot: source.policy.roots[0].path, rootId: 'source', baseBranch: 'main', requiredWorkflows: ['.github/workflows/labstride.yml'],

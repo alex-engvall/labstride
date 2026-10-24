@@ -251,13 +251,13 @@ Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | in_progress | W04 |
+| MVP | P0 | implemented | W04 |
 
 Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contract.md).
 
 - Missing/pending/failed required checks block merge; a new head invalidates earlier green evidence.
 
-Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-native-history-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md, evidence/W04-W06-shallow-publication-2026-10-24.md, evidence/W04-W06-bounded-report-observation-2026-10-24.md
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-native-history-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md, evidence/W04-W06-shallow-publication-2026-10-24.md, evidence/W04-W06-bounded-report-observation-2026-10-24.md, evidence/W04.3-merge-gate-2026-10-24.md
 
 Implementation issue: [#26](https://github.com/alex-engvall/labstride/issues/26).
 
@@ -265,13 +265,13 @@ Implementation issue: [#26](https://github.com/alex-engvall/labstride/issues/26)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W04 |
+| MVP | P0 | implemented | W04 |
 
 Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contract.md).
 
 - Merge uses the expected head and records the merge SHA while respecting active repository protections.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04.3-merge-gate-2026-10-24.md
 
 Implementation issue: [#26](https://github.com/alex-engvall/labstride/issues/26).
 

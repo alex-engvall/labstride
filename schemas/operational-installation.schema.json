@@ -283,6 +283,10 @@
       "required": [
         "port"
       ]
+    },
+    "mergeEnabled": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [

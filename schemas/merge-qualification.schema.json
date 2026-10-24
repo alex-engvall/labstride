@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub merge downstream qualification V1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "repositoryId": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "appId": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "installationId": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "actorId": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "credentialRef": {
+      "type": "string",
+      "pattern": "^secret:",
+      "maxLength": 1024
+    },
+    "mergeSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "workflowId": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "workflowBlobSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "runId": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "runAttempt": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "event": {
+      "const": "push"
+    },
+    "qualified": {
+      "type": "boolean"
+    },
+    "blocker": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 100
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "repositoryId",
+    "appId",
+    "installationId",
+    "actorId",
+    "credentialRef",
+    "mergeSha",
+    "workflowId",
+    "workflowBlobSha",
+    "runId",
+    "runAttempt",
+    "event",
+    "qualified",
+    "blocker"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "qualified": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "blocker": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "blocker": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  ]
+}

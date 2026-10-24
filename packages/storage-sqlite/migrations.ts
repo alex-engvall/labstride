@@ -235,6 +235,10 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   CREATE TABLE deployment_evidence (id TEXT PRIMARY KEY, operation_id TEXT NOT NULL REFERENCES workflow_dispatches(operation_id),
     payload TEXT NOT NULL CHECK(json_valid(payload)));
   CREATE INDEX deployment_evidence_operation ON deployment_evidence(operation_id);
+` }, { version: 16, sql: `
+  CREATE TABLE merge_intents (operation_id TEXT PRIMARY KEY REFERENCES operations(id), resource_key TEXT NOT NULL,
+    payload TEXT NOT NULL CHECK(json_valid(payload)), active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)));
+  CREATE UNIQUE INDEX merge_branch_active ON merge_intents(resource_key) WHERE active=1;
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {
