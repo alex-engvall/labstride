@@ -11,12 +11,13 @@ import { startCoordinator } from '../../apps/coordinator/main.ts';
 import { createWorker, actionKey } from '../../packages/core/worker.ts';
 import { requestDigest } from '../../packages/storage-sqlite/execution.ts';
 import { configuredWorkflowAction } from '../../packages/workflow-broker/action.ts';
+import { mergeResource } from '../../packages/core/merges.ts';
 import { workflowRunName, workflowResource } from '../../packages/core/workflow-broker.ts';
 import { createWorkflowBroker } from '../../packages/workflow-broker/server.ts';
 import { createWorkflowVerifier, workflowIssuer } from '../../packages/workflow-broker/identity.ts';
 
 const keys = generateKeyPair('RS256');
-export async function workflowFixture(t, { variant = 'a', dispatch = 'normal', prepared = false, checkoutSource = false, deadlineMs, deployment, observers, followup = false } = {}) {
+export async function workflowFixture(t, { variant = 'a', dispatch = 'normal', prepared = false, checkoutSource = false, deadlineMs, deployment, observers, followup = false, configure } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'labstride-workflow-')), state = join(root, 'state');
   let store, server;
   t.after(async () => { if (server?.listening) await new Promise(resolve => server.close(resolve)); store?.close(); rmSync(root, { recursive: true, force: true }); });
@@ -41,22 +42,32 @@ export async function workflowFixture(t, { variant = 'a', dispatch = 'normal', p
   f.dependencies.lock.extensions.push(pin);
   f.config.workflows.prepare = [{ id: 'deliver', action: pin.id, inputs: { target: enrollment.targetId, enrollment: 'selected', source: 'context.source' } }];
   if (followup) f.config.workflows.prepare.push({ id: 'followup', action: 'test.action', inputs: { target: enrollment.targetId, source: 'context.source', note: 'Only after successful delivery' } });
+  if (configure) await configure(f, enrollment);
   const compilation = await f.compile(); assert.equal(compilation.ok, true, JSON.stringify(compilation.diagnostics));
   const compiled = compilation.configuration; let now = '2026-10-23T12:00:00.000Z';
   const dependencies = { ...policyDependencies, clock: { now: () => now } };
   store = startCoordinator(state, dependencies).store;
   store.activateConfiguration(compiled, null, context, localAuthority); publishFixturePolicy(store, f, compiled);
-  const observed = observation(f, compiled);
-  const originalBuilder = planFor(f, compiled);
-  const admitted = store.requestConfiguredStart(compiled, observed, { source: f.source }, (steps, observation) => {
-    const plan = originalBuilder(steps, observation);
-    plan.workspace.targetId = enrollment.targetId; plan.operation.request.targetId = enrollment.targetId; plan.operation.request.source = structuredClone(f.source);
-    if (deadlineMs !== undefined) plan.operation.request.deadline = new Date(Date.parse(now) + deadlineMs).toISOString();
-    plan.operation.request.requestDigest = requestDigest(plan.operation.request);
-    plan.resourceKey = workflowResource(enrollment); return plan;
-  }, context);
-  assert.equal(admitted.evaluation.outcome, 'matched');
-  const op = store.operations(admitted.runId)[0].request;
+  function admit(suffix = '', source = f.source, selected = 'selected') {
+    const observed = observation(f, compiled);
+    if (f.config.workflows.prepare.some(step => step.inputs.enrollment?.binding === 'field')) observed.current[f.names.note] = { present: true, value: selected };
+    observed.event.subjectId += suffix; observed.event.externalId += suffix; observed.event.eventId += suffix;
+    const originalBuilder = planFor(f, compiled, suffix);
+    const chosen = pin.configuration.enrollments[selected];
+    const admitted = store.requestConfiguredStart(compiled, observed, { source }, (steps, observation) => {
+      const plan = originalBuilder(steps, observation);
+      plan.workspace.targetId = chosen.targetId; plan.operation.request.targetId = chosen.targetId;
+      plan.operation.request.source = structuredClone(source);
+      plan.operation.request.inputs = { ...plan.operation.request.inputs, enrollment: selected, target: chosen.targetId, source: structuredClone(source) };
+      if (deadlineMs !== undefined) plan.operation.request.deadline = new Date(Date.parse(now) + deadlineMs).toISOString();
+      plan.operation.request.requestDigest = requestDigest(plan.operation.request);
+      plan.resourceKey = plan.operation.request.actionId === 'labstride.github-merge'
+        ? mergeResource(f.dependencies.lock.extensions.find(p=>p.id==='labstride.github-merge').configuration.enrollments[selected]) : workflowResource(chosen); return plan;
+    }, context);
+    assert.equal(admitted.evaluation.outcome, 'matched');
+    return store.operations(admitted.runId)[0].request;
+  }
+  const op = admit();
   const { privateKey, publicKey } = await keys, jwk = { ...await exportJWK(publicKey), alg: 'RS256', kid: 'workflow-test' };
   const getKey = createLocalJWKSet({ keys: [jwk] });
   const runs = [{ runId: '301', runAttempt: 1, repositoryId: '101', repositoryNodeId: 'R_workflows', repository: 'example/workflows', ownerId: '7',
@@ -99,7 +110,7 @@ export async function workflowFixture(t, { variant = 'a', dispatch = 'normal', p
       if (new URL(url).hostname === 'oidc.test') return Response.json({ value: await sign() });
       return fetch(`${url}`.replace('https://broker.test', `http://127.0.0.1:${server.address().port}`), init);
     } };
-  return { root, state, op, f, compiled, enrollment, dependencies, runs, provider, worker, sign, verifier, post, runnerOptions,
+  return { root, state, op, f, compiled, enrollment, dependencies, runs, provider, worker, sign, admit, verifier, post, runnerOptions,
     get store() { return store; }, get url() { return url; }, dispatches: () => dispatches, getKey, jwk,
     readError(value) { readError = value; }, discover(value) { discover = value; }, advance(ms = 60001) { now = new Date(Date.parse(now) + ms).toISOString(); },
     async restart() { await new Promise(resolve => server.close(resolve)); store.close(); store = startCoordinator(state, dependencies).store; await listen(); },

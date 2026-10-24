@@ -342,7 +342,8 @@
             "succeeded",
             "failed",
             "cancelled",
-            "outcome_unknown"
+            "outcome_unknown",
+            "superseded"
           ]
         }
       },
@@ -413,7 +414,8 @@
             "running",
             "verified",
             "failed",
-            "outcome_unknown"
+            "outcome_unknown",
+            "superseded"
           ]
         }
       },

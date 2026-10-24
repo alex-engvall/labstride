@@ -90,6 +90,10 @@ export class SqliteStore implements StateStore {
     } catch (error) { throw classify(error); }
   }
 
+  successorFulfilled(_operationId: string): boolean { return false; }
+  successorSatisfied(_operationId: string): boolean { return false; }
+  consumeSuccessorEvidence(_operationId: string): boolean { return false; }
+
   commit(input: Change[], context: AuditContext): void {
     this.transaction(() => {
       if (!Array.isArray(input)) throw new LifecycleError('invalid_payload');
@@ -112,8 +116,10 @@ export class SqliteStore implements StateStore {
       for (const change of input) {
         if (change?.record?.kind === 'run' && this.db.prepare('SELECT 1 FROM run_controls WHERE run_id=?').get(change.record.id)) {
           const old = this.get('run', change.record.id);
+          const completing = change.record.state === 'completed';
           if (old.paused !== change.record.paused || (['completed','cancelled','failed'].includes(change.record.state) &&
-            this.db.prepare("SELECT 1 FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled')").get(old.id)))
+            this.db.prepare("SELECT id,state FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled')").all(old.id)
+              .some(op => op.state !== 'superseded' || completing && !this.consumeSuccessorEvidence(String(op.id)))))
             throw new LifecycleError('recovery_required');
         }
       }

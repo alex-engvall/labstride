@@ -241,15 +241,25 @@ export class WorkflowStore extends WorkflowBrokerStore {
           this.db.prepare('INSERT OR IGNORE INTO workflow_steps VALUES (?,0,?)').run(run.id, first.id);
           const rows = this.db.prepare('SELECT * FROM workflow_steps WHERE run_id=? ORDER BY position').all(run.id);
           const tail = this.get('operation', String(rows.at(-1)!.operation_id));
-          if (tail.state !== 'succeeded') return;
+          if (tail.state !== 'succeeded' && !(tail.state === 'superseded' && this.consumeSuccessorEvidence(tail.id))) return;
           const position = rows.length;
           if (position === workflow.length) return;
           const original = this.db.prepare('SELECT payload FROM inbox WHERE run_id=? ORDER BY rowid LIMIT 1').get(run.id);
           const observation = JSON.parse(String(original!.payload)).event.facts.configurationObservation as RuleObservation;
+          let source = first.request.source;
+          if (workflow[position].action === workflowAction) {
+            const merged = operations.filter(op => op.state === 'succeeded' && op.request.actionId === mergeAction).at(-1);
+            if (merged) {
+              const record = this.mergeRecord(merged.id);
+              if (record?.outcome !== 'confirmed' || !record.mergeSha || record.enrollment.repository.nodeId !== source.repositoryId ||
+                record.enrollment.repository.name !== source.repository) throw new LifecycleError('identity_conflict');
+              source = { ...source, sha: record.mergeSha };
+            }
+          }
           const step = bindWorkflow(snapshot.configuration, snapshot.extensionLock.extensions, host, evaluation.workflow,
-            observation.current, { source: first.request.source, workspaceId: first.workspaceId }, workflow[position].id)[0];
+            observation.current, { source, workspaceId: first.workspaceId }, workflow[position].id)[0];
           const id = `step-${digest([run.id, position])}`, now = this.clock.now();
-          const descriptor = { ...first.request, operationId: id, actionId: step.actionId, actionVersion: step.actionVersion,
+          const descriptor = { ...first.request, source, operationId: id, actionId: step.actionId, actionVersion: step.actionVersion,
             inputs: step.inputs, targetId: typeof step.inputs.target === 'string' ? step.inputs.target : first.request.targetId };
           descriptor.requestDigest = requestDigest(descriptor);
           const base = { schemaVersion: '1.0' as const, revision: 1, createdAt: now, updatedAt: now };

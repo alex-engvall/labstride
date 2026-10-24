@@ -6,8 +6,8 @@ Do not encode all facts in one status column. Runs, workspaces, agent sessions, 
 | --- | --- |
 | Run | queued, preparing, ready, active, waiting_human, waiting_ci, delivering, completed, paused, failed, cancelled, outcome_unknown |
 | Workspace | requested, creating, ready, in_use, retained, cleanup_pending, deleting, deleted, error, outcome_unknown |
-| Operation | prepared, claimed, running, succeeded, failed, cancelled, outcome_unknown |
-| Deployment | requested, running, verified, failed, outcome_unknown |
+| Operation | prepared, claimed, running, succeeded, failed, cancelled, outcome_unknown, superseded |
+| Deployment | requested, running, verified, failed, outcome_unknown, superseded |
 
 Paused is a scheduling overlay: preserve the prior phase/checkpoint. A failed run can be continued only by a recorded recovery action. Completed means its configured completion conditions are verified, not merely that an agent said it was done.
 
@@ -44,7 +44,11 @@ The [W04.1 broker](38-workflow-broker.md) persists separate dispatch and runner 
 
 CI attaches to a specific PR head. Before merge, refresh head/base, checks and protection state. Any source change invalidates earlier evidence. Serialize merge decisions per base branch or use a provider-supported queue after verifying its semantics. After each merge, revalidate the next PR against the changed base.
 
-Serialize deployments by environment. Each queued deployment records the expected predecessor and source SHA. An older pending revision must not overwrite a newer verified deployment. Default to marking an older queued revision superseded; retain explicit source/deployment traceability. Cleanup may use a verified successor only if it proves the relevant merge is included.
+Serialize deployments by target/environment. W04.4 records a durable queue sequence, source identity and expected verified predecessor in the operation-creation transaction. Before dispatch and runner effect permission, validate the current verified predecessor and recovery epoch under the coordinator lock. An older queued sequence cannot overwrite a newer verified sequence; independently observed ancestry also prevents a later-queued ancestor or identical revision from redeploying. Divergent or unavailable ancestry blocks dispatch. See the [deployment contract](19-deploy-and-recipes.md) and [bounded local evidence](evidence/W04.4-deployment-ordering-2026-10-24.md).
+
+Only work with no durable workflow dispatch intent can become `superseded`. Supersession releases its known-unsubmitted claim but does not mark a deployment verified or a run completed. Dispatched, consumed or uncertain work retains its original locks and recovery obligations across jobs, attempts and restarts.
+
+A superseded workflow step may advance through a separate successor fulfillment record: the run's confirmed actual merge SHA must be included in the independently verified current successor, with a fresh healthy observation of the same target resource and source revision. PR-head ancestry, a hook or an old receipt is insufficient. Revalidate current target identity, holds and recovery epoch when accepting and using this proof. Missing proof retains the earlier workspace and blocks advancement. This supplies a completion condition, not W05 cleanup permission; keep, ownership, active sessions and dirty/unpushed work remain separate checks.
 
 ## Stop, cancel and timeout
 

@@ -771,7 +771,7 @@
       "title": "Serialize environment delivery",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W04",
       "depends_on_work_packages": [
@@ -783,7 +783,9 @@
         "Older pending work cannot overwrite a newer verified target revision."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04.4-deployment-ordering-2026-10-24.md"
+      ],
       "github_issue": 27,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/27"
     },

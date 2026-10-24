@@ -84,7 +84,8 @@ export type LabstrideLifecycleRecord =
       workspaceId: string;
       request: LabstrideOperationRequestV1;
       effectBoundary: "not_crossed" | "crossed";
-      state: "prepared" | "claimed" | "running" | "succeeded" | "failed" | "cancelled" | "outcome_unknown";
+      state:
+        "prepared" | "claimed" | "running" | "succeeded" | "failed" | "cancelled" | "outcome_unknown" | "superseded";
     }
   | {
       schemaVersion: "1.0";
@@ -97,7 +98,7 @@ export type LabstrideLifecycleRecord =
       operationId: string;
       targetId: string;
       sourceSha: string;
-      state: "requested" | "running" | "verified" | "failed" | "outcome_unknown";
+      state: "requested" | "running" | "verified" | "failed" | "outcome_unknown" | "superseded";
     }
   | {
       schemaVersion: "1.0";

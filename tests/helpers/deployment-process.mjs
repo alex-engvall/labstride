@@ -11,15 +11,15 @@ if (mode === 'after-evidence') {
   const record = store.recordDeploymentObservation.bind(store);
   store.recordDeploymentObservation = (...args) => { const result = record(...args); barrier(mode); return result; };
 }
-if (mode === 'during-finalization') {
+if (mode === 'during-finalization' || mode === 'during-supersession') {
   const write = store.write.bind(store);
   store.write = (...args) => {
     write(...args);
-    if (args[0].some(change => change.record.kind === 'deployment' && change.record.state === 'verified')) barrier(mode);
+    if (args[0].some(change => change.record.kind === 'deployment' && change.record.state === (mode === 'during-supersession' ? 'superseded' : 'verified'))) barrier(mode);
   };
 }
 const observer = localJsonObserver();
-const provider = { find: async () => [data.run], run: async () => data.run };
+const provider = { find: async () => [data.run], run: async () => data.run, compare: async () => data.comparison };
 const adapter = configuredWorkflowAction(store, data.host, provider, new Map([[observerKey(observer.id, observer.version), observer]]));
 store.markUnknown(data.operationId);
 const operation = store.get('operation', data.operationId), epoch = store.recoveryEpoch();

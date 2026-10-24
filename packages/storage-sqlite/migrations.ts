@@ -239,6 +239,34 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   CREATE TABLE merge_intents (operation_id TEXT PRIMARY KEY REFERENCES operations(id), resource_key TEXT NOT NULL,
     payload TEXT NOT NULL CHECK(json_valid(payload)), active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)));
   CREATE UNIQUE INDEX merge_branch_active ON merge_intents(resource_key) WHERE active=1;
+` }, { version: 17, sql: `
+  ALTER TABLE operations DROP COLUMN state;
+  ALTER TABLE operations ADD COLUMN state TEXT GENERATED ALWAYS AS (json_extract(payload, '$.state')) VIRTUAL
+    NOT NULL CHECK(state IN ('prepared','claimed','running','succeeded','failed','cancelled','outcome_unknown','superseded'));
+  ALTER TABLE deployments DROP COLUMN state;
+  ALTER TABLE deployments ADD COLUMN state TEXT GENERATED ALWAYS AS (json_extract(payload, '$.state')) VIRTUAL
+    NOT NULL CHECK(state IN ('requested','running','verified','failed','outcome_unknown','superseded'));
+  CREATE TABLE deployment_targets (resource_key TEXT PRIMARY KEY, revision INTEGER NOT NULL DEFAULT 0,
+    operation_id TEXT REFERENCES operations(id), evidence_id TEXT REFERENCES deployment_evidence(id),
+    legacy_blocked INTEGER NOT NULL DEFAULT 0 CHECK(legacy_blocked IN (0,1)));
+  INSERT INTO deployment_targets(resource_key,legacy_blocked)
+    SELECT DISTINCT resource_key,1 FROM workflow_dispatches WHERE json_type(payload,'$.enrollment.deployment')='object';
+  CREATE TABLE deployment_orders (sequence INTEGER PRIMARY KEY AUTOINCREMENT, operation_id TEXT NOT NULL UNIQUE REFERENCES operations(id),
+    resource_key TEXT NOT NULL REFERENCES deployment_targets(resource_key), payload TEXT NOT NULL CHECK(json_valid(payload)));
+  CREATE TABLE deployment_order_checks (id TEXT PRIMARY KEY, operation_id TEXT NOT NULL REFERENCES deployment_orders(operation_id),
+    payload TEXT NOT NULL CHECK(json_valid(payload)));
+  CREATE INDEX deployment_order_checks_operation ON deployment_order_checks(operation_id);
+  CREATE TABLE deployment_successors (id TEXT PRIMARY KEY, operation_id TEXT NOT NULL REFERENCES deployment_orders(operation_id),
+    payload TEXT NOT NULL CHECK(json_valid(payload)));
+  CREATE INDEX deployment_successors_operation ON deployment_successors(operation_id);
+  CREATE TABLE deployment_successor_uses (operation_id TEXT PRIMARY KEY REFERENCES deployment_orders(operation_id),
+    evidence_id TEXT NOT NULL REFERENCES deployment_successors(id));
+  CREATE TRIGGER deployment_successor_use_no_update BEFORE UPDATE ON deployment_successor_uses BEGIN SELECT RAISE(ABORT, 'immutable_successor_use'); END;
+  CREATE TRIGGER deployment_successor_use_no_delete BEFORE DELETE ON deployment_successor_uses BEGIN SELECT RAISE(ABORT, 'immutable_successor_use'); END;
+  CREATE TRIGGER deployment_order_check_no_update BEFORE UPDATE ON deployment_order_checks BEGIN SELECT RAISE(ABORT, 'immutable_order_check'); END;
+  CREATE TRIGGER deployment_order_check_no_delete BEFORE DELETE ON deployment_order_checks BEGIN SELECT RAISE(ABORT, 'immutable_order_check'); END;
+  CREATE TRIGGER deployment_successor_no_update BEFORE UPDATE ON deployment_successors BEGIN SELECT RAISE(ABORT, 'immutable_successor'); END;
+  CREATE TRIGGER deployment_successor_no_delete BEFORE DELETE ON deployment_successors BEGIN SELECT RAISE(ABORT, 'immutable_successor'); END;
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

@@ -55,8 +55,8 @@ const edges: Partial<Record<Kind, Record<string, readonly string[]>>> = {
     cleanup_pending: ['retained', 'deleting', 'error', 'outcome_unknown'], deleting: ['deleted', 'error', 'outcome_unknown'],
   },
   operation: { prepared: ['claimed', 'cancelled', 'outcome_unknown'], claimed: ['running', 'failed', 'cancelled', 'outcome_unknown'],
-    running: ['succeeded', 'failed', 'cancelled', 'outcome_unknown'] },
-  deployment: { requested: ['running', 'failed'], running: ['verified', 'failed', 'outcome_unknown'] },
+    running: ['succeeded', 'failed', 'cancelled', 'outcome_unknown', 'superseded'] },
+  deployment: { requested: ['running', 'failed', 'superseded'], running: ['verified', 'failed', 'outcome_unknown'] },
   session: { ready: ['busy', 'waiting_human', 'closed', 'failed', 'outcome_unknown'],
     busy: ['ready', 'waiting_human', 'closed', 'failed', 'outcome_unknown'],
     waiting_human: ['ready', 'busy', 'closed', 'failed', 'outcome_unknown'] },
@@ -104,7 +104,7 @@ export function checkChange(previous: LifecycleRecord | undefined, change: Chang
     if (recoverable && newState !== oldState) {
       if (!change.recovery) throw new LifecycleError('recovery_required');
       if (newState === 'outcome_unknown' || !(newState in graph ||
-        ['completed', 'cancelled', 'deleted', 'succeeded', 'failed', 'verified', 'closed'].includes(newState)))
+        ['completed', 'cancelled', 'deleted', 'succeeded', 'failed', 'verified', 'closed', 'superseded'].includes(newState)))
         throw new LifecycleError('invalid_transition');
     } else {
       if (change.recovery || (!graph[oldState]) ||

@@ -1,3 +1,4 @@
+import { removeDeploymentOrderingMigration } from './helpers/migration-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fork, spawnSync } from 'node:child_process';
@@ -196,11 +197,13 @@ for (const mode of ['after-evidence', 'during-finalization', 'after-finalization
   writeFileSync(data, JSON.stringify({ now: x.now(), operationId: x.op.operationId, run: x.runs[0], host: x.f.dependencies.host }));
   const process = child(t, 'deployment-process.mjs', [x.state, mode, data]);
   assert.equal((await message(process)).stage, mode);
+  assert.equal(x.store.deploymentOrderContext(x.op.operationId).current?.operationId ?? null, mode === 'after-finalization' ? x.op.operationId : null);
   if (mode === 'after-finalization') { assert.equal(state(x), 'verified'); assert.equal(active(x), 0); }
   else { noVerified(x); assert.equal(active(x), 1); assert.notEqual(x.store.get('operation', x.op.operationId).state, 'succeeded'); }
   process.kill('SIGKILL'); await process.done; await x.restart();
   if (mode !== 'after-finalization') { const result = await x.adapter().reconcile(x.op, null); await x.accept(result); }
   assert.equal(state(x), 'verified'); assert.equal(active(x), 0);
+  assert.equal(x.store.deploymentOrderContext(x.op.operationId).current.operationId, x.op.operationId);
   assert.equal(x.store.get('operation', x.op.operationId).state, 'succeeded'); assert.equal(x.effects(), 1); assert.equal(x.dispatches(), 1);
 });
 
@@ -290,6 +293,7 @@ test('migration 15 preserves original dispatch and receipt without inventing dep
   const x = await workflowFixture(t); const before = x.store.workflowDispatch(x.op.operationId);
   await x.stopListener();
   const db = new DatabaseSync(join(x.state, 'state.sqlite'));
+  removeDeploymentOrderingMigration(db);
   db.exec('DROP TABLE merge_intents; DELETE FROM schema_migrations WHERE version=16; DROP TABLE deployment_evidence; DELETE FROM schema_migrations WHERE version=15; PRAGMA user_version=14'); db.close();
   await x.restart();
   assert.deepEqual(x.store.workflowDispatch(x.op.operationId), before);
