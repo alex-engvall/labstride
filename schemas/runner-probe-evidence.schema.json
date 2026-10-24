@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Runner probe evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "bindingDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "probeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}$"
+    },
+    "runId": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,15}$"
+    },
+    "runAttempt": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]{0,15}$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "bindingDigest",
+    "observedAt",
+    "probeId",
+    "runId",
+    "runAttempt"
+  ]
+}

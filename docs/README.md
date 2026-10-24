@@ -74,3 +74,5 @@ Keep the current specification coherent. Do not append contradictory historical 
 - [Authenticated repository workflow execution](38-workflow-broker.md)
 
 - [Current-revision direct merge and recovery](39-current-revision-merge.md)
+
+- [Prepared-host public installation and operator controls](40-public-installation.md)

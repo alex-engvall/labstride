@@ -289,6 +289,14 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   CREATE TRIGGER cleanup_execution_complete BEFORE UPDATE ON cleanup_executions WHEN OLD.stage='deleted' BEGIN SELECT RAISE(ABORT,'immutable_cleanup_execution'); END;
 ` }];
 
+export function verifySchema(db: DatabaseSync): void {
+  const version = Number(db.prepare('PRAGMA user_version').get()!.user_version);
+  if (version !== migrations.length) throw new LifecycleError('unsupported_schema');
+  const applied = db.prepare('SELECT version,checksum FROM schema_migrations ORDER BY version').all();
+  if (applied.length !== version || applied.some((row, index) => Number(row.version) !== index + 1 ||
+    row.checksum !== createHash('sha256').update(migrations[index].sql).digest('hex'))) throw new LifecycleError('unsupported_schema');
+}
+
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {
   db.exec('BEGIN IMMEDIATE');
   try {

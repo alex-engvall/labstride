@@ -1,12 +1,13 @@
 import { LifecycleError } from './lifecycle.ts';
 import type { RecordOf } from './lifecycle.ts';
 import { defaultRetryPolicy } from './execution.ts';
-import type { RetryPolicy } from './execution.ts';
+import type { ExecutionMode, RetryPolicy } from './execution.ts';
 import type { ObservationPort, ProjectionAdapter, SessionObserver, SessionObservation } from './observations.ts';
 import { PreEffectTransient } from './worker.ts';
 import { validated } from '../storage-sqlite/validation.ts';
 import type { ProjectionWriteCapabilities } from '../../contracts/generated/projection-capabilities.ts';
 export interface ObservationOptions {
+  mode?: ExecutionMode;
   sessions: ReadonlyMap<string, SessionObserver>;
   projections: ReadonlyMap<string, ProjectionAdapter>;
   sessionIntervalMs?: number; retry?: RetryPolicy; random?: () => number;
@@ -42,6 +43,7 @@ export function createObservationWorker(store: ObservationPort, options: Observa
             const decision = store.inspectProjection(id, delivery.revision, view);
             if (decision === 'finished') continue;
             if (decision === 'wait') { if (store.projectionAllowed(projection.runId)) store.retryRead(delivery.id, policy, random()); continue; }
+            if (options.mode === 'reconcile-only') continue;
             const capabilities = validated<ProjectionWriteCapabilities>('projection-capabilities',adapter.capabilities ?? {
               schemaVersion:'1.0',mode:adapter.atomicPrecondition?'atomic':'unsupported',durableWriteIdentity:!!adapter.atomicPrecondition,
             });

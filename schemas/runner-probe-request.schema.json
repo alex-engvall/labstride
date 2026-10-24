@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "probeId"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "probeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}$"
+    },
+    "case": {
+      "enum": [
+        "positive",
+        "wrong-repository",
+        "wrong-workflow",
+        "wrong-run",
+        "wrong-attempt"
+      ]
+    }
+  },
+  "title": "Runner diagnostic request v1"
+}

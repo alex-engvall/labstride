@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { workspaceFixture } from './helpers/workspace-fixture.mjs';
@@ -16,6 +16,8 @@ import { createGitHubProjection } from '../packages/provider-github/projection.t
 import { loadExtension, freezeProfile } from '../packages/extensions/loader.ts';
 import { runGit } from '../packages/target-helper/workspace-git.ts';
 import { createCodexBridge } from '../packages/operations/bridge.ts';
+import { backupDatabase } from '../packages/operations/runtime.ts';
+import { cli } from '../apps/cli/main.ts';
 
 // Real checkout, bundle verification, local Git push and SQLite sequencing.
 // GitHub and Codex wire responses are controlled peers, not live qualification.
@@ -275,6 +277,22 @@ test('a lost native start reply keeps its frozen Plan choice despite later No ag
   await f.tick(); await f.tick();
   assert.equal(f.state.starts, 1); assert.equal(f.state.turns, 0); assert.equal(f.store.managedSession(f.run.id), null);
   assert.equal(f.store.get('operation', f.op.operationId).state, 'outcome_unknown');
+  const selected = f.store.managedSessionStart(f.op.operationId);
+  const stateDirectory = join(f.root, 'inspection'); mkdirSync(stateDirectory, { mode: 0o700 });
+  await backupDatabase(f.root, join(stateDirectory, 'state.sqlite'));
+  const spec = JSON.parse(readFileSync(new URL('../examples/operational-installation.json', import.meta.url)));
+  Object.assign(spec, { stateDirectory, sourceRoot: join(f.cwd, '..', '..'), configuration: f.compiled.snapshot.configuration });
+  const path = join(f.root, 'inspection.json'); writeFileSync(path, JSON.stringify(spec), { mode: 0o600 });
+  const views = [];
+  await cli(['runs','show',f.run.id,'--config',path], value => views.push(value));
+  await cli(['runs','list','--config',path], value => views.push(value.runs[0]));
+  for (const view of views) {
+    assert.equal(view.session, null); assert.deepEqual(view.startup, [selected]);
+    assert.equal(view.startup[0].mode, 'plan'); assert.equal(view.startup[0].model, 'test-model');
+    assert.equal(view.startup[0].choices.aiMode, 'mode-plan');
+    assert.equal(JSON.stringify(view).includes('Task data'), false);
+  }
+  assert.equal(f.state.starts, 1);
   assert.equal((await f.action.cancel(f.op, null, 'cancel-unknown')).result.status, 'accepted');
 });
 

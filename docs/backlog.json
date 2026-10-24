@@ -954,7 +954,9 @@
         "evidence/W06-version-canary-2026-10-24.md",
         "evidence/W04-W06-report-journal-2026-10-24.md",
         "evidence/W04-W06-shallow-publication-2026-10-24.md",
-        "evidence/W04-W06-bounded-report-observation-2026-10-24.md"
+        "evidence/W04-W06-bounded-report-observation-2026-10-24.md",
+        "evidence/W06.1-public-operations-2026-10-24.md",
+        "evidence/W06.1-recovery-inspection-2026-10-24.md"
       ],
       "github_issue": 30,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/30"

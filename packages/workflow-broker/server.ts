@@ -5,10 +5,14 @@ import type { WorkflowBrokerStore } from '../storage-sqlite/workflow-broker.ts';
 import { LifecycleError } from '../core/lifecycle.ts';
 import { validated } from '../storage-sqlite/validation.ts';
 import { createWorkflowVerifier } from './identity.ts';
+import type { RequestListener } from 'node:http';
 
 export function createWorkflowBroker(store: WorkflowBrokerStore, provider: WorkflowProvider,
-  verify = createWorkflowVerifier(provider)) {
+  verify = createWorkflowVerifier(provider), diagnostics?: { handler?: RequestListener; allowEffects?: () => boolean }) {
   const server = createServer({ maxHeaderSize: 24576 }, async (request, response) => {
+    if (request.url === '/v1/diagnostics/status' || request.url === '/v1/discovery/oidc-probe') {
+      if (diagnostics?.handler) { diagnostics.handler(request, response); return; }
+    }
     let operationId = '';
     const reply = (status: number, body: object) => {
       const value = validated('workflow-broker-reply', { schemaVersion: '1.0', ...body });
@@ -20,6 +24,7 @@ export function createWorkflowBroker(store: WorkflowBrokerStore, provider: Workf
       const path = /^\/v1\/operations\/([A-Za-z0-9_.:-]{1,256})\/(claim|authorize-effect|receipt)$/.exec(request.url ?? '');
       if (request.method !== 'POST' || !path) throw new BrokerError('not_found', 404);
       operationId = path[1]; const phase = path[2] as 'claim' | 'authorize-effect' | 'receipt';
+      if (phase !== 'receipt' && diagnostics?.allowEffects?.() === false) throw new BrokerError('effect_blocked', 403);
       if (request.headers['content-type'] !== 'application/json' || request.headers['content-encoding']) throw new BrokerError('invalid_payload', 400);
       const authorization = /^Bearer ([\w.-]{1,16384})$/.exec(request.headers.authorization ?? '');
       if (!authorization) throw new BrokerError('identity_rejected', 403);

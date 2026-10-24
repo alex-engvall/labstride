@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "Installed extension inspection v1",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "provider",
+              "connector",
+              "action",
+              "session-provider"
+            ]
+          },
+          "integrity": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "kind",
+          "integrity",
+          "capabilities",
+          "permissions",
+          "ok",
+          "code"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "extensions"
+  ]
+}

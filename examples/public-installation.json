@@ -1,0 +1,238 @@
+{
+  "schemaVersion": "2.0",
+  "profile": "public",
+  "configuration": {
+    "schemaVersion": "1.0",
+    "installationId": "example-public-installation",
+    "enabled": false,
+    "broker": {
+      "enabled": false
+    },
+    "github": {
+      "repositories": [
+        "example-owner/example-app"
+      ],
+      "actorIds": [
+        "REPLACE_OPERATOR_ID"
+      ],
+      "credentialRef": "secret:repository",
+      "projectCredentialRef": "secret:project",
+      "pollIntervalSeconds": 60
+    },
+    "fields": {
+      "request": {
+        "source": "project_v2",
+        "scopeId": "REPLACE_PROJECT_ID",
+        "fieldId": "REPLACE_REQUEST_FIELD_ID",
+        "type": "single-select",
+        "options": {
+          "start": "REPLACE_START_OPTION_ID",
+          "pause": "REPLACE_PAUSE_OPTION_ID"
+        }
+      },
+      "status": {
+        "source": "project_v2",
+        "scopeId": "REPLACE_PROJECT_ID",
+        "fieldId": "REPLACE_STATUS_FIELD_ID",
+        "type": "single-select",
+        "options": {
+          "preparing": "REPLACE_PREPARING_OPTION_ID",
+          "merged": "REPLACE_MERGED_OPTION_ID"
+        }
+      }
+    },
+    "targets": {
+      "development": {
+        "connector": "labstride.connector.ssh",
+        "configuration": {
+          "enrollmentDirectory": "/var/lib/labstride/coordinator/enrollment",
+          "targetId": "development",
+          "revision": 1,
+          "digest": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      }
+    },
+    "extensions": [
+      {
+        "id": "labstride.github.project",
+        "version": "0.1.0",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "id": "labstride.connector.ssh",
+        "version": "1.5.0",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "id": "labstride.workspace-create",
+        "version": "1.0.0",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ],
+    "limits": {
+      "activeRuns": 2,
+      "perIssue": 1,
+      "perDeploymentTarget": 1,
+      "metadataRetentionDays": 90,
+      "development": 2,
+      "ciReview": 1
+    },
+    "rules": [
+      {
+        "id": "start",
+        "event": "field.changed",
+        "condition": {
+          "field": "request",
+          "op": "changedTo",
+          "value": "start"
+        },
+        "workflow": "prepare"
+      }
+    ],
+    "workflows": {
+      "prepare": [
+        {
+          "id": "checkout",
+          "action": "labstride.workspace-create",
+          "inputs": {
+            "target": "development",
+            "rootId": "source",
+            "source": "context.source"
+          }
+        }
+      ]
+    },
+    "projections": [
+      {
+        "fact": "workspace.ready",
+        "field": "status",
+        "value": "preparing"
+      }
+    ],
+    "extensionConfiguration": {},
+    "controls": {}
+  },
+  "lock": {
+    "schemaVersion": "1.0",
+    "extensions": [
+      {
+        "id": "labstride.github.project",
+        "version": "0.1.0",
+        "kind": "provider",
+        "artifactPath": "/opt/labstride/artifacts/provider-github-project.json",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+        "configuration": {},
+        "capabilities": [
+          "github.projects-v2.v1"
+        ],
+        "permissions": [
+          "network.github"
+        ]
+      },
+      {
+        "id": "labstride.connector.ssh",
+        "version": "1.5.0",
+        "kind": "connector",
+        "artifactPath": "/opt/labstride/artifacts/connector-ssh.json",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+        "configuration": {
+          "enrollmentDirectory": "/var/lib/labstride/coordinator/enrollment",
+          "targetId": "development",
+          "revision": 1,
+          "digest": "0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "capabilities": [
+          "target.probe.v1",
+          "target.reserve.v1",
+          "target.inspect.v1",
+          "workspace.probe.v1",
+          "workspace.create.v1",
+          "workspace.inspect.v1",
+          "runtime.probe.v1",
+          "runtime.create.v1",
+          "runtime.inspect.v1",
+          "workspace.root-map.v1",
+          "cleanup.inspect.v1",
+          "cleanup.delete.v1"
+        ],
+        "permissions": [
+          "network.ssh"
+        ]
+      },
+      {
+        "id": "labstride.workspace-create",
+        "version": "1.0.0",
+        "kind": "action",
+        "artifactPath": "/opt/labstride/artifacts/action-workspace-create.json",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+        "configuration": {},
+        "capabilities": [
+          "workspace.create.v1"
+        ],
+        "permissions": [
+          "filesystem.workspace"
+        ]
+      }
+    ]
+  },
+  "policy": {
+    "schemaVersion": "1.0",
+    "installationId": "example-public-installation",
+    "actorIds": [
+      "REPLACE_OPERATOR_ID"
+    ],
+    "repositories": [
+      {
+        "id": "REPLACE_REPOSITORY_NODE_ID",
+        "name": "example-owner/example-app"
+      }
+    ],
+    "grants": [
+      {
+        "repositoryId": "REPLACE_REPOSITORY_NODE_ID",
+        "targetId": "development",
+        "actionId": "labstride.workspace-create",
+        "actionVersion": "1.0.0",
+        "effects": [
+          "execute",
+          "cancel"
+        ]
+      }
+    ]
+  },
+  "historyQualifications": [],
+  "stateDirectory": "/var/lib/labstride/coordinator",
+  "revision": "0000000000000000000000000000000000000000",
+  "credentials": {
+    "secret:repository": {
+      "kind": "github-app",
+      "appId": "1",
+      "installationId": 1,
+      "keyFile": "/etc/labstride/repository.pem",
+      "repositoryIds": [
+        1
+      ],
+      "permissions": {
+        "contents": "write",
+        "issues": "write",
+        "pull_requests": "write",
+        "actions": "read",
+        "checks": "read",
+        "statuses": "read"
+      }
+    },
+    "secret:project": "/etc/labstride/project-token"
+  },
+  "host": {
+    "protocol": {
+      "major": 1,
+      "minor": 0
+    },
+    "capabilities": [],
+    "permissions": [
+      "filesystem.workspace",
+      "network.github",
+      "network.ssh"
+    ]
+  }
+}

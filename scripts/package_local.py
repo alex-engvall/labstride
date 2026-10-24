@@ -54,7 +54,7 @@ def main():
     copy(license_file, 'notices/Node-LICENSE')
     artifact_root = files_root / 'artifacts'
     artifact_root.mkdir()
-    for package in ['connector-ssh', 'action-workspace-create', 'action-self-build', 'provider-github', 'action-github-workflow', 'action-github-merge', 'action-workspace-cleanup']:
+    for package in ['connector-ssh', 'action-workspace-create', 'action-self-build', 'provider-github', 'provider-github-project', 'action-runtime-create', 'action-github-workflow', 'action-github-merge', 'action-workspace-cleanup']:
         artifact = artifact_root / (package + '.json')
         subprocess.run([str(node), str(ROOT / 'scripts/package_extension.mjs'), str(ROOT / 'packages' / package), str(artifact)], check=True, stdout=subprocess.DEVNULL)
         data = artifact.read_bytes()

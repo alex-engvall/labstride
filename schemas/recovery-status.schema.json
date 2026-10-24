@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "title": "Recovery control status v1",
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "paused": {
+      "type": "boolean"
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "paused",
+    "epoch",
+    "unresolved"
+  ]
+}

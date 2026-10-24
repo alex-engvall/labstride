@@ -1,10 +1,11 @@
 import { LifecycleError } from './lifecycle.ts';
 import type { RecordOf } from './lifecycle.ts';
 import { defaultRetryPolicy } from './execution.ts';
-import type { ActionAdapter, BoundResult, Claim, Delivery, ExecutionPort, RetryPolicy } from './execution.ts';
+import type { ActionAdapter, BoundResult, Claim, Delivery, ExecutionMode, ExecutionPort, RetryPolicy } from './execution.ts';
 
 export class PreEffectTransient extends Error {}
 export interface WorkerOptions {
+  mode?: ExecutionMode;
   executorId: string;
   adapters: ReadonlyMap<string, ActionAdapter>;
   nextAttempt: () => string;
@@ -30,6 +31,7 @@ export function createWorker(store: ExecutionPort, options: WorkerOptions) {
   async function execute(delivery: Delivery): Promise<void> {
     const id = delivery.operationId!;
     let op = store.get('operation', id);
+    if (options.mode === 'reconcile-only' && delivery.state === 'pending' && op.state === 'prepared') return;
     const adapter = adapters.get(actionKey(op.request.actionId, op.request.actionVersion));
     if (!adapter) { store.block(delivery.id, 'unsupported_capability'); return; }
     if (delivery.state === 'pending' && op.state === 'prepared' && adapter.requiresSessionGuard && !store.sessionGuard(id)) {
