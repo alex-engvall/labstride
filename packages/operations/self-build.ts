@@ -1,6 +1,5 @@
-import { mkdtempSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { tmpdir } from 'node:os';
 import type { ActionAdapter, BoundResult } from '../core/execution.ts';
 import type { RecordOf } from '../core/lifecycle.ts';
 import type { OperationalInstallationV1 } from '../../contracts/generated/operational-installation.ts';
@@ -14,6 +13,7 @@ import { loadExtension, freezeProfile, inspectExtension } from '../extensions/lo
 import { digest } from '../configuration/json.ts';
 import { validated } from '../storage-sqlite/validation.ts';
 import { runGit } from '../target-helper/workspace-git.ts';
+import { preparePublication } from './publication.ts';
 
 type Operation = RecordOf<'operation'>['request'];
 type Options = Pick<OperationalInstallationV1, 'agent' | 'sourceRoot' | 'rootId' | 'baseBranch' | 'requiredWorkflows'>;
@@ -84,52 +84,61 @@ export function createSelfBuildAction(store: WorkflowStore, options: Options, gi
       const current = await bridge.call({ schemaVersion: '1.0', method: 'observe', binding: bind, sessionId: report.sessionId });
       if (!store.forwardAllowed(op.runId) || current.turn?.id !== report.turnId || current.turn?.status !== 'completed' || current.state === 'active') throw Error('stale_revision');
     }
-    // Preparation has no installation credentials and executes as coding UID.
-    if (!store.readManagedEffect(op.operationId, `push-${suffix}`)) {
-      const bundle = await bridge.call({ schemaVersion: '1.0', method: 'bundle', binding: bind, parameters: { sha: report.commitSha } });
-      if (bundle.sha !== report.commitSha || bundle.branch !== workspace.branch || bundle.baseSha !== source.sha || typeof bundle.bundle !== 'string') throw Error('identity_mismatch');
-      await effect(op, `push-${suffix}`, { sha: report.commitSha, branch: workspace.branch }, async () => {
-      const temp = mkdtempSync(join(tmpdir(), 'labstride-publish-'));
-      try {
-        const bytes = Buffer.from(bundle.bundle, 'base64'); if (bytes.length > 16 * 1024 * 1024) throw Error('bundle_too_large');
-        writeFileSync(join(temp, 'source.bundle'), bytes, { mode: 0o600, flag: 'wx' });
-        publishGit(temp, ['init', '--bare', '--template=', 'objects.git']);
-        const bare = join(temp, 'objects.git');
-        publishGit(bare, ['bundle', 'verify', join(temp, 'source.bundle')]);
-        publishGit(bare, ['-c', 'protocol.file.allow=always', 'fetch', '--no-tags', '--no-recurse-submodules', join(temp, 'source.bundle'), 'HEAD']);
-        if (publishGit(bare, ['rev-parse', 'FETCH_HEAD']) !== report.commitSha) throw Error('identity_mismatch');
-        publishGit(bare, ['merge-base', '--is-ancestor', source.sha, report.commitSha]);
-        if (!publishGit(bare, ['diff-tree', '--no-commit-id', '--name-only', '-r', '--no-ext-diff', '--no-textconv', source.sha, report.commitSha])) throw Error('empty_result');
-        // Task code cannot redefine the checks used to approve its own result.
-        if (publishGit(bare, ['diff', '--name-only', source.sha, report.commitSha, '--', '.github/workflows'])) throw Error('ci_definition_changed');
-        const commits = publishGit(bare, ['log', '--format=%B%x00', `${source.sha}..${report.commitSha}`]).split('\0').map(message => message.trim()).filter(Boolean);
-        if (!commits.length || commits.some(message => !/^Signed-off-by: .+ <[^<>\s]+@[^<>\s]+>$/m.test(message))) throw Error('dco_missing');
-        const token = await rest.credential(rest.reference), url = `https://github.com/${source.repository}.git`;
-        await currentResult();
-        publishGit(bare, ['push', '--porcelain', url, `${report.commitSha}:refs/heads/${workspace.branch}`], {
-          binding: { repositoryId: source.repositoryId, repository: source.repository, gitUrl: url, apiUrl: `https://api.github.com/repos/${source.repository}`, credentialFile: null }, token,
-        });
-        const readback = await rest.request('GET', `${path}/git/ref/heads/${branch}`);
-        if (readback.object?.sha !== report.commitSha) throw Error('outcome_unknown');
-        return { sha: report.commitSha, branch: workspace.branch };
-      } finally { rmSync(temp, { recursive: true }); }
-      });
+    const pushName = `push-${suffix}`;
+    const readHead = async () => {
+      const ref = await rest.request('GET', `${path}/git/ref/heads/${branch}`);
+      if (ref.ref !== `refs/heads/${workspace.branch}` || ref.object?.sha !== report.commitSha) throw Error('outcome_unknown');
+      return { sha: report.commitSha, branch: workspace.branch };
+    };
+    if (!store.readManagedEffect(op.operationId, pushName)) {
+      if (store.hasManagedEffect(op.operationId, pushName)) {
+        // An exact authoritative ref can resolve a lost acknowledgement. An
+        // absent/conflicting ref never grants another push for this intent.
+        const observed = await readHead();
+        store.finishManagedEffect(op.operationId, pushName, observed, [`github:ref:${source.repository}:${workspace.branch}:${report.commitSha}`]);
+      } else {
+        const bundle = await bridge.call({ schemaVersion: '1.0', method: 'bundle', binding: bind, parameters: { sha: report.commitSha } });
+        const prepared = preparePublication(bundle, { sha: report.commitSha, baseSha: source.sha, branch: workspace.branch }, publishGit);
+        try {
+          const token = await rest.credential(rest.reference), url = `https://github.com/${source.repository}.git`;
+          await currentResult();
+          // The durable intent covers only the remote write. Preparation,
+          // credentials and stale-turn rejection cannot poison a push intent.
+          await effect(op, pushName, { sha: report.commitSha, branch: workspace.branch }, async () => {
+            publishGit(prepared.bare, ['push', '--porcelain', url, `${report.commitSha}:refs/heads/${workspace.branch}`], {
+              binding: { repositoryId: source.repositoryId, repository: source.repository, gitUrl: url, apiUrl: `https://api.github.com/repos/${source.repository}`, credentialFile: null }, token,
+            });
+            return readHead();
+          });
+        } finally { prepared.close(); }
+      }
     }
+    await readHead();
     const marker = `<!-- labstride:${op.runId} -->`;
     const pulls = await rest.request('GET', `${path}/pulls?state=all&head=${encodeURIComponent(source.repository.split('/')[0] + ':' + workspace.branch)}&base=${encodeURIComponent(options.baseBranch)}&per_page=100`);
     if (!Array.isArray(pulls) || pulls.length > 1) throw Error('pull_request_conflict');
+    const matches = (pr: any) => Number.isSafeInteger(pr.number) && pr.number > 0 && typeof pr.node_id === 'string' &&
+      pr.body?.includes(marker) && pr.head?.repo?.node_id === source.repositoryId && pr.head?.ref === workspace.branch &&
+      pr.head?.sha === report.commitSha && pr.base?.ref === options.baseBranch && pr.state === 'open';
     let pr = pulls[0];
     const createdBefore = store.readManagedEffect(op.operationId, 'pull-request-create') as any;
-    if (pr && (!createdBefore || pr.number !== createdBefore.number)) throw Error('outcome_unknown');
-    if (pr && (!pr.body?.includes(marker) || pr.head?.repo?.node_id !== source.repositoryId || pr.state !== 'open')) throw Error('pull_request_conflict');
+    if (pr && !matches(pr)) throw Error('pull_request_conflict');
+    if (pr && !createdBefore) {
+      if (!store.hasManagedEffect(op.operationId, 'pull-request-create')) throw Error('pull_request_conflict');
+      store.finishManagedEffect(op.operationId, 'pull-request-create', { number: pr.number, node_id: pr.node_id }, [`github:pull:${source.repository}:${pr.number}:${report.commitSha}`]);
+    }
+    if (pr && createdBefore && pr.number !== createdBefore.number) throw Error('pull_request_conflict');
     const body = `${marker}\n${report.prBody}\n\n${report.issueComplete ? 'Closes' : 'Relates to'} ${store.originalObservation(op.runId).event.subjectId.startsWith('http') ? store.originalObservation(op.runId).event.subjectId : (await client.query('query LabstrideIssueLink($id:ID!){node(id:$id){... on Issue{url}}}', { id: store.originalObservation(op.runId).event.subjectId }, rest.reference) as any).node.url}\n`;
-    if (!pr) pr = await effect(op, 'pull-request-create', { branch: workspace.branch, base: options.baseBranch, marker }, async () => {
+    if (!pr) {
       await currentResult();
-      const created = await rest.request('POST', `${path}/pulls`, { title: report.prTitle, body, head: workspace.branch, base: options.baseBranch, draft: true });
-      return { number: created.number, node_id: created.node_id };
-    });
+      pr = await effect(op, 'pull-request-create', { branch: workspace.branch, base: options.baseBranch, marker }, async () => {
+        const created = await rest.request('POST', `${path}/pulls`, { title: report.prTitle, body, head: workspace.branch, base: options.baseBranch, draft: true });
+        if (!Number.isSafeInteger(created.number) || created.number < 1 || typeof created.node_id !== 'string') throw Error('outcome_unknown');
+        return { number: created.number, node_id: created.node_id };
+      });
+    }
     pr = await rest.request('GET', `${path}/pulls/${pr.number}`);
-    if (!pr.body?.includes(marker) || pr.head?.sha !== report.commitSha || pr.base?.ref !== options.baseBranch) throw Error('pull_request_conflict');
+    if (!matches(pr)) throw Error('pull_request_conflict');
     store.registerPullRequest(op.runId, pr.number, report.commitSha);
     // Do not replace an existing description or title: preserve human review edits.
     return pr;
@@ -185,6 +194,7 @@ export function createSelfBuildAction(store: WorkflowStore, options: Options, gi
     if (!observation.report) {
       const initialPlan = session.mode === 'plan' && observation.turn?.id === initial.turn.id;
       await phase(op, initialPlan ? observation.turn.status === 'inProgress' ? 'planning' : 'waiting-accept' : 'working');
+      store.clearWorkflowDiagnostic(op.runId);
       return result(op, 'accepted');
     }
     store.saveManagedReport(observation.report);
@@ -206,15 +216,24 @@ export function createSelfBuildAction(store: WorkflowStore, options: Options, gi
     const checks = await fetchPages(`${path}/commits/${report.commitSha}/check-runs?filter=latest`, 'check_runs');
     const statuses = await fetchPages(`${path}/commits/${report.commitSha}/statuses`, '');
     const ci = ciDecision(report.commitSha, options.requiredWorkflows, runs, checks, statuses);
-    if (ci !== 'passed') { await phase(op, 'testing'); if (ci === 'failed') store.workflowError(op.runId, 'ci_failed'); return result(op, 'accepted'); }
+    if (ci !== 'passed') {
+      await phase(op, 'testing');
+      if (ci === 'failed') store.workflowError(op.runId, 'ci_failed'); else store.clearWorkflowDiagnostic(op.runId);
+      return result(op, 'accepted');
+    }
     const fresh = await rest.request('GET', `${path}/pulls/${pr.number}`);
     const current = await bridge.call({ schemaVersion: '1.0', method: 'observe', binding: bind, sessionId: session.sessionId });
     if (fresh.head?.sha !== report.commitSha || current.turn?.id !== report.turnId || current.turn?.status !== 'completed' || !store.forwardAllowed(op.runId)) throw Error('stale_revision');
-    if (fresh.draft) await effect(op, `ready-${report.commitSha.slice(0, 20)}`, { id: fresh.node_id, sha: report.commitSha }, async () => {
+    const readyName = `ready-${report.commitSha.slice(0, 20)}`;
+    if (fresh.draft) await effect(op, readyName, { id: fresh.node_id, sha: report.commitSha }, async () => {
       await client.query('mutation LabstrideReady($id:ID!){markPullRequestReadyForReview(input:{pullRequestId:$id}){pullRequest{id isDraft}}}', { id: fresh.node_id }, rest.reference);
       return { number: fresh.number, sha: report.commitSha };
     });
+    else if (store.hasManagedEffect(op.operationId, readyName) && !store.readManagedEffect(op.operationId, readyName)) {
+      store.finishManagedEffect(op.operationId, readyName, { number: fresh.number, sha: report.commitSha }, [`github:pull-ready:${op.source.repository}:${fresh.number}:${report.commitSha}`]);
+    }
     await phase(op, 'review');
+    store.clearWorkflowDiagnostic(op.runId);
     return result(op, 'accepted', { pullRequest: fresh.html_url, sha: report.commitSha }); // Observe follow-up work in the same session/PR until merge.
   }
   return {

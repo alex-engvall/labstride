@@ -165,3 +165,21 @@ test('first installed activation atomically creates installation before policy a
   runtime.store.activateOperationalProfile(compiled, policy, localAuthority, context);
   assert.equal(runtime.store.get('installation', id).revision, 1); assert.equal(runtime.store.policyHistory(id).length, 1); assert.equal(runtime.store.runs().length, 0);
 });
+
+test('successful running observation resets consecutive read failures without replaying the action', async t => {
+  const root = mkdtempSync(join(tmpdir(), 'labstride-read-recovery-')); t.after(() => rmSync(root, { recursive: true, force: true }));
+  let now = '2026-10-23T12:00:00Z', starts = 0, reads = 0;
+  const runtime = startCoordinator(root, { clock: { now: () => now } }); t.after(() => runtime.store.close()); seed(runtime.store); schedule(runtime.store);
+  const operation = startPlan().operation;
+  const accepted = op => ({ schemaVersion: '1.0', kind: 'result', operationId: op.operationId, requestDigest: op.requestDigest,
+    result: { status: 'accepted', handle: 'original', resources: [], outputs: {}, evidenceRefs: ['test:running'], error: null } });
+  const adapter = { async validate() {}, async start(op) { starts++; return accepted(op); }, async reconcile(op) { reads++; if (reads === 1) throw Error('temporary_read_failure'); return accepted(op); } };
+  const worker = createWorker(runtime.store, { executorId: 'read-recovery', nextAttempt: () => crypto.randomUUID(), adapters: new Map([[actionKey(operation.request.actionId, operation.request.actionVersion), adapter]]) });
+  const tick = async () => { now = new Date(Date.parse(now) + 60000).toISOString(); await worker.tick(); await worker.drain(); };
+  await tick(); await tick();
+  const id = `operation:${operation.id}`;
+  assert.equal(runtime.store.delivery(id).attempts, 1); assert.equal(runtime.store.get('operation', operation.id).state, 'outcome_unknown');
+  await tick();
+  assert.equal(runtime.store.delivery(id).attempts, 0); assert.equal(runtime.store.delivery(id).lastError, null);
+  assert.equal(runtime.store.get('operation', operation.id).state, 'running'); assert.equal(starts, 1); assert.equal(reads, 2);
+});

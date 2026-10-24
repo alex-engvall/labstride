@@ -4,10 +4,15 @@ import { join } from 'node:path';
 import { targetFixture } from './ssh-fixture.mjs';
 import { requestDigest } from '../../packages/storage-sqlite/execution.ts';
 import { runGit } from '../../packages/target-helper/workspace-git.ts';
-export function workspaceFixture(t,parent) {
+export function workspaceFixture(t,parent,{priorHistory=false}={}) {
   const f=targetFixture(t,parent),repository=join(f.root,'upstream');mkdirSync(repository,{mode:0o700});
   const git=args=>execFileSync('/usr/bin/git',args,{cwd:repository,encoding:'utf8',env:{PATH:'/usr/bin:/bin',HOME:'/',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null'},stdio:['ignore','pipe','pipe']}).trim();
-  git(['init','--template=','.']);writeFileSync(join(repository,'hello.txt'),'original source\n');git(['add','.']);
+  git(['init','--template=','.']);
+  if(priorHistory){
+    writeFileSync(join(repository,'history.txt'),'history before pinned baseline\n');git(['add','.']);
+    git(['-c','user.name=Workspace Test','-c','user.email=workspace@example.test','commit','-m','earlier history']);
+  }
+  writeFileSync(join(repository,'hello.txt'),'original source\n');git(['add','.']);
   git(['-c','user.name=Workspace Test','-c','user.email=workspace@example.test','commit','-m','exact baseline']);
   const sha=git(['rev-parse','HEAD']);writeFileSync(join(repository,'later.txt'),'not requested\n');git(['add','.']);
   git(['-c','user.name=Workspace Test','-c','user.email=workspace@example.test','commit','-m','later tip']);

@@ -322,6 +322,9 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
         // is still running. Waiting for a person or CI is not an unknown effect.
         if (op.state === 'outcome_unknown' && !this.db.prepare('SELECT 1 FROM run_controls WHERE run_id=? AND cancel_requested=1').get(op.runId))
           this.changeOperation(op.id, 'running', true, bound.result.evidenceRefs);
+        // Only a fresh bound acknowledgement ends a consecutive read-failure
+        // streak. Retained uncertain sub-effects and cancellation records stay.
+        this.db.prepare("UPDATE deliveries SET attempts=0,last_error=NULL,revision=revision+1 WHERE operation_id=? AND state='reconcile'").run(op.id);
       } else {
         if (bound.result.evidenceRefs.length === 0) throw new LifecycleError('invalid_payload');
         this.changeOperation(op.id, bound.result.status, true, bound.result.evidenceRefs);

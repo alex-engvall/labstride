@@ -27,7 +27,7 @@ Specification: [06-architecture.md](06-architecture.md).
 
 - Crash tests prove effects are never initiated before their intent is durable.
 
-Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md, evidence/W01.2-observations-2026-10-21.md, evidence/W04-W06-local-self-build-2026-10-24.md
+Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md, evidence/W01.2-observations-2026-10-21.md, evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-shallow-publication-2026-10-24.md
 
 Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15).
 
@@ -56,7 +56,7 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 - A lost effect response blocks blind repetition and retains enough identity for reconciliation.
 
-Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md, evidence/W01.2-observations-2026-10-21.md, evidence/W04-W06-local-self-build-2026-10-24.md
+Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md, evidence/W01.2-observations-2026-10-21.md, evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-shallow-publication-2026-10-24.md
 
 Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15).
 
@@ -257,7 +257,7 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 
 - Missing/pending/failed required checks block merge; a new head invalidates earlier green evidence.
 
-Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-native-history-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-native-history-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md, evidence/W04-W06-shallow-publication-2026-10-24.md
 
 Implementation issue: [#26](https://github.com/alex-engvall/labstride/issues/26).
 
@@ -568,7 +568,7 @@ Specification: [16-operations-and-cli.md](16-operations-and-cli.md).
 - The intended distribution supplies one CLI/service installation with local SQLite and configurable paths/limits; diagnostics explain optional hook fallback and actual session compatibility.
 - Version JSON reports the packaged source revision and actual Node runtime without credentials, coordinator or writable state; development checkouts explicitly report no installed revision.
 
-Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, Bounded installed pilot: doctor, dedicated credential scope, negative access checks, idle process restart and two isolated No agent runs passed. Native approval/PR canary and full operational acceptance remain open., evidence/W04-W06-native-history-2026-10-24.md, evidence/W06-version-canary-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, Bounded installed pilot: doctor, dedicated credential scope, negative access checks, idle process restart and two isolated No agent runs passed. Native approval/PR canary and full operational acceptance remain open., evidence/W04-W06-native-history-2026-10-24.md, evidence/W06-version-canary-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md, evidence/W04-W06-shallow-publication-2026-10-24.md
 
 Implementation issue: [#30](https://github.com/alex-engvall/labstride/issues/30).
 

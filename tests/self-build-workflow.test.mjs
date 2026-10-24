@@ -19,8 +19,8 @@ import { createCodexBridge } from '../packages/operations/bridge.ts';
 
 // Real checkout, bundle verification, local Git push and SQLite sequencing.
 // GitHub and Codex wire responses are controlled peers, not live qualification.
-async function setup(t, { losePrReply = false, loseStartReply = false, supported = true, nativeReports = false } = {}) {
-  const source = workspaceFixture(t); source.policy.installationId = 'installation-a'; source.policy.targetId = 'target-a';
+async function setup(t, { losePrReply = false, loseStartReply = false, supported = true, nativeReports = false, losePushReply = false, prepareFailure = false, loseReadyReply = false } = {}) {
+  const source = workspaceFixture(t, undefined, { priorHistory: true }); source.policy.installationId = 'installation-a'; source.policy.targetId = 'target-a';
   const registry = new WorkspaceRegistry(source.policy, source.dependencies); t.after(() => registry.close());
   const options = { sourceRoot: source.policy.roots[0].path, rootId: 'source', baseBranch: 'main', requiredWorkflows: ['.github/workflows/labstride.yml'],
     agent: { bridgeSocket: '/unused', backendIdentity: 'test', backendVersion: '0.163.0', checkedDelivery: true,
@@ -68,8 +68,9 @@ async function setup(t, { losePrReply = false, loseStartReply = false, supported
   await checkoutWorker.tick(); await checkoutWorker.drain();
   const workspace = f.store.workspace(run.id), cwd = join(options.sourceRoot, workspace.locator, 'source');
   f.store.advanceWorkflows(f.dependencies.host); assert.equal(f.store.operations(run.id).length, 2);
-  const op = f.store.operations(run.id)[1].request, state = { starts: 0, turns: 0, latest: { id: 'initial', status: 'completed' }, report: null, creates: 0, pr: null, loss: losePrReply, startLoss: loseStartReply };
-  const remote = join(source.root, 'published.git'); runGit(source.root, ['init', '--bare', '--template=', remote]);
+  const op = f.store.operations(run.id)[1].request, state = { starts: 0, turns: 0, latest: { id: 'initial', status: 'completed' }, report: null, creates: 0, pr: null, loss: losePrReply, startLoss: loseStartReply,
+    pushes: 0, credentialReads: 0, pushLoss: losePushReply, prepareFailure, headConflict: false, readyLoss: loseReadyReply, readies: 0, changeTurnOnBundle: false };
+  const remote = join(source.root, 'published.git'); runGit(source.root, ['-c', 'protocol.file.allow=always', 'clone', '--bare', '--no-hardlinks', source.repository, remote]);
   const branchSha = () => runGit(remote, ['rev-parse', `refs/heads/${workspace.branch}`]);
   const git = args => runGit(cwd, ['-c', `safe.directory=${cwd}`, ...args]);
   let bridge = { async call(request) {
@@ -79,6 +80,7 @@ async function setup(t, { losePrReply = false, loseStartReply = false, supported
     if (request.method === 'observe') return { sessionId: 'original-session', path: cwd, state: 'idle', turn: state.latest, report: state.report };
     if (request.method === 'bundle') {
       const path = join(source.root, 'result.bundle'); git(['bundle','create',path,'HEAD']);
+      if (state.changeTurnOnBundle) state.latest = { id: 'new-human-turn', status: 'inProgress' };
       return { sha: git(['rev-parse','HEAD']), branch: workspace.branch, baseSha: source.operation.source.sha, bundle: readFileSync(path).toString('base64') };
     }
     throw Error('unexpected_bridge_request');
@@ -100,11 +102,14 @@ async function setup(t, { losePrReply = false, loseStartReply = false, supported
       sourceRoot: options.sourceRoot, helperUid: process.getuid(), stateDirectory: f.root }, nativeRpc);
     t.after(() => bridge.close());
   }
-  const rest = { reference: 'secret:repository', credential: async () => 'synthetic', async request(method, path, input) {
-    if (path.includes('/git/ref/')) return { object: { sha: branchSha() } };
+  const rest = { reference: 'secret:repository', credential: async () => { state.credentialReads++; return 'synthetic'; }, async request(method, path, input) {
+    if (path.includes('/git/ref/')) {
+      if (state.pushLoss) { state.pushLoss = false; throw Error('provider_unavailable'); }
+      return { ref: `refs/heads/${workspace.branch}`, object: { sha: state.headConflict ? 'f'.repeat(40) : branchSha() } };
+    }
     if (method === 'POST' && path.endsWith('/pulls')) {
       state.creates++; state.pr = { number: 42, node_id: 'pull-42', state: 'open', body: input.body, title: input.title, draft: true,
-        head: { sha: branchSha(), repo: { node_id: source.operation.source.repositoryId } }, base: { ref: 'main' }, html_url: 'https://github.com/example/source/pull/42' };
+        head: { ref: workspace.branch, sha: branchSha(), repo: { node_id: source.operation.source.repositoryId } }, base: { ref: 'main' }, html_url: 'https://github.com/example/source/pull/42' };
       if (state.loss) { state.loss = false; throw Error('transport_unknown'); } return state.pr;
     }
     if (path.includes('/pulls')) { if (state.pr) state.pr.head.sha = branchSha(); return path.includes('?') ? state.pr ? [state.pr] : [] : state.pr; }
@@ -116,7 +121,11 @@ async function setup(t, { losePrReply = false, loseStartReply = false, supported
   const client = { async query(query) {
     if (query.includes('LabstrideCodingTask')) return { node: { title: 'Implement issue', body: 'Task data', url: 'https://github.com/example/source/issues/1', state: 'OPEN' } };
     if (query.includes('LabstrideIssueLink')) return { node: { url: 'https://github.com/example/source/issues/1' } };
-    if (query.includes('LabstrideReady')) { state.pr.draft = false; return {}; }
+    if (query.includes('LabstrideReady')) {
+      state.readies++; state.pr.draft = false;
+      if (state.readyLoss) { state.readyLoss = false; throw Error('transport_unknown'); }
+      return {};
+    }
     throw Error('unexpected_graphql_query');
   } };
   const provider = { ...f.adapter, withConfiguration() { return this; }, async describeField(field) { return f.descriptors[field.fieldId]; },
@@ -125,7 +134,11 @@ async function setup(t, { losePrReply = false, loseStartReply = false, supported
       f.item.fields[name] = { present: true, value }; f.advance(1000); f.item.updatedAt = f.now();
     } };
   const observer = createObservationWorker(f.store, { sessions: new Map(), projections: new Map([['test.provider', createGitHubProjection(f.store, provider)]]) });
-  const publicationGit = (path, args, access) => args[0] === 'push' ? runGit(path, ['-c','protocol.file.allow=always','push', '--porcelain', remote, args.at(-1)]) : runGit(path, args, access);
+  const publicationGit = (path, args, access) => {
+    if (args[0] === 'bundle' && args[1] === 'verify' && state.prepareFailure) { state.prepareFailure = false; throw Error('bundle_invalid'); }
+    if (args[0] === 'push') { state.pushes++; return runGit(path, ['-c','protocol.file.allow=always','push', '--porcelain', remote, args.at(-1)]); }
+    return runGit(path, args, access);
+  };
   const action = createSelfBuildAction(f.store, options, provider, client, rest, bridge, publicationGit);
   const worker = createWorker(f.store, { executorId: 'coding', nextAttempt: () => crypto.randomUUID(), adapters: new Map([[actionKey(op.actionId, op.actionVersion), action]]) });
   const tick = async () => { f.advance(20000); await worker.tick(); await worker.drain(); await f.worker.tick(); await observer.tick(); };
@@ -167,14 +180,87 @@ test('checkout advances to the original Plan session and publishes follow-up com
   assert.equal(f.state.creates, 1, JSON.stringify({diagnostic:f.store.workflowDiagnostic(f.run.id),operations:f.store.controlStatus(f.run.id).operations})); assert.equal(f.state.pr.title, 'Human review title'); assert.equal(f.branchSha(), f.state.report.commitSha);
   assert.equal(f.store.managedProjectionDiagnostics(f.run.id).length, 0);
   assert.equal(f.store.get('operation', f.op.operationId).state, 'running');
+  assert.equal(f.store.workflowDiagnostic(f.run.id), null);
   assert.equal(f.state.starts, 1); assert.equal(f.state.turns, 1);
 });
 
-test('a lost PR creation response remains unknown without creating a second PR', async t => {
+test('a lost PR creation response adopts exact independent PR evidence without creating a second PR', async t => {
   const f = await setup(t, { losePrReply: true }); for (let i = 0; i < 8 && !f.state.turns; i++) await f.tick(); f.commit('lost.txt');
   await f.tick(); await f.tick(); await f.tick();
-  assert.equal(f.state.creates, 1, JSON.stringify({diagnostic:f.store.workflowDiagnostic(f.run.id),operations:f.store.controlStatus(f.run.id).operations})); assert.equal(f.store.workflowDiagnostic(f.run.id), 'outcome_unknown');
+  assert.equal(f.state.creates, 1); assert.equal(f.state.pushes, 1);
+  assert.equal(f.store.readManagedEffect(f.op.operationId, 'pull-request-create').number, f.state.pr.number);
+  assert.equal(f.store.get('operation', f.op.operationId).state, 'running');
+});
+
+test('failed local preparation records no push intent or credential read and can be retried safely', async t => {
+  const f = await setup(t, { prepareFailure: true });
+  for (let i = 0; i < 8 && !f.state.turns; i++) await f.tick();
+  f.commit('preparation.txt'); await f.tick();
+  const name = `push-${f.state.report.commitSha.slice(0, 20)}`;
+  assert.equal(f.store.hasManagedEffect(f.op.operationId, name), false);
+  assert.equal(f.state.pushes, 0); assert.equal(f.state.credentialReads, 0); assert.equal(f.state.creates, 0);
+  await f.tick(); await f.tick();
+  assert.equal(f.state.pushes, 1); assert.equal(f.state.creates, 1); assert.equal(f.state.pr.draft, false);
+  assert.equal(f.store.delivery(`operation:${f.op.operationId}`).lastError, null);
+});
+
+test('lost push readback adopts the exact remote ref and never repeats the push', async t => {
+  const f = await setup(t, { losePushReply: true });
+  for (let i = 0; i < 8 && !f.state.turns; i++) await f.tick();
+  f.commit('push-reply.txt'); await f.tick();
+  const name = `push-${f.state.report.commitSha.slice(0, 20)}`;
+  assert.equal(f.state.pushes, 1); assert.equal(f.store.readManagedEffect(f.op.operationId, name), null);
+  await f.tick(); await f.tick();
+  assert.equal(f.state.pushes, 1); assert.equal(f.state.creates, 1);
+  assert.equal(f.store.readManagedEffect(f.op.operationId, name).sha, f.state.report.commitSha);
+});
+
+test('conflicting remote evidence retains the unknown intent and never repeats a push', async t => {
+  const f = await setup(t, { losePushReply: true });
+  for (let i = 0; i < 8 && !f.state.turns; i++) await f.tick();
+  f.commit('conflict.txt'); await f.tick(); f.state.headConflict = true;
+  await f.tick(); await f.tick();
+  assert.equal(f.state.pushes, 1); assert.equal(f.state.creates, 0);
+  assert.equal(f.store.readManagedEffect(f.op.operationId, `push-${f.state.report.commitSha.slice(0, 20)}`), null);
   assert.equal(f.store.get('operation', f.op.operationId).state, 'outcome_unknown');
+});
+
+test('manual PR marker changes cannot resolve an unknown PR creation', async t => {
+  const f = await setup(t, { losePrReply: true });
+  for (let i = 0; i < 8 && !f.state.turns; i++) await f.tick();
+  f.commit('pr-conflict.txt'); await f.tick(); f.state.pr.body = 'Human description without a run marker';
+  await f.tick(); await f.tick();
+  assert.equal(f.state.creates, 1); assert.equal(f.state.pushes, 1);
+  assert.equal(f.store.readManagedEffect(f.op.operationId, 'pull-request-create'), null);
+});
+
+test('lost review-readiness reply is adopted from the exact current PR without another mutation', async t => {
+  const f = await setup(t, { loseReadyReply: true });
+  for (let i = 0; i < 8 && !f.state.turns; i++) await f.tick();
+  f.commit('ready-reply.txt'); await f.tick();
+  assert.equal(f.state.readies, 1);
+  await f.tick(); await f.tick();
+  assert.equal(f.state.readies, 1); assert.equal(f.state.creates, 1); assert.equal(f.state.pushes, 1);
+  assert.equal(f.store.readManagedEffect(f.op.operationId, `ready-${f.state.report.commitSha.slice(0, 20)}`).sha, f.state.report.commitSha);
+});
+
+test('a newer independently reported commit never rewrites or repeats an older uncertain push', async t => {
+  const f = await setup(t);
+  for (let i = 0; i < 8 && !f.state.turns; i++) await f.tick();
+  f.commit('older.txt'); const older = f.state.report.commitSha;
+  f.store.beginManagedEffect(f.op.operationId, `push-${older.slice(0, 20)}`, { requestDigest: 'preserved-unknown' });
+  f.commit('newer.txt'); await f.tick(); await f.tick();
+  assert.equal(f.state.pushes, 1); assert.equal(f.branchSha(), f.state.report.commitSha);
+  assert.equal(f.store.readManagedEffect(f.op.operationId, `push-${older.slice(0, 20)}`), null);
+  assert.equal(f.state.creates, 1);
+});
+
+test('a human turn during preparation records no remote push intent', async t => {
+  const f = await setup(t);
+  for (let i = 0; i < 8 && !f.state.turns; i++) await f.tick();
+  f.commit('stale.txt'); f.state.changeTurnOnBundle = true; await f.tick();
+  assert.equal(f.state.pushes, 0); assert.equal(f.state.creates, 0);
+  assert.equal(f.store.hasManagedEffect(f.op.operationId, `push-${f.state.report.commitSha.slice(0, 20)}`), false);
 });
 
 

@@ -47,7 +47,8 @@
         "evidence/W01.2-inbox-2026-10-21.md",
         "evidence/W01.2-effects-2026-10-21.md",
         "evidence/W01.2-observations-2026-10-21.md",
-        "evidence/W04-W06-local-self-build-2026-10-24.md"
+        "evidence/W04-W06-local-self-build-2026-10-24.md",
+        "evidence/W04-W06-shallow-publication-2026-10-24.md"
       ],
       "github_issue": 15,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/15"
@@ -97,7 +98,8 @@
         "evidence/W01.2-inbox-2026-10-21.md",
         "evidence/W01.2-effects-2026-10-21.md",
         "evidence/W01.2-observations-2026-10-21.md",
-        "evidence/W04-W06-local-self-build-2026-10-24.md"
+        "evidence/W04-W06-local-self-build-2026-10-24.md",
+        "evidence/W04-W06-shallow-publication-2026-10-24.md"
       ],
       "github_issue": 15,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/15"
@@ -429,7 +431,8 @@
       "verification_evidence": [
         "evidence/W04-W06-local-self-build-2026-10-24.md",
         "evidence/W04-W06-native-history-2026-10-24.md",
-        "evidence/W04-W06-report-journal-2026-10-24.md"
+        "evidence/W04-W06-report-journal-2026-10-24.md",
+        "evidence/W04-W06-shallow-publication-2026-10-24.md"
       ],
       "github_issue": 26,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/26"
@@ -924,7 +927,8 @@
         "Bounded installed pilot: doctor, dedicated credential scope, negative access checks, idle process restart and two isolated No agent runs passed. Native approval/PR canary and full operational acceptance remain open.",
         "evidence/W04-W06-native-history-2026-10-24.md",
         "evidence/W06-version-canary-2026-10-24.md",
-        "evidence/W04-W06-report-journal-2026-10-24.md"
+        "evidence/W04-W06-report-journal-2026-10-24.md",
+        "evidence/W04-W06-shallow-publication-2026-10-24.md"
       ],
       "github_issue": 30,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/30"
