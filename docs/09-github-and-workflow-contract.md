@@ -38,6 +38,8 @@ Use configured required checks and the platform's active protections. Check each
 
 An agent may request merge when policy grants it. The executor rechecks policy and current head immediately before merging, binds the expected head to the provider operation where supported and records the resulting merge SHA. Do not bypass protection or manufacture a human review. A target repo's DCO/CLA and other checks still apply.
 
+The opt-in [W04.3 direct merge action](39-current-revision-merge.md) implements the strict protected-branch profile with independent protection/check/workflow inventory, expected-head submission, actual merge-SHA readback and durable no-replay recovery. Its [local evidence](evidence/W04.3-merge-gate-2026-10-24.md) does not qualify a live installation. Ruleset-only protection, queues and unproven legacy-status provenance remain unsupported; missing access or downstream-trigger proof blocks merge. The issue-to-review profile stays unchanged.
+
 ## Workflow request
 
 The action maps an operation to a repository-owned workflow. Record workflow repository ID, path/ID, allowed ref and resolved workflow SHA separately from application source SHA. A workflow on an untrusted PR branch must not acquire deployment credentials.

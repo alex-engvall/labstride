@@ -416,7 +416,7 @@
       "title": "Gate delivery on current-revision CI",
       "phase": "MVP",
       "priority": "P0",
-      "status": "in_progress",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W04",
       "depends_on_work_packages": [
@@ -433,7 +433,8 @@
         "evidence/W04-W06-native-history-2026-10-24.md",
         "evidence/W04-W06-report-journal-2026-10-24.md",
         "evidence/W04-W06-shallow-publication-2026-10-24.md",
-        "evidence/W04-W06-bounded-report-observation-2026-10-24.md"
+        "evidence/W04-W06-bounded-report-observation-2026-10-24.md",
+        "evidence/W04.3-merge-gate-2026-10-24.md"
       ],
       "github_issue": 26,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/26"
@@ -443,7 +444,7 @@
       "title": "Perform authorized merge without bypass",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W04",
       "depends_on_work_packages": [
@@ -455,7 +456,9 @@
         "Merge uses the expected head and records the merge SHA while respecting active repository protections."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04.3-merge-gate-2026-10-24.md"
+      ],
       "github_issue": 26,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/26"
     },

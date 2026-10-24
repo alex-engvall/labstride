@@ -214,7 +214,7 @@ test('migration 14 preserves existing uncertain operations without inventing bro
   const before = x.store.get('operation', x.op.operationId);
   await x.stopListener();
   const db = new DatabaseSync(join(x.state, 'state.sqlite'));
-  db.exec('DROP TABLE deployment_evidence; DROP TABLE workflow_receipts; DROP TABLE workflow_claims; DROP TABLE workflow_dispatches; DELETE FROM schema_migrations WHERE version>=14; PRAGMA user_version=13'); db.close();
+  db.exec('DROP TABLE merge_intents; DELETE FROM schema_migrations WHERE version=16; DROP TABLE deployment_evidence; DROP TABLE workflow_receipts; DROP TABLE workflow_claims; DROP TABLE workflow_dispatches; DELETE FROM schema_migrations WHERE version>=14; PRAGMA user_version=13'); db.close();
   await x.restart();
   const current = x.store.get('operation', x.op.operationId);
   assert.deepEqual(current.request, before.request); assert.equal(current.effectBoundary, 'crossed');

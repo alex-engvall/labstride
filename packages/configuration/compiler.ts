@@ -136,7 +136,7 @@ export async function compileConfiguration(input: unknown, dependencies: Compile
   function collect(value: unknown): void {
     if (!value || typeof value !== 'object') return;
     for (const [key, item] of Object.entries(value)) {
-      if ((key === 'credentialRef' || key === 'projectCredentialRef') && (typeof item !== 'string' || !item.startsWith('secret:')))
+      if ((key === 'credentialRef' || key === 'projectCredentialRef' || key === 'protectionCredentialRef') && (typeof item !== 'string' || !item.startsWith('secret:')))
         invalid('/secrets', 'Use an installation-owned secret reference.');
       if (typeof item === 'string' && item.startsWith('secret:')) references.add(item);
       else collect(item);

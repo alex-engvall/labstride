@@ -72,3 +72,5 @@ Keep the current specification coherent. Do not append contradictory historical 
 - [ADR-007: explicitly checked Codex delivery](adr/0007-checked-codex-delivery.md)
 
 - [Authenticated repository workflow execution](38-workflow-broker.md)
+
+- [Current-revision direct merge and recovery](39-current-revision-merge.md)

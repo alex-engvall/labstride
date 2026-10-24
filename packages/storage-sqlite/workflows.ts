@@ -1,6 +1,8 @@
 import { enrolledWorkflow } from '../workflow-broker/bindings.ts';
 import { WorkflowBrokerStore } from './workflow-broker.ts';
 import { workflowAction, workflowResource } from '../core/workflow-broker.ts';
+import { mergeAction, mergeResource } from '../core/merges.ts';
+import { enrolledMerge } from '../github-merge/bindings.ts';
 import { LifecycleError } from '../core/lifecycle.ts';
 import type { RecordOf, AuditContext } from '../core/lifecycle.ts';
 import type { CompiledConfiguration } from '../configuration/compiler.ts';
@@ -254,7 +256,8 @@ export class WorkflowStore extends WorkflowBrokerStore {
           this.scheduleOperation({
             operation: { ...base, kind: 'operation', id, runId: run.id, workspaceId: first.workspaceId, request: descriptor, state: 'prepared', effectBoundary: 'not_crossed' },
             outbox: { ...base, kind: 'outbox', id: `intent-${id}`, runId: run.id, operationId: id, intentKey: id, payload: { schemaVersion: '1.0', operationId: id } },
-            resourceKey: descriptor.actionId === workflowAction ? workflowResource(enrolledWorkflow(snapshot, descriptor)) : `workspace:${first.workspaceId}`, capacityClass: 'development',
+            resourceKey: descriptor.actionId === workflowAction ? workflowResource(enrolledWorkflow(snapshot, descriptor)) :
+              descriptor.actionId === mergeAction ? mergeResource(enrolledMerge(snapshot, descriptor).enrollment) : `workspace:${first.workspaceId}`, capacityClass: 'development',
           }, audit);
           this.db.prepare('INSERT INTO workflow_steps VALUES (?,?,?)').run(run.id, position, id);
           this.db.prepare('DELETE FROM workflow_diagnostics WHERE run_id=?').run(run.id);

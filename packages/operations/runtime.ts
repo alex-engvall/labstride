@@ -24,6 +24,7 @@ import type { WorkflowStore } from '../storage-sqlite/workflows.ts';
 import { publishRunSummary } from './summary.ts';
 import { loadExtension } from '../extensions/loader.ts';
 import { GitHubWorkflowProvider } from '../provider-github/workflows.ts';
+import { GitHubMergeProvider } from '../provider-github/merges.ts';
 
 export function loadInstallation(path: string): OperationalInstallationV1 {
   return validated('operational-installation', JSON.parse(readProtected(path).toString('utf8')) as OperationalInstallationV1);
@@ -32,6 +33,8 @@ export function installationShape(spec: OperationalInstallationV1) {
   validated('operational-installation', spec); assertSeparate(spec.stateDirectory, spec.sourceRoot);
   const config = spec.configuration, selfBuild = spec.lock.extensions.find(pin => pin.id === 'labstride.self-build');
   const workflows = Object.values(config.workflows).flat().some(step => step.action === 'labstride.github-workflow');
+  const merges = Object.values(config.workflows).flat().some(step => step.action === 'labstride.github-merge');
+  if (merges && spec.mergeEnabled !== true) throw Error('merge_not_enabled');
   if ((spec.brokerListener && config.broker.enabled === false) || (workflows && !spec.brokerListener)) throw Error('broker_configuration_invalid');
   const expected = { agent: spec.agent, sourceRoot: spec.sourceRoot, rootId: spec.rootId, baseBranch: spec.baseBranch, requiredWorkflows: spec.requiredWorkflows };
   if (!selfBuild || digest(selfBuild.configuration) !== digest(expected) || config.installationId !== spec.policy.installationId ||
@@ -110,6 +113,12 @@ export async function openOperationalRuntime(spec: OperationalInstallationV1) {
     observations: { sessions: new Map(), projections: new Map() },
     installedTargets: { host: spec.host }, github: { compiled: checked.compiled, adapter: checked.adapter, buildPlan: (steps, observed) => workspaceStart(checked.compiled, steps, observed) },
     workflowBroker: spec.brokerListener ? { host: spec.host, port: spec.brokerListener.port, provider: new GitHubWorkflowProvider(checked.credential) } : undefined,
+    githubMerge: spec.mergeEnabled ? { host: spec.host, provider: new GitHubMergeProvider({ credential: checked.credential,
+      identity(reference) {
+        const binding = spec.credentials[reference];
+        if (!binding || typeof binding === 'string' || binding.permissions.contents !== 'write') return null;
+        return { appId: Number(binding.appId), installationId: binding.installationId, repositoryIds: binding.repositoryIds, contents: 'write' };
+      } }) } : undefined,
     dependencies: { policyAuthority: authority, localWorkspaceRoots: [spec.sourceRoot] } });
   try { await execution.ready; } catch (error) { await execution.close(); throw error; }
   const store = execution.store;

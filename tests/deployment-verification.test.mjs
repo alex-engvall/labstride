@@ -290,7 +290,7 @@ test('migration 15 preserves original dispatch and receipt without inventing dep
   const x = await workflowFixture(t); const before = x.store.workflowDispatch(x.op.operationId);
   await x.stopListener();
   const db = new DatabaseSync(join(x.state, 'state.sqlite'));
-  db.exec('DROP TABLE deployment_evidence; DELETE FROM schema_migrations WHERE version=15; PRAGMA user_version=14'); db.close();
+  db.exec('DROP TABLE merge_intents; DELETE FROM schema_migrations WHERE version=16; DROP TABLE deployment_evidence; DELETE FROM schema_migrations WHERE version=15; PRAGMA user_version=14'); db.close();
   await x.restart();
   assert.deepEqual(x.store.workflowDispatch(x.op.operationId), before);
   assert.equal(x.store.deploymentEvidence(x.op.operationId), null); assert.equal(x.dispatches(), 1);

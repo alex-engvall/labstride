@@ -285,6 +285,7 @@ export interface OperationalInstallationV1 {
   brokerListener?: {
     port: number;
   };
+  mergeEnabled?: boolean;
 }
 export interface LabstrideInstallationConfigurationV1 {
   schemaVersion: "1.0";

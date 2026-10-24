@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "enrollments": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 100,
+      "additionalProperties": {
+        "$ref": "merge-enrollment.schema.json"
+      }
+    }
+  },
+  "required": [
+    "enrollments"
+  ]
+}
