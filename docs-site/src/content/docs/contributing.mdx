@@ -1,0 +1,41 @@
+---
+title: Contributing
+description: Improve Labstride documentation in the same pull request as the code.
+---
+
+Documentation is maintained in [engshort/labstride](https://github.com/engshort/labstride). Read the [contribution guide](https://github.com/engshort/labstride/blob/main/CONTRIBUTING.md) before submitting changes, including its DCO requirements.
+
+## Choose the right place
+
+- Edit `docs-site/src/content/docs/` for public explanations and navigation.
+- Edit `docs/` for detailed specifications, decisions and verification evidence.
+- Keep both changes in the same pull request when a code change affects the documentation.
+
+Public documentation is written in English. Explain unsupported or unverified behavior rather than presenting planned features as available.
+
+## Preview the documentation
+
+Use the Node version recorded in `docs-site/.node-version`. From a checkout of the repository:
+
+```sh
+cd docs-site
+npm ci --ignore-scripts
+npm run dev
+```
+
+To test the static output and its internal links:
+
+```sh
+npm run build
+npm test
+npm exec -- playwright install chromium
+npm run test:browser
+```
+
+The documentation has its own dependencies and lockfile. These commands do not install, run or verify the Labstride coordinator.
+
+## Review and publication
+
+The documentation workflow checks pull requests without publishing them. Changes merged into `main` can publish to `docs.labstride.dev` after GitHub Pages and the domain have been configured.
+
+The separate `labstride.dev` website is not built or deployed by this repository's documentation workflow. Maintainers can find the one-time setup and rollback procedure in the [documentation-site README](https://github.com/engshort/labstride/blob/main/docs-site/README.md).

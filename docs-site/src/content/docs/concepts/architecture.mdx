@@ -1,0 +1,26 @@
+---
+title: Architecture
+description: The intended responsibility boundaries between GitHub, the coordinator and extensions.
+---
+
+Labstride's adopted design keeps each tool responsible for a distinct part of the workflow. These boundaries describe the architecture, not a claim that every integration is complete.
+
+## GitHub holds the task and human decisions
+
+Issues and configured fields describe requested work. Pull requests and repository-owned GitHub Actions hold review, CI and delivery activity. The coordinator must not treat arbitrary issue text as permission to execute an operation.
+
+## The coordinator retains execution state
+
+A small local coordinator keeps execution identities, pending operations, locks and recovery records in SQLite. Its role is continuity across tools and restarts, not a second task-planning interface.
+
+A lost response does not prove that an operation failed. Recovery must preserve uncertain outcomes instead of blindly repeating a possibly completed side effect.
+
+## Workspaces and deployment are different
+
+A workspace isolates source work for a task. An SSH target may host that checkout while a repository-owned deployment workflow publishes to a different destination. Application frameworks and hosting providers belong in configurable recipes and extensions, not in the core.
+
+## Extensions have explicit contracts
+
+Provider adapters, connectors, actions and optional session-provider integrations use versioned contracts. Private extensions are not required for the intended public workspace, deployment and cleanup path.
+
+For the full design, read the [architecture specification](https://github.com/engshort/labstride/blob/main/docs/06-architecture.md), [hybrid coordination decision](https://github.com/engshort/labstride/blob/main/docs/adr/0006-hybrid-coordination.md) and [trust boundaries](https://github.com/engshort/labstride/blob/main/docs/11-security-and-trust.md).
