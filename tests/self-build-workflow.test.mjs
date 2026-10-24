@@ -15,10 +15,11 @@ import { createObservationWorker } from '../packages/core/observation-worker.ts'
 import { createGitHubProjection } from '../packages/provider-github/projection.ts';
 import { loadExtension, freezeProfile } from '../packages/extensions/loader.ts';
 import { runGit } from '../packages/target-helper/workspace-git.ts';
+import { createCodexBridge } from '../packages/operations/bridge.ts';
 
 // Real checkout, bundle verification, local Git push and SQLite sequencing.
 // GitHub and Codex wire responses are controlled peers, not live qualification.
-async function setup(t, { losePrReply = false, loseStartReply = false, supported = true } = {}) {
+async function setup(t, { losePrReply = false, loseStartReply = false, supported = true, nativeReports = false } = {}) {
   const source = workspaceFixture(t); source.policy.installationId = 'installation-a'; source.policy.targetId = 'target-a';
   const registry = new WorkspaceRegistry(source.policy, source.dependencies); t.after(() => registry.close());
   const options = { sourceRoot: source.policy.roots[0].path, rootId: 'source', baseBranch: 'main', requiredWorkflows: ['.github/workflows/labstride.yml'],
@@ -71,7 +72,7 @@ async function setup(t, { losePrReply = false, loseStartReply = false, supported
   const remote = join(source.root, 'published.git'); runGit(source.root, ['init', '--bare', '--template=', remote]);
   const branchSha = () => runGit(remote, ['rev-parse', `refs/heads/${workspace.branch}`]);
   const git = args => runGit(cwd, ['-c', `safe.directory=${cwd}`, ...args]);
-  const bridge = { async call(request) {
+  let bridge = { async call(request) {
     if (request.method === 'catalog') return { models: [{ model: 'test-model', reasoning: supported ? ['medium'] : [] }] };
     if (request.method === 'start') { state.starts++; if (state.startLoss) throw Error('transport_unknown'); return { thread: { id: 'original-session', cwd } }; }
     if (request.method === 'turn') { state.turns++; assert.equal(request.parameters.mode, 'plan'); return { turn: state.latest }; }
@@ -82,6 +83,23 @@ async function setup(t, { losePrReply = false, loseStartReply = false, supported
     }
     throw Error('unexpected_bridge_request');
   } };
+  let nativeRpc;
+  const acknowledgements = [];
+  if (nativeReports) {
+    state.latest = null;
+    nativeRpc = { notify() {}, frame(_op, bytes) { acknowledgements.push(JSON.parse(bytes)); }, close() {}, async call(method, params) {
+      if (method === 'initialize') return { userAgent: 'codex/0.163.0 linux' };
+      if (method === 'model/list') return { data: [{ model: 'test-model', supportedReasoningEfforts: [{ reasoningEffort: 'medium' }] }] };
+      if (method === 'thread/start') { state.starts++; return { thread: { id: 'original-session', cwd, historyMode: 'legacy' } }; }
+      if (method === 'thread/read' || method === 'thread/resume') return { thread: { id: 'original-session', cwd, source: 'cli', historyMode: 'legacy', status: { type: state.latest?.status === 'inProgress' ? 'active' : 'idle' } } };
+      if (method === 'thread/turns/list') return { data: state.latest ? [{ ...state.latest, ...(params.itemsView === 'full' ? { itemsView: 'full', items: [] } : {}) }] : [] };
+      if (method === 'turn/start') { state.turns++; state.latest = { id: 'initial', status: 'completed' }; return { turn: state.latest }; }
+      throw Error('unexpected_native_method');
+    } };
+    bridge = createCodexBridge({ schemaVersion: '1.0', socket: join(f.root, 'native-bridge.sock'), backendSocket: '/unused', backendVersion: '0.163.0',
+      sourceRoot: options.sourceRoot, helperUid: process.getuid(), stateDirectory: f.root }, nativeRpc);
+    t.after(() => bridge.close());
+  }
   const rest = { reference: 'secret:repository', credential: async () => 'synthetic', async request(method, path, input) {
     if (path.includes('/git/ref/')) return { object: { sha: branchSha() } };
     if (method === 'POST' && path.endsWith('/pulls')) {
@@ -116,9 +134,28 @@ async function setup(t, { losePrReply = false, loseStartReply = false, supported
     git(['-c','user.name=Test','-c','user.email=test@example.test','commit','--signoff','-m',message]);
     state.latest = { id: 'human-' + file.replaceAll('.', '-'), status: 'completed' };
     state.report = { schemaVersion: '1.0', runId: run.id, sessionId: 'original-session', turnId: state.latest.id, commitSha: git(['rev-parse','HEAD']), status: 'ready', summary: 'Actual commit', prTitle: message, prBody: 'Verified tests', issueComplete: true };
+    if (nativeReports) {
+      state.latest.status = 'inProgress';
+      nativeRpc.onNotification({ id: 73, method: 'item/tool/call', params: { threadId: 'original-session', turnId: state.latest.id, callId: 'report-' + file, tool: 'labstride_report', arguments: state.report } });
+      assert.equal(acknowledgements.at(-1).result.success, true);
+      state.latest.status = 'completed';
+    }
   }
   return { ...f, run, op, state, cwd, tick, commit, action, provider, observer, branchSha };
 }
+
+test('journaled native report advances through real bundle and local push to one review PR without a history tool item', async t => {
+  const f = await setup(t, { nativeReports: true });
+  for (let i = 0; i < 8 && !f.state.turns; i++) await f.tick();
+  assert.equal(f.state.turns, 1);
+  f.commit('native-report.txt');
+  await f.tick(); await f.tick();
+  assert.equal(f.state.creates, 1, f.store.workflowDiagnostic(f.run.id));
+  assert.equal(f.state.pr.draft, false);
+  assert.equal(f.branchSha(), f.state.report.commitSha);
+  assert.equal(f.store.managedReport(f.run.id).turnId, f.state.latest.id);
+  assert.equal(f.state.starts, 1); assert.equal(f.state.turns, 1);
+});
 
 test('checkout advances to the original Plan session and publishes follow-up commits to the same review PR', async t => {
   const f = await setup(t); for (let i = 0; i < 8 && !f.state.turns; i++) await f.tick();

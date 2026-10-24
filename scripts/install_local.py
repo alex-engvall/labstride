@@ -136,6 +136,8 @@ def main():
         managed_directory(directory)
     coordinator = ensure_user('labstride_coord', Path('/var/lib/labstride/coordinator'))
     helper = ensure_user('labstride_helper', Path('/var/lib/labstride/helper-home'))
+    report_directory = Path('/var/lib/labstride/bridge-reports')
+    managed_directory(report_directory, coding.pw_uid, coding.pw_gid, 0o700)
     work_gid, bridge_gid = ensure_group('labstride_work'), ensure_group('labstride_bridge')
     for user, groups in [(args.coding_user, 'labstride_work,labstride_bridge'), (helper.pw_name, 'labstride_work'), (coordinator.pw_name, 'labstride_bridge')]:
         command(['/usr/sbin/usermod', '-aG', groups, user])
@@ -235,7 +237,7 @@ def main():
         grant['actionVersion'] = next(pin['version'] for pin in spec['lock']['extensions'] if pin['id'] == grant['actionId'])
     managed_file(Path('/etc/labstride/installation.json'), (json.dumps(spec, indent=2) + '\n').encode(), gid=coordinator.pw_gid, mode=0o640)
     bridge_policy = {'schemaVersion': '1.0', 'socket': spec['agent']['bridgeSocket'], 'backendSocket': str(args.backend_socket), 'backendVersion': spec['agent']['backendVersion'],
-                     'sourceRoot': str(source_root), 'helperUid': helper.pw_uid, 'stateDirectory': '/run/labstride-bridge'}
+                     'sourceRoot': str(source_root), 'helperUid': helper.pw_uid, 'stateDirectory': '/run/labstride-bridge', 'reportDirectory': str(report_directory)}
     managed_file(Path('/etc/labstride/bridge.json'), (json.dumps(bridge_policy, indent=2) + '\n').encode(), gid=bridge_gid, mode=0o640)
     cli = release / 'apps/cli/main.ts'
     coordinator_unit = f'''[Unit]

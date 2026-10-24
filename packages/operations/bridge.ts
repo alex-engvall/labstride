@@ -8,6 +8,8 @@ import { readProtected, directoryIdentity, sameIdentity } from '../target-helper
 import { validated } from '../storage-sqlite/validation.ts';
 import type { ManagedCodingResultV1 } from '../../contracts/generated/managed-result.ts';
 import { digest } from '../configuration/json.ts';
+import { ReportJournal } from './report-journal.ts';
+import { assertSeparate } from '../storage-sqlite/paths.ts';
 
 const maxWire = 24 * 1024 * 1024;
 export interface BridgeBinding { runId: string; workspaceId: string; path: string; receiptDigest: string }
@@ -32,7 +34,7 @@ export class BridgeClient implements BridgePort {
 }
 
 export interface BridgePolicy { schemaVersion: '1.0'; socket: string; backendSocket: string; backendVersion: string;
-  sourceRoot: string; helperUid: number; stateDirectory: string }
+  sourceRoot: string; helperUid: number; stateDirectory: string; reportDirectory?: string }
 // All Git here executes as the coding user and has no installation credentials.
 function codingGit(path: string, args: string[]): string {
   return execFileSync('/usr/bin/git', ['-c', `safe.directory=${path}`, '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false', '-c', 'diff.external=', ...args], {
@@ -42,6 +44,9 @@ function codingGit(path: string, args: string[]): string {
 }
 export function createCodexBridge(policy: BridgePolicy, rpc: any = new UnixRpc(policy.backendSocket, 15000)) {
   const bindings = new Map<string, BridgeBinding>();
+  const reportDirectory = policy.reportDirectory ?? policy.stateDirectory;
+  assertSeparate(join(reportDirectory, 'managed-reports'), policy.sourceRoot);
+  const reports = new ReportJournal(reportDirectory);
   let initialized: Promise<void> | undefined;
   // A new thread has no pageable rollout until its first user message. This
   // witness is intentionally process-local: disconnect/restart loses it and
@@ -68,9 +73,13 @@ export function createCodexBridge(policy: BridgePolicy, rpc: any = new UnixRpc(p
     }
     if (message.method !== 'item/tool/call' || message.params?.tool !== 'labstride_report' || !bindings.has(message.params.threadId)) return;
     let success = false;
-    try { validated('managed-result', { ...message.params.arguments, runId: bindings.get(message.params.threadId)!.runId,
-      sessionId: message.params.threadId, turnId: message.params.turnId }); success = true; } catch { /* Invalid report is data, never authority. */ }
-    rpc.frame(1, Buffer.from(JSON.stringify({ id: message.id, result: { success, contentItems: [{ type: 'inputText', text: success ? 'Result recorded in this native turn; publication requires independent validation.' : 'Invalid result format.' }] } })));
+    try {
+      const binding = bindings.get(message.params.threadId)!;
+      reports.record(binding, message.params.callId, { ...message.params.arguments, runId: binding.runId,
+        sessionId: message.params.threadId, turnId: message.params.turnId });
+      success = true;
+    } catch { /* Invalid or uncommitted reports never receive a success acknowledgement. */ }
+    rpc.frame(1, Buffer.from(JSON.stringify({ id: message.id, result: { success, contentItems: [{ type: 'inputText', text: success ? 'Result journaled for this native turn; publication requires independent validation.' : 'Result not recorded; invalid report or unavailable journal.' }] } })));
   };
   async function ready() {
     if (!initialized) initialized = (async () => {
@@ -118,6 +127,9 @@ export function createCodexBridge(policy: BridgePolicy, rpc: any = new UnixRpc(p
       const completed = full.data?.[0];
       if (!Array.isArray(full.data) || full.data.length !== 1 || completed.id !== turn.id || completed.status !== 'completed' ||
         completed.itemsView !== 'full' || !Array.isArray(completed.items)) throw Error('stale_revision');
+      // Legacy history can omit native dynamic tools entirely. The journal is
+      // written by the native tool handler before acknowledging that call.
+      report = reports.read(binding, sessionId, turn.id);
       for (const item of completed.items) if (item.type === 'dynamicToolCall' && item.tool === 'labstride_report' && item.status === 'completed' && item.success === true) {
         const candidate = validated<ManagedCodingResultV1>('managed-result', { ...item.arguments, runId: binding.runId, sessionId, turnId: turn.id });
         if (report && digest(report) !== digest(candidate)) throw Error('report_conflict'); report = candidate;
@@ -180,7 +192,7 @@ export function createCodexBridge(policy: BridgePolicy, rpc: any = new UnixRpc(p
       if (!result.turn?.id) throw Error('outcome_unknown');
       return { turn: { id: result.turn.id, status: result.turn.status } };
     },
-    close() { rpc.close(); },
+    close() { rpc.close(); reports.close(); },
   };
 }
 

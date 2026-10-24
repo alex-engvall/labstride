@@ -8,14 +8,15 @@ import { execFileSync } from 'node:child_process';
 import { writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import { ReportJournal } from '../packages/operations/report-journal.ts';
 
 async function fixture(t) {
   const f = workspaceFixture(t), registry = new WorkspaceRegistry(f.policy, f.dependencies); t.after(() => registry.close());
   const response = await registry.handle(f.request), receipt = response.workspace;
   assert.equal(response.outcome, 'ok');
   const binding = { runId: receipt.runId, workspaceId: receipt.workspaceId, path: f.sourcePath(receipt), receiptDigest: digest(receipt) };
-  const requests = [], state = { latest: null, items: [], version: '0.163.0', cwd: binding.path };
-  const rpc = { onNotification() {}, onDisconnect() {}, notify() {}, frame() {}, close() {}, async call(method, params) {
+  const requests = [], frames = [], state = { latest: null, items: [], version: '0.163.0', cwd: binding.path };
+  const rpc = { onNotification() {}, onDisconnect() {}, notify() {}, frame(_opcode, bytes) { frames.push(JSON.parse(bytes.toString())); }, close() {}, async call(method, params) {
     requests.push({ method, params });
     if (method === 'initialize') return { userAgent: `codex/${state.version} linux` };
     if (method === 'model/list') return { data: [{ model: 'test-model', supportedReasoningEfforts: [{ reasoningEffort: 'medium' }] }] };
@@ -30,9 +31,11 @@ async function fixture(t) {
     if (method === 'turn/interrupt') { state.latest.status = 'interrupted'; return {}; }
     throw Error('unexpected_method');
   } };
-  const bridge = createCodexBridge({ schemaVersion: '1.0', socket: join(f.root, 'bridge.sock'), backendSocket: join(f.root, 'backend.sock'), backendVersion: '0.163.0',
-    sourceRoot: f.policy.roots[0].path, helperUid: process.getuid(), stateDirectory: f.root }, rpc);
-  return { ...f, receipt, binding, requests, state, bridge, rpc };
+  const policy = { schemaVersion: '1.0', socket: join(f.root, 'bridge.sock'), backendSocket: join(f.root, 'backend.sock'), backendVersion: '0.163.0',
+    sourceRoot: f.policy.roots[0].path, helperUid: process.getuid(), stateDirectory: f.root };
+  const bridge = createCodexBridge(policy, rpc);
+  t.after(() => bridge.close());
+  return { ...f, receipt, binding, requests, frames, state, bridge, rpc, policy };
 }
 
 test('managed bridge validates original filesystem receipt and starts one configured native thread', async t => {
@@ -96,6 +99,71 @@ test('real shallow workspace commits export a credential-free bundle without exe
 
 const initial = f => ({ schemaVersion: '1.0', method: 'turn', binding: f.binding, sessionId: 'managed-thread', parameters: { expectedTurnId: null, prompt: 'Task data', model: 'test-model', reasoning: 'medium', mode: 'plan' } });
 const unmaterialized = { code: -32600, message: 'thread managed-thread is not materialized yet; thread/turns/list is unavailable before first user message' };
+
+const resultReport = () => ({ schemaVersion: '1.0', status: 'ready', commitSha: 'a'.repeat(40), summary: 'Done', prTitle: 'Implement task', prBody: 'Actual validation evidence', issueComplete: true });
+const observeRequest = f => ({ schemaVersion: '1.0', method: 'observe', binding: f.binding, sessionId: 'managed-thread' });
+const notifyReport = (f, arguments_ = resultReport(), callId = 'report-call') => f.rpc.onNotification({
+  id: 73, method: 'item/tool/call', params: { threadId: 'managed-thread', turnId: f.state.latest.id, callId, tool: 'labstride_report', arguments: arguments_ },
+});
+
+test('native report is committed before acknowledgement even when legacy history omits dynamic tools', async t => {
+  const f = await fixture(t); await f.bridge.call(observeRequest(f));
+  f.state.latest = { id: 'implementation-turn', status: 'inProgress' };
+  const frame = f.rpc.frame;
+  f.rpc.frame = (...args) => {
+    const independent = new ReportJournal(f.root);
+    try { assert.equal(independent.read(f.binding, 'managed-thread', 'implementation-turn').commitSha, resultReport().commitSha); }
+    finally { independent.close(); }
+    frame(...args);
+  };
+  notifyReport(f);
+  assert.equal(f.frames[0].result.success, true);
+  assert.equal((await f.bridge.call(observeRequest(f))).report, null);
+  f.state.latest.status = 'completed';
+  assert.deepEqual((await f.bridge.call(observeRequest(f))).report, { ...resultReport(), runId: f.binding.runId, sessionId: 'managed-thread', turnId: 'implementation-turn' });
+  // The actual daemon history observed in this canary contains no tool item.
+  assert.deepEqual(f.state.items, []);
+  f.bridge.close();
+  const restarted = createCodexBridge(f.policy, f.rpc); t.after(() => restarted.close());
+  assert.equal((await restarted.call(observeRequest(f))).report.commitSha, resultReport().commitSha);
+  f.state.latest = { id: 'later-human-turn', status: 'completed' };
+  assert.equal((await restarted.call(observeRequest(f))).report, null);
+});
+
+test('duplicate native requests are idempotent and conflicting successful reports block publication', async t => {
+  const f = await fixture(t); await f.bridge.call(observeRequest(f));
+  f.state.latest = { id: 'implementation-turn', status: 'inProgress' };
+  notifyReport(f); notifyReport(f);
+  assert(f.frames.every(frame => frame.result.success));
+  notifyReport(f, { ...resultReport(), commitSha: 'b'.repeat(40) }, 'second-report-call');
+  f.state.latest.status = 'completed';
+  await assert.rejects(f.bridge.call(observeRequest(f)), /report_conflict/);
+});
+
+test('invalid reports and journal failures never receive successful acknowledgement', async t => {
+  const f = await fixture(t); await f.bridge.call(observeRequest(f));
+  f.state.latest = { id: 'implementation-turn', status: 'inProgress' };
+  notifyReport(f, { ...resultReport(), commitSha: 'main' });
+  assert.equal(f.frames.at(-1).result.success, false);
+  notifyReport(f, resultReport(), null);
+  assert.equal(f.frames.at(-1).result.success, false);
+  f.bridge.close();
+  notifyReport(f);
+  assert.equal(f.frames.at(-1).result.success, false);
+});
+
+test('an acknowledged report cannot bypass changed-turn or incomplete full-history checks', async t => {
+  const f = await fixture(t); await f.bridge.call(observeRequest(f));
+  f.state.latest = { id: 'implementation-turn', status: 'inProgress' };
+  notifyReport(f); f.state.latest.status = 'completed';
+  const original = f.rpc.call;
+  f.rpc.call = async (method, params) => {
+    const value = await original(method, params);
+    if (method === 'thread/turns/list' && params.itemsView === 'full') value.data[0].id = 'changed-turn';
+    return value;
+  };
+  await assert.rejects(f.bridge.call(observeRequest(f)), /stale_revision/);
+});
 
 test('a witnessed newly created legacy thread accepts one initial turn before rollout materialization', async t => {
   const f = await fixture(t);

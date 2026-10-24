@@ -487,7 +487,8 @@
         "evidence/W02.3-reconciliation-2026-10-23.md",
         "evidence/W03.1-ssh-boundary-2026-10-23.md",
         "evidence/W04-W06-local-self-build-2026-10-24.md",
-        "evidence/W04-W06-native-history-2026-10-24.md"
+        "evidence/W04-W06-native-history-2026-10-24.md",
+        "evidence/W04-W06-report-journal-2026-10-24.md"
       ]
     },
     {
@@ -517,7 +518,8 @@
         "evidence/W02.3-reconciliation-2026-10-23.md",
         "evidence/W03.2-workspaces-2026-10-23.md",
         "evidence/W03.2-continuity-2026-10-23.md",
-        "evidence/W03.2-live-continuity-receipt-2026-10-23.json"
+        "evidence/W03.2-live-continuity-receipt-2026-10-23.json",
+        "evidence/W04-W06-report-journal-2026-10-24.md"
       ]
     }
   ]
