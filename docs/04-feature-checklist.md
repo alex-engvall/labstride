@@ -364,13 +364,13 @@ Implementation issue: [#21](https://github.com/alex-engvall/labstride/issues/21)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | implemented | W03 |
+| MVP | P0 | verified | W03 |
 
 Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 - The workspace contains the requested SHA on a dedicated branch and is recorded in the target registry.
 
-Verification evidence: evidence/W03.2-workspaces-2026-10-23.md, evidence/W03.2-continuity-2026-10-23.md, evidence/W03.2-live-continuity-receipt-2026-10-23.json, evidence/W03.2-native-fields-2026-10-24.md
+Verification evidence: evidence/W03.2-workspaces-2026-10-23.md, evidence/W03.2-continuity-2026-10-23.md, evidence/W03.2-live-continuity-receipt-2026-10-23.json, evidence/W03.2-native-fields-2026-10-24.md, evidence/W03.2-private-source-2026-10-24.md, evidence/W03.2-private-source-receipt-2026-10-24.json
 
 Implementation issue: [#22](https://github.com/alex-engvall/labstride/issues/22).
 
@@ -378,13 +378,13 @@ Implementation issue: [#22](https://github.com/alex-engvall/labstride/issues/22)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | implemented | W03 |
+| MVP | P0 | verified | W03 |
 
 Specification: [18-ssh-workspaces.md](18-ssh-workspaces.md).
 
 - Reconnect adopts the same owned directory; conflicting pre-existing paths are preserved and reported.
 
-Verification evidence: evidence/W03.2-workspaces-2026-10-23.md, evidence/W03.2-continuity-2026-10-23.md, evidence/W03.2-live-continuity-receipt-2026-10-23.json, evidence/W03.2-native-fields-2026-10-24.md
+Verification evidence: evidence/W03.2-workspaces-2026-10-23.md, evidence/W03.2-continuity-2026-10-23.md, evidence/W03.2-live-continuity-receipt-2026-10-23.json, evidence/W03.2-native-fields-2026-10-24.md, evidence/W03.2-private-source-2026-10-24.md, evidence/W03.2-private-source-receipt-2026-10-24.json
 
 Implementation issue: [#22](https://github.com/alex-engvall/labstride/issues/22).
 

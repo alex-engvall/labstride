@@ -582,7 +582,7 @@
       "title": "Create an owned exact-revision checkout",
       "phase": "MVP",
       "priority": "P0",
-      "status": "implemented",
+      "status": "verified",
       "owner_role": "maintainer",
       "work_package": "W03",
       "depends_on_work_packages": [
@@ -597,7 +597,9 @@
         "evidence/W03.2-workspaces-2026-10-23.md",
         "evidence/W03.2-continuity-2026-10-23.md",
         "evidence/W03.2-live-continuity-receipt-2026-10-23.json",
-        "evidence/W03.2-native-fields-2026-10-24.md"
+        "evidence/W03.2-native-fields-2026-10-24.md",
+        "evidence/W03.2-private-source-2026-10-24.md",
+        "evidence/W03.2-private-source-receipt-2026-10-24.json"
       ],
       "github_issue": 22,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/22"
@@ -607,7 +609,7 @@
       "title": "Recover creation after lost acknowledgement",
       "phase": "MVP",
       "priority": "P0",
-      "status": "implemented",
+      "status": "verified",
       "owner_role": "maintainer",
       "work_package": "W03",
       "depends_on_work_packages": [
@@ -622,7 +624,9 @@
         "evidence/W03.2-workspaces-2026-10-23.md",
         "evidence/W03.2-continuity-2026-10-23.md",
         "evidence/W03.2-live-continuity-receipt-2026-10-23.json",
-        "evidence/W03.2-native-fields-2026-10-24.md"
+        "evidence/W03.2-native-fields-2026-10-24.md",
+        "evidence/W03.2-private-source-2026-10-24.md",
+        "evidence/W03.2-private-source-receipt-2026-10-24.json"
       ],
       "github_issue": 22,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/22"
