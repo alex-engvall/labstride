@@ -1,3 +1,4 @@
+import { removeDeploymentOrderingMigration } from './helpers/migration-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fork, spawnSync } from 'node:child_process';
@@ -214,6 +215,7 @@ test('migration 14 preserves existing uncertain operations without inventing bro
   const before = x.store.get('operation', x.op.operationId);
   await x.stopListener();
   const db = new DatabaseSync(join(x.state, 'state.sqlite'));
+  removeDeploymentOrderingMigration(db);
   db.exec('DROP TABLE merge_intents; DELETE FROM schema_migrations WHERE version=16; DROP TABLE deployment_evidence; DROP TABLE workflow_receipts; DROP TABLE workflow_claims; DROP TABLE workflow_dispatches; DELETE FROM schema_migrations WHERE version>=14; PRAGMA user_version=13'); db.close();
   await x.restart();
   const current = x.store.get('operation', x.op.operationId);

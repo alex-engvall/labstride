@@ -68,3 +68,22 @@ test('provider rejects incomplete, oversized and malformed responses instead of 
     await assert.rejects(provider.find(enrollment, op, '2026-10-23T12:00:00Z'));
   }
 });
+
+test('immutable revision comparison binds repository, exact commits and merge-base without relying on paginated commit lists',async()=>{
+  const base='c'.repeat(40),head='d'.repeat(40);let patch={},repoPatch={},requests=[];
+  const provider=new GitHubWorkflowProvider(async()=> 'read-only-provider',async(url,init)=>{
+    requests.push(url);assert.equal(init.method,'GET');
+    if(url.endsWith(`/repos/${op.source.repository}`))return Response.json({node_id:op.source.repositoryId,full_name:op.source.repository,...repoPatch});
+    if(url.includes('/commits/'))return Response.json({sha:url.split('/').at(-1)});
+    return Response.json({status:'ahead',base_commit:{sha:base},merge_base_commit:{sha:base},commits:[],...patch});
+  });
+  assert.deepEqual(await provider.compare(enrollment,op.source,base,head),{schemaVersion:'1.0',repositoryId:op.source.repositoryId,baseSha:base,headSha:head,relation:'ahead'});
+  assert.equal(requests.length,4);assert(requests.at(-1).endsWith(`/compare/${base}...${head}?per_page=1`));
+  for(const invalid of [{base_commit:{sha:head}},{merge_base_commit:{sha:head}},{status:'identical'},{status:'unknown'}]){
+    patch=invalid;await assert.rejects(provider.compare(enrollment,op.source,base,head));
+  }
+  patch={status:'behind',merge_base_commit:{sha:head}};assert.equal((await provider.compare(enrollment,op.source,base,head)).relation,'behind');
+  patch={status:'identical'};assert.equal((await provider.compare(enrollment,op.source,base,base)).relation,'identical');
+  repoPatch={node_id:'foreign'};await assert.rejects(provider.compare(enrollment,op.source,base,head));
+  await assert.rejects(provider.compare(enrollment,op.source,'../unsafe',head));
+});

@@ -36,14 +36,14 @@ export function createWorker(store: ExecutionPort, options: WorkerOptions) {
       store.block(delivery.id, 'validation_failed'); return;
     }
     if (delivery.state === 'reconcile' || op.state !== 'prepared') {
-      if (!['succeeded','failed','cancelled'].includes(op.state)) store.markUnknown(id);
+      if (!['succeeded','failed','cancelled','superseded'].includes(op.state)) store.markUnknown(id);
       op = store.get('operation', id);
       const epoch = store.recoveryEpoch();
       try {
         const result = await adapter.reconcile(structuredClone(op.request), store.operationHandle(id));
         if (result.operationId !== id || result.requestDigest !== op.request.requestDigest) throw new LifecycleError('identity_conflict');
         store.acceptResult(result, null, op.revision, options.projections?.(result), epoch, adapter.createsWorkspace);
-        if ((result.result.status === 'accepted' || adapter.continuousReconciliation && result.result.status === 'outcome_unknown') && store.deferOperationObservation) store.deferOperationObservation(id, 15000);
+        if ((result.result.status === 'accepted' || adapter.continuousReconciliation && ['outcome_unknown','superseded'].includes(result.result.status)) && store.deferOperationObservation) store.deferOperationObservation(id, 15000);
         else if (store.delivery(delivery.id).state === 'reconcile') store.retryRead(delivery.id, retry(), (options.random ?? Math.random)());
       } catch {
         if (adapter.continuousReconciliation && store.deferOperationObservation) store.deferOperationObservation(id, 15000);
@@ -71,7 +71,7 @@ export function createWorker(store: ExecutionPort, options: WorkerOptions) {
     try {
       const result = await adapter.start(structuredClone(store.get('operation', id).request), structuredClone(claim), store.sessionGuard(id));
       store.acceptResult(result, claim, op.revision, options.projections?.(result), 0, adapter.createsWorkspace);
-      if (result.result.status === 'accepted' || adapter.continuousReconciliation && result.result.status === 'outcome_unknown') store.deferOperationObservation?.(id, 15000);
+      if (result.result.status === 'accepted' || adapter.continuousReconciliation && ['outcome_unknown','superseded'].includes(result.result.status)) store.deferOperationObservation?.(id, 15000);
     } catch { store.markUnknown(id); }
   }
   return {

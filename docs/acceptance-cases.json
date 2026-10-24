@@ -218,7 +218,9 @@
       "action": "Queue revision A then B and complete B before A is dispatched.",
       "expected": "A is superseded or blocked; it cannot overwrite B.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04.4-deployment-ordering-2026-10-24.md"
+      ]
     },
     {
       "id": "AC16",

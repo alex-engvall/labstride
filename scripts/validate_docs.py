@@ -97,6 +97,10 @@ def main():
         'target-observation-request': 'target-observation-request',
         'target-observation': 'target-observation',
         'deployment-evidence': 'deployment-evidence',
+        'deployment-order': 'deployment-order',
+        'revision-comparison': 'revision-comparison',
+        'deployment-order-check': 'deployment-order-check',
+        'deployment-successor-evidence': 'deployment-successor-evidence',
         'workflow-enrollment': 'workflow-deployment-enrollment',
     }
     validators, examples = validators_for(ROOT / 'schemas'), {}

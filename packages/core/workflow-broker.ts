@@ -22,6 +22,8 @@ export interface WorkflowRun {
   status: string; conclusion: string | null; name: string; createdAt: string;
 }
 export interface WorkflowProvider {
+  // Read-only ancestry of immutable source SHAs. Optional for workflow-only adapters.
+  compare?(enrollment: Enrollment, source: Operation['source'], baseSha: string, headSha: string): Promise<import('../../contracts/generated/revision-comparison.ts').RevisionComparisonV1>;
   preflight(enrollment: Enrollment, op: Operation): Promise<void>;
   dispatch(enrollment: Enrollment, op: Operation): Promise<string | null>;
   run(enrollment: Enrollment, runId: string, attempt: number): Promise<WorkflowRun>;

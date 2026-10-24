@@ -14,7 +14,7 @@ import type { DeploymentObservers, TargetObservation, TargetObservationRequest }
 export function configuredWorkflowAction(store: WorkflowBrokerStore, host: HostProfile, provider: WorkflowProvider,
   observers: DeploymentObservers = new Map()): ActionAdapter {
   const registry = new Map(observers);
-  const result = (op: Operation, status: 'accepted' | 'outcome_unknown' | 'succeeded' | 'failed' | 'cancelled', outputs: Record<string, unknown> = {}): BoundResult => ({
+  const result = (op: Operation, status: 'accepted' | 'outcome_unknown' | 'succeeded' | 'failed' | 'cancelled' | 'superseded', outputs: Record<string, unknown> = {}): BoundResult => ({
     schemaVersion: '1.0', kind: 'result', operationId: op.operationId, requestDigest: op.requestDigest,
     result: { status, handle: op.operationId, resources: [], outputs, evidenceRefs: [`workflow:${op.operationId}`],
       error: status === 'outcome_unknown' || status === 'failed' ? { code: status === 'failed' ? 'operation_failed' : 'outcome_unknown',
@@ -33,6 +33,7 @@ export function configuredWorkflowAction(store: WorkflowBrokerStore, host: HostP
   const port = {
     async validate(op: Operation) {
       const enrollment = store.workflowEnrollment(op.operationId);
+      if (!enrollment.deployment && store.workflowTargetOrdered(op.operationId)) throw new BrokerError('effect_blocked', 403);
       if (enrollment.deployment) {
         const observer = resolveObserver(enrollment.deployment, registry);
         await observer.validate(structuredClone(enrollment.deployment.observer.configuration));
@@ -41,6 +42,22 @@ export function configuredWorkflowAction(store: WorkflowBrokerStore, host: HostP
       catch (error) { if (error instanceof BrokerError && error.code === 'provider_unavailable') throw new PreEffectTransient(); throw error; }
     },
     async start(op: Operation) {
+      if (store.workflowEnrollment(op.operationId).deployment && !store.workflowDispatch(op.operationId)) {
+        if (!store.deploymentOrder(op.operationId)) return result(op, 'accepted', { blocker: 'legacy_order_unknown' });
+        const context = store.deploymentOrderContext(op.operationId);
+        let comparison = null;
+        if (context.current && provider.compare) {
+          try { comparison = await provider.compare(store.workflowEnrollment(op.operationId), op.source, context.current.evidence.sourceSha, op.source.sha); }
+          catch { /* No ordering fact can be inferred from a failed read. */ }
+        }
+        const proof = store.recordOrderCheck(context, comparison);
+        if (proof.check.decision === 'blocked') return result(op, 'accepted', { blocker: proof.check.blocker });
+        if (proof.check.decision === 'supersede') {
+          const bound = result(op, 'superseded', { deploymentVerified: false, orderEvidenceId: proof.id, blocker: 'successor_proof_pending' });
+          bound.result.evidenceRefs = [`deployment-order:${proof.id}`];
+          return bound;
+        }
+      }
       const intent = store.beginWorkflowDispatch(op.operationId);
       if (intent.dispatch) {
         // Once committed, every error is uncertain. A lost HTTP response cannot
@@ -53,8 +70,31 @@ export function configuredWorkflowAction(store: WorkflowBrokerStore, host: HostP
       return port.reconcile(op);
     },
     async reconcile(op: Operation): Promise<BoundResult> {
+      if (store.get('operation', op.operationId).state === 'superseded') {
+        try {
+          const context = store.deploymentOrderContext(op.operationId), merge = store.confirmedDeploymentMerge(op.operationId);
+          if (context.current && merge && provider.compare && !store.successorSatisfied(op.operationId) && !store.successorFulfilled(op.operationId)) {
+            const successor = store.get('operation', context.current.operationId).request;
+            const enrollment = store.workflowEnrollment(successor.operationId), profile = enrollment.deployment!;
+            const comparison = await provider.compare(enrollment, successor.source, merge.merge.mergeSha!, successor.source.sha);
+            const request: TargetObservationRequest = { schemaVersion: '1.0', observationId: randomUUID(), targetId: successor.targetId,
+              environment: enrollment.environment, configuration: structuredClone(profile.observer.configuration) };
+            const observer = resolveObserver(profile, registry), controller = new AbortController();
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            try {
+              const raw = await Promise.race([
+                (async () => { await observer.validate(structuredClone(profile.observer.configuration)); return observer.observe(structuredClone(request), controller.signal); })(),
+                new Promise<never>((_resolve, reject) => { timer = setTimeout(() => { controller.abort(); reject(new Error('target_observer_unavailable')); }, profile.observationTimeoutMs ?? 15000); }),
+              ]);
+              store.recordSuccessorEvidence(context, merge.operationId, comparison, request, validated('target-observation', raw as TargetObservation));
+            } finally { clearTimeout(timer); controller.abort(); }
+          }
+        } catch { /* Keep supersession; uncertainty cannot fulfill the earlier merge. */ }
+        return store.supersededResult(op.operationId);
+      }
       const epoch = store.recoveryEpoch();
       const dispatch = store.workflowDispatch(op.operationId);
+      if (!dispatch && store.workflowEnrollment(op.operationId).deployment) return port.start(op);
       if (!dispatch || store.workflowConflicted(op.operationId)) return result(op, 'outcome_unknown');
       const candidates = await provider.find(dispatch.enrollment, op, dispatch.submittedAt);
       if (candidates.length > 1) { store.workflowConflict(op.operationId); return result(op, 'outcome_unknown'); }

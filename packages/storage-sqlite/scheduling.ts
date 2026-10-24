@@ -27,11 +27,13 @@ export class SchedulingStore extends SqliteStore {
       this.db.prepare('UPDATE scheduling_policy SET payload=? WHERE id=1').run(JSON.stringify(policy));
     });
   }
-  protected unresolved(runId: string): boolean {
-    return !!this.db.prepare("SELECT 1 FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled') UNION ALL SELECT 1 FROM deliveries d JOIN operations o ON o.id=d.operation_id WHERE o.run_id=? AND d.state='conflict'").get(runId, runId);
+  protected unresolved(runId: string, requireFulfillment = true): boolean {
+    return this.db.prepare("SELECT id,state FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled')").all(runId)
+      .some(op => op.state !== 'superseded' || requireFulfillment && !this.successorSatisfied(String(op.id))) ||
+      !!this.db.prepare("SELECT 1 FROM deliveries d JOIN operations o ON o.id=d.operation_id WHERE o.run_id=? AND d.state='conflict'").get(runId);
   }
   protected liveRun(run: RecordOf<'run'>): boolean {
-    return !['completed','failed','cancelled'].includes(run.state) || this.unresolved(run.id);
+    return !['completed','failed','cancelled'].includes(run.state) || this.unresolved(run.id, run.state === 'completed');
   }
   protected issuePeers(run: RecordOf<'run'>, request = this.get('request', run.requestId)): RecordOf<'run'>[] {
     return this.db.prepare(`SELECT r.id FROM runs r JOIN requests q ON q.id=r.request_id

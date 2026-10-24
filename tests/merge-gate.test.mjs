@@ -1,3 +1,4 @@
+import { removeDeploymentOrderingMigration } from './helpers/migration-fixture.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -222,6 +223,7 @@ test('migration 16 preserves an existing operation without inventing a merge int
   const before = f.store.get('operation', f.op.operationId); f.close();
   const { DatabaseSync } = await import('node:sqlite');
   const db = new DatabaseSync(f.state + '/state.sqlite');
+  removeDeploymentOrderingMigration(db);
   db.exec('DROP TABLE merge_intents; DELETE FROM schema_migrations WHERE version=16; PRAGMA user_version=15'); db.close();
   f.reopen();
   assert.deepEqual(f.store.get('operation', f.op.operationId).request, before.request);

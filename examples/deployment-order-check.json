@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-earlier",
+  "requestDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "sequence": 1,
+  "resourceKey": "workflow:example",
+  "predecessorOperationId": null,
+  "predecessorEvidenceId": null,
+  "targetRevision": 0,
+  "recoveryEpoch": 0,
+  "comparison": null,
+  "decision": "allow",
+  "blocker": "none",
+  "observedAt": "2026-10-24T12:00:00Z"
+}

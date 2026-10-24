@@ -1,5 +1,5 @@
 import { enrolledWorkflow } from '../workflow-broker/bindings.ts';
-import { MergeStore } from './merges.ts';
+import { DeploymentOrderingStore } from './deployment-ordering.ts';
 import { validated } from './validation.ts';
 import { canonical, digest } from './execution.ts';
 import { BrokerError, matchingRun, workflowAction, workflowVersion, workflowResource } from '../core/workflow-broker.ts';
@@ -11,7 +11,7 @@ import type { RecordOf } from '../core/lifecycle.ts';
 
 // The coordinator's existing claim protects dispatch. This second claim binds
 // the external workflow executor; neither claim is inferred from hook progress.
-export class WorkflowBrokerStore extends MergeStore {
+export class WorkflowBrokerStore extends DeploymentOrderingStore {
   workflowEnrollment(operationId: string): Enrollment {
     const op = this.get('operation', operationId).request;
     return enrolledWorkflow(this.runConfiguration(op.runId), op);
@@ -30,6 +30,9 @@ export class WorkflowBrokerStore extends MergeStore {
     return !this.db.prepare('SELECT 1 FROM workflow_dispatches WHERE resource_key=? AND active=1 AND operation_id!=?')
       .get(workflowResource(enrollment), operationId);
   }
+  workflowTargetOrdered(operationId: string): boolean {
+    return !!this.db.prepare('SELECT 1 FROM deployment_targets WHERE resource_key=?').get(workflowResource(this.workflowEnrollment(operationId)));
+  }
   protected workflowEffectAllowed(operationId: string): void {
     const operation = this.get('operation', operationId), op = operation.request;
     this.assertConfigurationOperation(op.runId, op);
@@ -46,6 +49,12 @@ export class WorkflowBrokerStore extends MergeStore {
     const latest = this.db.prepare('SELECT max(generation) AS generation FROM requests WHERE installation_id=? AND provider_id=? AND issue_id=?')
       .get(request.installationId, request.providerId, request.issueId);
     if (latest?.generation !== request.generation) throw new BrokerError('effect_blocked', 403);
+    const enrollment = this.workflowEnrollment(operationId);
+    if (!this.db.prepare('SELECT 1 FROM claims WHERE operation_id=? AND resource_key=? AND active=1 AND consumed=1')
+      .get(operationId, workflowResource(enrollment))) throw new BrokerError('effect_blocked', 403);
+    if (enrollment.deployment) this.assertDeploymentOrder(operationId);
+    else if (this.workflowTargetOrdered(operationId))
+      throw new BrokerError('effect_blocked', 403); // A workflow-only enrollment cannot downgrade an ordered target.
   }
   beginWorkflowDispatch(operationId: string): { dispatch: boolean; record: WorkflowDispatch } {
     return this.transaction(() => {
@@ -63,11 +72,9 @@ export class WorkflowBrokerStore extends MergeStore {
         .run(operationId, canonical(record), workflowResource(enrollment));
       if (enrollment.deployment) {
         const now = this.clock.now();
-        const deployment: RecordOf<'deployment'> = { schemaVersion: '1.0', kind: 'deployment', id: deploymentId(operationId),
-          revision: 1, createdAt: now, updatedAt: now, runId: op.runId, operationId, targetId: op.targetId, sourceSha: op.source.sha, state: 'requested' };
+        const deployment = this.get('deployment', deploymentId(operationId));
         const context = { actorId: 'coordinator', reason: 'Bound deployment dispatch', evidenceRefs: [`workflow:${operationId}`] };
-        this.write([{ record: deployment, expectedRevision: null }], context);
-        this.write([{ record: { ...deployment, state: 'running', revision: 2 }, expectedRevision: 1 }], context);
+        this.write([{ record: { ...deployment, state: 'running', revision: deployment.revision + 1, updatedAt: now }, expectedRevision: deployment.revision }], context);
       }
       this.log(operationId, 'workflow_dispatch_intent', { requestDigest: op.requestDigest, workflowSha: enrollment.workflowSha, sourceSha: op.source.sha });
       return { dispatch: true, record };
@@ -219,6 +226,7 @@ export class WorkflowBrokerStore extends MergeStore {
     const bound = this.validateResult(input), operation = this.get('operation', bound.operationId);
     if (operation.request.actionId !== workflowAction || operation.request.actionVersion !== workflowVersion || !this.workflowEnrollment(operation.id).deployment)
       return super.acceptResult(bound, claim, expectedRevision, projections, observedEpoch, createsWorkspace);
+    if (bound.result.status === 'superseded') return this.acceptSuperseded(bound, claim, expectedRevision, observedEpoch);
     return this.transaction(() => {
       const op = operation.request, enrollment = this.workflowEnrollment(op.operationId), profile = enrollment.deployment!;
       const terminal = ['succeeded', 'failed', 'cancelled'].includes(bound.result.status);
@@ -257,7 +265,10 @@ export class WorkflowBrokerStore extends MergeStore {
       if (state !== deployment.state) this.write([{ record: { ...deployment, state, revision: deployment.revision + 1, updatedAt: this.clock.now() },
         expectedRevision: deployment.revision, ...(deployment.state === 'outcome_unknown' ? { recovery: true } : {}) }],
       { actorId: 'coordinator', reason: 'Independent deployment verification', evidenceRefs: selected ? [`deployment:${selected.id}`] : [`workflow:${op.operationId}`] });
-      if (selected?.evidence.status === 'verified') this.db.prepare('UPDATE workflow_dispatches SET active=0 WHERE operation_id=?').run(op.operationId);
+      if (selected?.evidence.status === 'verified') {
+        this.finalizeDeploymentPointer(op.operationId, selected.id);
+        this.db.prepare('UPDATE workflow_dispatches SET active=0 WHERE operation_id=?').run(op.operationId);
+      }
       // Failure keeps both the active dispatch and a persistent recovery hold.
       if (selected?.evidence.status === 'failed') this.db.prepare('INSERT OR IGNORE INTO resource_holds VALUES (?,?)')
         .run(workflowResource(enrollment), selected.evidence.blocker);
@@ -271,17 +282,23 @@ export class WorkflowBrokerStore extends MergeStore {
   }
   workflowExecutions(runId: string) {
     this.get('run', runId);
-    return this.db.prepare('SELECT d.operation_id,d.conflict,c.consumed FROM workflow_dispatches d JOIN operations o ON o.id=d.operation_id LEFT JOIN workflow_claims c ON c.operation_id=d.operation_id WHERE o.run_id=?')
+    return this.db.prepare(`SELECT o.id AS operation_id,d.conflict,c.consumed FROM operations o
+      LEFT JOIN workflow_dispatches d ON d.operation_id=o.id LEFT JOIN workflow_claims c ON c.operation_id=o.id
+      LEFT JOIN deployment_orders q ON q.operation_id=o.id WHERE o.run_id=? AND (d.operation_id IS NOT NULL OR q.operation_id IS NOT NULL)`)
       .all(runId).map(row => {
-        const id = String(row.operation_id), dispatch = this.workflowDispatch(id)!;
-        return { operationId: id, sourceSha: this.get('operation', id).request.source.sha, workflowSha: dispatch.enrollment.workflowSha,
-          workflowRunId: dispatch.runId, claim: this.workflowClaim(id), effectConsumed: row.consumed === 1,
+        const id = String(row.operation_id), dispatch = this.workflowDispatch(id), enrollment = this.workflowEnrollment(id);
+        const deployment = enrollment.deployment ? this.get('deployment', deploymentId(id)) : null;
+        return { operationId: id, sourceSha: this.get('operation', id).request.source.sha, workflowSha: enrollment.workflowSha,
+          workflowRunId: dispatch?.runId ?? null, claim: this.workflowClaim(id), effectConsumed: row.consumed === 1,
           receiptConclusion: this.workflowReceipt(id)?.conclusion ?? null, conflict: row.conflict === 1,
-          deploymentVerified: dispatch.enrollment.deployment ? this.get('deployment', deploymentId(id)).state === 'verified' : false,
-          ...(dispatch.enrollment.deployment ? { deployment: this.get('deployment', deploymentId(id)), evidence: this.deploymentEvidence(id),
-            cleanupBlocked: this.get('deployment', deploymentId(id)).state !== 'verified' || row.conflict === 1,
-            blocker: row.conflict === 1 ? 'conflicting_workflow_evidence' : this.deploymentEvidence(id)?.evidence.blocker ?? 'workflow_evidence_pending',
-            recovery: recoveryDetails(dispatch.enrollment.deployment, dispatch.enrollment.targetId, dispatch.enrollment.environment) } : {}) };
+          deploymentVerified: deployment?.state === 'verified',
+          ...(deployment ? { deployment, evidence: this.deploymentEvidence(id), order: this.deploymentOrder(id), orderCheck: this.orderCheck(id),
+            successorEvidence: this.successorEvidence(id), successorFulfilled: this.successorFulfilled(id), successorSatisfied: this.successorSatisfied(id),
+            cleanupBlocked: deployment.state !== 'verified' || row.conflict === 1,
+            blocker: row.conflict === 1 ? 'conflicting_workflow_evidence' : deployment.state === 'superseded'
+              ? this.successorSatisfied(id) || this.successorFulfilled(id) ? 'fulfilled_by_successor' : 'successor_proof_pending'
+              : this.deploymentEvidence(id)?.evidence.blocker ?? this.orderCheck(id)?.check.blocker ?? 'workflow_evidence_pending',
+            recovery: recoveryDetails(enrollment.deployment!, enrollment.targetId, enrollment.environment) } : {}) };
       });
   }
 }

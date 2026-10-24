@@ -462,13 +462,13 @@ Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W04 |
+| MVP | P0 | implemented | W04 |
 
 Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 - Older pending work cannot overwrite a newer verified target revision.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04.4-deployment-ordering-2026-10-24.md
 
 Implementation issue: [#27](https://github.com/alex-engvall/labstride/issues/27).
 

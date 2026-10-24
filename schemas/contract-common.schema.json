@@ -110,7 +110,8 @@
             "succeeded",
             "failed",
             "cancelled",
-            "outcome_unknown"
+            "outcome_unknown",
+            "superseded"
           ]
         },
         "handle": {

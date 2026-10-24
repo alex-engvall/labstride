@@ -111,6 +111,8 @@ Tracker: [#7](https://github.com/alex-engvall/labstride/issues/7).
 
 **W04.3 progress:** The opt-in [current-revision merge action](39-current-revision-merge.md) implements LS-GH-006/007 for a strict direct-merge profile with configurable enrollment, independent protection/CI inventory, expected-head enforcement, actual merge-SHA readback and durable branch serialization. [Local evidence](evidence/W04.3-merge-gate-2026-10-24.md) covers stale heads, absent checks, policy revocation, response loss and actual coordinator death. Dedicated live protection/credential and downstream-trigger qualification remain open; AC13/AC14 remain `not_run` at their full/live level and #26 stays incomplete. Existing AC35/AC36 evidence is unchanged.
 
+**W04.4 progress:** LS-DEP-005 adds queue-time deployment identity, transactional target ordering and explicit supersession before dispatch. Confirmed merge containment and fresh independent target evidence can fulfill an earlier superseded step without rewriting it as a verified deployment. [Local evidence](evidence/W04.4-deployment-ordering-2026-10-24.md) covers AC15's bounded newer-wins slice, negative successor cases, independent environments, reply loss and coordinator death. Full live AC15, installed recovery and legacy-target qualification remain open; #27 remains incomplete. AC35/AC36 are unchanged and W05 retains cleanup execution.
+
 ## W05 — Directory cleanup action
 
 Tracker: [#8](https://github.com/alex-engvall/labstride/issues/8).

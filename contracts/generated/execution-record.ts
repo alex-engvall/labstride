@@ -21,7 +21,7 @@ export type ExecutionRecord =
       result: OperationResult;
     };
 export type OperationResult = {
-  status: "accepted" | "succeeded" | "failed" | "cancelled" | "outcome_unknown";
+  status: "accepted" | "succeeded" | "failed" | "cancelled" | "outcome_unknown" | "superseded";
   handle: string | null;
   /**
    * @maxItems 128

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-earlier",
+  "requestDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "successorOperationId": "op-example-001",
+  "successorEvidenceId": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "targetRevision": 1,
+  "mergeOperationId": "merge-earlier",
+  "mergeRecordDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "mergeSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "comparison": {
+    "schemaVersion": "1.0",
+    "repositoryId": "1001",
+    "baseSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "headSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "relation": "ahead"
+  },
+  "probeRequest": {
+    "schemaVersion": "1.0",
+    "observationId": "observation-example",
+    "targetId": "application-test",
+    "environment": "production",
+    "configuration": {
+      "endpoint": "http://127.0.0.1:9010/state"
+    }
+  },
+  "target": {
+    "schemaVersion": "1.0",
+    "observationId": "observation-example",
+    "targetId": "application-test",
+    "environment": "production",
+    "resourceId": "example-release",
+    "sourceRepositoryId": "1001",
+    "sourceSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "health": "healthy",
+    "observedAt": "2026-10-21T13:00:00Z"
+  },
+  "observedAt": "2026-10-21T13:00:00Z",
+  "recoveryEpoch": 0
+}

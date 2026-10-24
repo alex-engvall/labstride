@@ -1,5 +1,6 @@
 import { BrokerError, workflowRunName } from '../core/workflow-broker.ts';
 import type { Enrollment, Operation, WorkflowProvider, WorkflowRun } from '../core/workflow-broker.ts';
+import type { RevisionComparisonV1 } from '../../contracts/generated/revision-comparison.ts';
 
 const denied = () => new BrokerError('identity_rejected', 403);
 const unavailable = () => new BrokerError('provider_unavailable', 503);
@@ -28,7 +29,8 @@ export class GitHubWorkflowProvider implements WorkflowProvider {
     this.#credential = credential; this.#fetch = transport;
   }
   async request(enrollment: Enrollment, method: 'GET' | 'POST', path: string, body?: unknown): Promise<unknown> {
-    if (!/^\/repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/|$)/.test(path) || path.includes('..') || /[\r\n#]/.test(path)) throw unavailable();
+    const checkedPath = path.replace(/\/compare\/[a-f0-9]{40}\.\.\.[a-f0-9]{40}(?=\?|$)/, '/immutable-comparison');
+    if (!/^\/repos\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/|$)/.test(path) || checkedPath.includes('..') || /[\r\n#]/.test(path)) throw unavailable();
     let response: Response;
     try {
       const credential = await this.#credential(enrollment.credentialRef);
@@ -72,6 +74,27 @@ export class GitHubWorkflowProvider implements WorkflowProvider {
       inputs: { operation_id: op.operationId, request_digest: op.requestDigest, schema_version: '1.0' },
     });
     return result === null ? null : id(object(result).workflow_run_id);
+  }
+  async compare(enrollment: Enrollment, source: Operation['source'], baseSha: string, headSha: string): Promise<RevisionComparisonV1> {
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(source.repository) ||
+      ![baseSha, headSha].every(sha => /^[a-f0-9]{40}$/.test(sha))) throw denied();
+    const base = `/repos/${source.repository}`;
+    const repository = object(await this.request(enrollment, 'GET', base));
+    if (repository.node_id !== source.repositoryId || repository.full_name !== source.repository) throw denied();
+    // Exact commit endpoints bind both sides; commit-list pagination is not a
+    // containment proof. GitHub's comparison/merge-base supplies that proof.
+    for (const sha of new Set([baseSha, headSha])) {
+      if (object(await this.request(enrollment, 'GET', `${base}/commits/${sha}`)).sha !== sha) throw denied();
+    }
+    const compared = object(await this.request(enrollment, 'GET', `${base}/compare/${baseSha}...${headSha}?per_page=1`));
+    const relation = compared.status;
+    if (!['identical','ahead','behind','diverged'].includes(String(relation)) || object(compared.base_commit).sha !== baseSha) throw unavailable();
+    const mergeBase = object(compared.merge_base_commit).sha;
+    if (relation === 'identical' && (baseSha !== headSha || mergeBase !== baseSha) ||
+      relation === 'ahead' && (baseSha === headSha || mergeBase !== baseSha) ||
+      relation === 'behind' && (baseSha === headSha || mergeBase !== headSha) ||
+      relation === 'diverged' && (mergeBase === baseSha || mergeBase === headSha)) throw denied();
+    return { schemaVersion: '1.0', repositoryId: source.repositoryId, baseSha, headSha, relation: relation as RevisionComparisonV1['relation'] };
   }
   async run(enrollment: Enrollment, runId: string, attempt: number): Promise<WorkflowRun> {
     if (!/^[1-9][0-9]{0,31}$/.test(runId) || !Number.isSafeInteger(attempt) || attempt < 1) throw denied();

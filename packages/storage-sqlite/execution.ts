@@ -264,7 +264,7 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
   markUnknown(operationId: string): void {
     this.transaction(() => {
       const op = this.get('operation', operationId);
-      if (['succeeded','failed','cancelled'].includes(op.state)) return;
+      if (['succeeded','failed','cancelled','superseded'].includes(op.state)) return;
       if (op.state !== 'outcome_unknown') this.changeOperation(operationId, 'outcome_unknown', false, []);
       this.db.prepare("UPDATE deliveries SET state='reconcile',last_error='outcome_unknown',revision=revision+1 WHERE operation_id=?").run(operationId);
       this.log(operationId, 'outcome_unknown', { schemaVersion: '1.0' });
@@ -293,6 +293,8 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
   acceptResult(input: BoundResult, claim: Claim | null, expectedRevision: number, projections: RecordOf<'projection'>[] = [], observedEpoch = 0, createsWorkspace = false): boolean {
     const bound = validated('execution-record', input);
     if (bound.kind !== 'result') throw new LifecycleError('invalid_payload');
+    // Only the deployment store can establish a no-dispatch supersession.
+    if (bound.result.status === 'superseded') throw new LifecycleError('effect_blocked');
     return this.transaction(() => {
       if (!claim && observedEpoch !== this.recoveryEpoch()) throw new LifecycleError('revision_conflict');
       const op = this.get('operation', bound.operationId);
@@ -432,7 +434,7 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
       this.write([{ expectedRevision: run.revision, record: { ...run, paused: command !== 'resume',
         revision: run.revision + 1, updatedAt: this.clock.now() } }], safe);
       if (command === 'cancel') {
-        for (const { id } of this.db.prepare("SELECT id FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled')").all(run.id)) {
+        for (const { id } of this.db.prepare("SELECT id FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled','superseded')").all(run.id)) {
           const op = this.get('operation', String(id));
           if (op.effectBoundary === 'not_crossed') {
             this.changeOperation(op.id, 'cancelled', false, safe.evidenceRefs);
@@ -447,7 +449,7 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
     });
   }
   private finishCancellationRun(runId: string): void {
-    if (!this.db.prepare('SELECT 1 FROM run_controls WHERE run_id=? AND cancel_requested=1').get(runId) || this.unresolved(runId)) return;
+    if (!this.db.prepare('SELECT 1 FROM run_controls WHERE run_id=? AND cancel_requested=1').get(runId) || this.unresolved(runId, false)) return;
     const run = this.get('run', runId);
     this.db.prepare("UPDATE cancellations SET state='observed' WHERE operation_id IN (SELECT id FROM operations WHERE run_id=?) AND state!='submitted'").run(runId);
     if (['completed','failed','cancelled'].includes(run.state)) return;
@@ -457,7 +459,7 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
       { actorId: 'coordinator', reason: 'Cancellation resolved; operation results retained', evidenceRefs: [String(request.id)] });
   }
   dueCancellations(): { operationId: string; controlId: string }[] {
-    return this.db.prepare("SELECT c.operation_id,c.control_id FROM cancellations c JOIN operations o ON o.id=c.operation_id WHERE c.state='pending' AND o.state NOT IN ('succeeded','failed','cancelled') ORDER BY c.rowid LIMIT 64")
+    return this.db.prepare("SELECT c.operation_id,c.control_id FROM cancellations c JOIN operations o ON o.id=c.operation_id WHERE c.state='pending' AND o.state NOT IN ('succeeded','failed','cancelled','superseded') ORDER BY c.rowid LIMIT 64")
       .all().map(row => ({ operationId: String(row.operation_id), controlId: String(row.control_id) }));
   }
   beginCancellation(operationId: string): void {
@@ -466,7 +468,7 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
       const op = this.get('operation', operationId);
       this.assertConfigurationOperation(op.runId, op.request);
       this.assertPolicyOperation(op.runId, op.request, 'cancel');
-      if (['succeeded','failed','cancelled'].includes(op.state)) throw new LifecycleError('effect_consumed');
+      if (['succeeded','failed','cancelled','superseded'].includes(op.state)) throw new LifecycleError('effect_consumed');
       const row = this.db.prepare("UPDATE cancellations SET state='submitted' WHERE operation_id=? AND state='pending'").run(operationId);
       if (row.changes !== 1) throw new LifecycleError('effect_consumed');
       this.log(operationId, 'cancel_boundary', { operationId });

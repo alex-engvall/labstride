@@ -55,7 +55,7 @@ export type Error = {
   retryClass: "none" | "read_only" | "pre_effect_transient" | "reconcile";
 };
 export type ActionReconcileOutput = {
-  status: "accepted" | "succeeded" | "failed" | "cancelled" | "outcome_unknown";
+  status: "accepted" | "succeeded" | "failed" | "cancelled" | "outcome_unknown" | "superseded";
   handle: string | null;
   /**
    * @maxItems 128

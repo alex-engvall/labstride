@@ -34,7 +34,7 @@ export class SessionStore extends ObservationStore {
         session.state !== 'ready' || observation.state !== 'ready' || session.lastTurnId !== request.expectedLastTurnId ||
         observation.lastTurnId !== request.expectedLastTurnId || session.humanActivityRevision !== request.expectedHumanActivityRevision ||
         observation.humanActivityRevision !== request.expectedHumanActivityRevision) throw new LifecycleError('stale_revision');
-      if (this.db.prepare("SELECT 1 FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled')").get(run.id)) throw new LifecycleError('effect_blocked');
+      if (this.db.prepare("SELECT 1 FROM operations WHERE run_id=? AND state NOT IN ('succeeded','failed','cancelled','superseded')").get(run.id)) throw new LifecycleError('effect_blocked');
       this.write([{ expectedRevision: session.revision, record: { ...session, owner: 'automation', revision: session.revision + 1, updatedAt: this.clock.now() } }], context);
       this.write([{ expectedRevision: run.revision, record: { ...run, revision: run.revision + 1, updatedAt: this.clock.now() } }], context);
       this.db.prepare('UPDATE run_controls SET human_hold=0 WHERE run_id=?').run(run.id);

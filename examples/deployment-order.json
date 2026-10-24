@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-earlier",
+  "requestDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "sequence": 1,
+  "resourceKey": "workflow:example",
+  "sourceRepositoryId": "1001",
+  "sourceSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "expectedPredecessor": null
+}
