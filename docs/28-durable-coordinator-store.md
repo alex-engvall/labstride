@@ -95,3 +95,5 @@ Local [capacity evidence](evidence/W01.3-capacity-2026-10-21.md), [control evide
 ## Bounded publication read recovery
 
 The [self-build publication correction](evidence/W04-W06-shallow-publication-2026-10-24.md) records remote intent only after local preparation and rechecks. Exact independent remote observations may complete the original acknowledgement with an evidence log entry. Fresh bound `accepted` observations reset consecutive read failures and clear stale delivery errors; unknown or failed observations do not. This does not remove uncertain managed effects, cancellation records or replay authority checks.
+
+The [bounded report observation evidence](evidence/W04-W06-bounded-report-observation-2026-10-24.md) records a live post-publication read failure caused by a transcript exceeding the native RPC bound. Journaled delivery uses repeated latest-turn metadata checks instead; original uncertain effects and the blocked observation remain distinct. Resume only supported read observation after an approved correction, without resetting managed intents.

@@ -120,20 +120,26 @@ export function createCodexBridge(policy: BridgePolicy, rpc: any = new UnixRpc(p
     const turn = history.data[0] ?? null;
     let report: ManagedCodingResultV1 | null = null;
     if (turn?.status === 'completed') {
-      // This qualified legacy-history profile supports full turn hydration;
-      // the daemon does not implement thread/items/list. Require an explicitly
-      // full snapshot of the same latest completed turn, bounded by the RPC.
-      const full = await rpc.call('thread/turns/list', { threadId: sessionId, limit: 1, sortDirection: 'desc', itemsView: 'full' });
-      const completed = full.data?.[0];
-      if (!Array.isArray(full.data) || full.data.length !== 1 || completed.id !== turn.id || completed.status !== 'completed' ||
-        completed.itemsView !== 'full' || !Array.isArray(completed.items)) throw Error('stale_revision');
-      // Legacy history can omit native dynamic tools entirely. The journal is
-      // written by the native tool handler before acknowledging that call.
+      // The native handler committed this receipt before acknowledgement.
+      // Reading the transcript again adds no receipt evidence and can exceed
+      // the bounded RPC even for one turn containing a large tool response.
       report = reports.read(binding, sessionId, turn.id);
-      for (const item of completed.items) if (item.type === 'dynamicToolCall' && item.tool === 'labstride_report' && item.status === 'completed' && item.success === true) {
-        const candidate = validated<ManagedCodingResultV1>('managed-result', { ...item.arguments, runId: binding.runId, sessionId, turnId: turn.id });
-        if (report && digest(report) !== digest(candidate)) throw Error('report_conflict'); report = candidate;
+      if (!report && !reports.hasSession(binding, sessionId)) {
+        // Older bridges did not journal reports. Their history-only receipts
+        // still require an explicitly full view within the existing RPC bound.
+        // Once journaled delivery is established for this bound session, an
+        // unreported conversation turn is ordinary waiting, not legacy recovery.
+        const full = await rpc.call('thread/turns/list', { threadId: sessionId, limit: 1, sortDirection: 'desc', itemsView: 'full' });
+        const completed = full.data?.[0];
+        if (!Array.isArray(full.data) || full.data.length !== 1 || completed.id !== turn.id || completed.status !== 'completed' ||
+          completed.itemsView !== 'full' || !Array.isArray(completed.items)) throw Error('stale_revision');
+        for (const item of completed.items) if (item.type === 'dynamicToolCall' && item.tool === 'labstride_report' && item.status === 'completed' && item.success === true) {
+          const candidate = validated<ManagedCodingResultV1>('managed-result', { ...item.arguments, runId: binding.runId, sessionId, turnId: turn.id });
+          if (report && digest(report) !== digest(candidate)) throw Error('report_conflict'); report = candidate;
+        }
       }
+      const latest = await rpc.call('thread/turns/list', { threadId: sessionId, limit: 1, sortDirection: 'desc', itemsView: 'summary' });
+      if (!Array.isArray(latest.data) || latest.data.length !== 1 || latest.data[0]?.id !== turn.id || latest.data[0]?.status !== 'completed') throw Error('stale_revision');
     }
     return { sessionId, path: binding.path, turn, state: thread.status?.type ?? 'unknown', report };
   }

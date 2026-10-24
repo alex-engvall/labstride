@@ -432,7 +432,8 @@
         "evidence/W04-W06-local-self-build-2026-10-24.md",
         "evidence/W04-W06-native-history-2026-10-24.md",
         "evidence/W04-W06-report-journal-2026-10-24.md",
-        "evidence/W04-W06-shallow-publication-2026-10-24.md"
+        "evidence/W04-W06-shallow-publication-2026-10-24.md",
+        "evidence/W04-W06-bounded-report-observation-2026-10-24.md"
       ],
       "github_issue": 26,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/26"
@@ -928,7 +929,8 @@
         "evidence/W04-W06-native-history-2026-10-24.md",
         "evidence/W06-version-canary-2026-10-24.md",
         "evidence/W04-W06-report-journal-2026-10-24.md",
-        "evidence/W04-W06-shallow-publication-2026-10-24.md"
+        "evidence/W04-W06-shallow-publication-2026-10-24.md",
+        "evidence/W04-W06-bounded-report-observation-2026-10-24.md"
       ],
       "github_issue": 30,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/30"
@@ -1204,7 +1206,8 @@
         "evidence/W01.4-client-continuity-2026-10-23.md",
         "evidence/W04-W06-local-self-build-2026-10-24.md",
         "evidence/W04-W06-native-history-2026-10-24.md",
-        "evidence/W04-W06-report-journal-2026-10-24.md"
+        "evidence/W04-W06-report-journal-2026-10-24.md",
+        "evidence/W04-W06-bounded-report-observation-2026-10-24.md"
       ],
       "github_issue": 17,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/17"

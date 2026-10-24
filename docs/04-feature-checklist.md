@@ -257,7 +257,7 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 
 - Missing/pending/failed required checks block merge; a new head invalidates earlier green evidence.
 
-Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-native-history-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md, evidence/W04-W06-shallow-publication-2026-10-24.md
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-native-history-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md, evidence/W04-W06-shallow-publication-2026-10-24.md, evidence/W04-W06-bounded-report-observation-2026-10-24.md
 
 Implementation issue: [#26](https://github.com/alex-engvall/labstride/issues/26).
 
@@ -568,7 +568,7 @@ Specification: [16-operations-and-cli.md](16-operations-and-cli.md).
 - The intended distribution supplies one CLI/service installation with local SQLite and configurable paths/limits; diagnostics explain optional hook fallback and actual session compatibility.
 - Version JSON reports the packaged source revision and actual Node runtime without credentials, coordinator or writable state; development checkouts explicitly report no installed revision.
 
-Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, Bounded installed pilot: doctor, dedicated credential scope, negative access checks, idle process restart and two isolated No agent runs passed. Native approval/PR canary and full operational acceptance remain open., evidence/W04-W06-native-history-2026-10-24.md, evidence/W06-version-canary-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md, evidence/W04-W06-shallow-publication-2026-10-24.md
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, Bounded installed pilot: doctor, dedicated credential scope, negative access checks, idle process restart and two isolated No agent runs passed. Native approval/PR canary and full operational acceptance remain open., evidence/W04-W06-native-history-2026-10-24.md, evidence/W06-version-canary-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md, evidence/W04-W06-shallow-publication-2026-10-24.md, evidence/W04-W06-bounded-report-observation-2026-10-24.md
 
 Implementation issue: [#30](https://github.com/alex-engvall/labstride/issues/30).
 
@@ -740,6 +740,6 @@ Specification: [22-api-and-schema-reference.md](22-api-and-schema-reference.md).
 - Start/resume/observe/send/interrupt/close preserve provider identity, reject stale human/turn revisions and explicitly report missing atomic backend guards.
 - Optional hooks are correlated, deduplicated observations with backend reconciliation when missing; the existing interactive client resumes the same enrolled session, not a substituted daemon.
 
-Verification evidence: evidence/W01.4-installed-sessions-2026-10-23.md, evidence/W01.4-backend-upgrade-2026-10-23.md, evidence/W01.4-client-continuity-2026-10-23.md, evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-native-history-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md
+Verification evidence: evidence/W01.4-installed-sessions-2026-10-23.md, evidence/W01.4-backend-upgrade-2026-10-23.md, evidence/W01.4-client-continuity-2026-10-23.md, evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-native-history-2026-10-24.md, evidence/W04-W06-report-journal-2026-10-24.md, evidence/W04-W06-bounded-report-observation-2026-10-24.md
 
 Implementation issue: [#17](https://github.com/alex-engvall/labstride/issues/17).

@@ -9,6 +9,8 @@ import { writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { ReportJournal } from '../packages/operations/report-journal.ts';
+import { UnixRpc } from '../packages/session-codex/index.mjs';
+import { socketServer } from './helpers/codex-socket.mjs';
 
 async function fixture(t) {
   const f = workspaceFixture(t), registry = new WorkspaceRegistry(f.policy, f.dependencies); t.after(() => registry.close());
@@ -152,17 +154,62 @@ test('invalid reports and journal failures never receive successful acknowledgem
   assert.equal(f.frames.at(-1).result.success, false);
 });
 
-test('an acknowledged report cannot bypass changed-turn or incomplete full-history checks', async t => {
+test('a journaled report rejects a changed latest turn, incomplete status or missing confirmation', async t => {
+  for (const change of ['turn', 'inProgress', 'interrupted', 'failed', 'missing', 'unavailable']) {
+    const f = await fixture(t); await f.bridge.call(observeRequest(f));
+    f.state.latest = { id: 'implementation-turn', status: 'inProgress' };
+    notifyReport(f); f.state.latest.status = 'completed';
+    const original = f.rpc.call; let summaries = 0;
+    f.rpc.call = async (method, params) => {
+      const value = await original(method, params);
+      if (method === 'thread/turns/list' && params.itemsView === 'summary' && ++summaries === 2) {
+        if (change === 'turn') value.data[0].id = 'changed-turn';
+        else if (change === 'missing') value.data = [];
+        else if (change === 'unavailable') throw Error('outcome_unknown');
+        else value.data[0].status = change;
+      }
+      return value;
+    };
+    await assert.rejects(f.bridge.call(observeRequest(f)), /stale_revision|outcome_unknown/);
+  }
+});
+
+test('journaled reports survive an oversized native transcript through the real bounded WebSocket transport', async t => {
   const f = await fixture(t); await f.bridge.call(observeRequest(f));
-  f.state.latest = { id: 'implementation-turn', status: 'inProgress' };
-  notifyReport(f); f.state.latest.status = 'completed';
-  const original = f.rpc.call;
-  f.rpc.call = async (method, params) => {
-    const value = await original(method, params);
-    if (method === 'thread/turns/list' && params.itemsView === 'full') value.data[0].id = 'changed-turn';
+  f.state.latest = { id: 'large-turn', status: 'inProgress' };
+  notifyReport(f); assert.equal(f.frames.at(-1).result.success, true);
+  f.state.latest.status = 'completed';
+  const item = { type: 'agentMessage', text: 'x'.repeat(300000) };
+  f.state.items = [{ turnId: f.state.latest.id, item }];
+  f.bridge.close();
+  const server = await socketServer(f.policy.backendSocket, async (request, { socket }) => {
+    if (!Object.hasOwn(request, 'id')) return;
+    const value = await f.rpc.call(request.method, request.params);
+    if (request.params?.itemsView === 'full') {
+      // Send a valid 64-bit-length WebSocket frame, larger than the production
+      // client's unchanged 256 KiB bound. No large payload is mocked as success.
+      const payload = Buffer.from(JSON.stringify({ id: request.id, result: value }));
+      assert(payload.length > 262144);
+      const header = Buffer.alloc(10); header[0] = 129; header[1] = 127;
+      header.writeBigUInt64BE(BigInt(payload.length), 2); socket.write(Buffer.concat([header, payload])); return;
+    }
     return value;
-  };
-  await assert.rejects(f.bridge.call(observeRequest(f)), /stale_revision/);
+  });
+  t.after(() => server.close());
+  const rpc = new UnixRpc(f.policy.backendSocket, 1000), bridge = createCodexBridge(f.policy, rpc);
+  t.after(() => bridge.close());
+  const observed = await bridge.call(observeRequest(f));
+  assert.equal(observed.report.commitSha, resultReport().commitSha);
+  assert.equal(server.requests.filter(r => r.params?.itemsView === 'full').length, 0);
+  assert.equal(server.requests.filter(r => r.params?.itemsView === 'summary').length, 2);
+  // A later conversation neither reuses the earlier report nor loads its large
+  // transcript. Normal questions must not exhaust the read-recovery budget.
+  f.state.latest = { id: 'unjournaled-turn', status: 'completed' };
+  f.state.items = [{ turnId: f.state.latest.id, item }];
+  assert.equal((await bridge.call(observeRequest(f))).report, null);
+  assert.equal(server.requests.filter(r => r.params?.itemsView === 'full').length, 0);
+  // The transport limit itself remains enforced, including on legacy recovery.
+  await assert.rejects(rpc.call('thread/turns/list', { threadId: 'managed-thread', limit: 1, sortDirection: 'desc', itemsView: 'full' }), /outcome_unknown/);
 });
 
 test('a witnessed newly created legacy thread accepts one initial turn before rollout materialization', async t => {

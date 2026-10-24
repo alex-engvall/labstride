@@ -25,6 +25,9 @@ test('a committed report survives actual writer SIGKILL and remains bound to its
   assert.equal(child.error, undefined); assert.equal(child.signal, 'SIGKILL', child.stderr);
   const reader = new ReportJournal(root); t.after(() => reader.close());
   assert.deepEqual(reader.read(binding, report.sessionId, report.turnId), report);
+  assert.equal(reader.hasSession(binding, report.sessionId), true);
+  assert.equal(reader.hasSession({ ...binding, receiptDigest: 'b'.repeat(64) }, report.sessionId), false);
+  assert.equal(reader.hasSession(binding, 'another-session'), false);
   assert.equal(reader.read({ ...binding, receiptDigest: 'b'.repeat(64) }, report.sessionId, report.turnId), null);
   assert.equal(reader.read(binding, 'another-session', report.turnId), null);
   assert.equal(reader.read(binding, report.sessionId, 'another-turn'), null);

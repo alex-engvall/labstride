@@ -50,6 +50,9 @@ export class ReportJournal {
       this.db.exec('COMMIT');
     } catch (error) { this.db.exec('ROLLBACK'); throw error; }
   }
+  hasSession(binding: BridgeBinding, sessionId: string): boolean {
+    return Boolean(this.db.prepare('SELECT 1 FROM reports WHERE binding=? AND session_id=? LIMIT 1').get(digest(binding), sessionId));
+  }
   read(binding: BridgeBinding, sessionId: string, turnId: string): ManagedCodingResultV1 | null {
     const rows = this.db.prepare('SELECT payload,digest FROM reports WHERE binding=? AND session_id=? AND turn_id=? LIMIT 65')
       .all(digest(binding), sessionId, turnId);
