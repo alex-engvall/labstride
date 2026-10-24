@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Authenticated workflow claim v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "operationId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "requestDigest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "claimId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "fencingNumber": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "executor": {
+      "$ref": "receipt.schema.json#/properties/executor"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "operationId",
+    "requestDigest",
+    "claimId",
+    "fencingNumber",
+    "executor"
+  ]
+}

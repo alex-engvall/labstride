@@ -1,0 +1,12 @@
+import { startCoordinator } from '../../apps/coordinator/main.ts';
+import { policyDependencies } from './configuration-fixture.mjs';
+import { readFileSync } from 'node:fs';
+const [state, mode, dataFile] = process.argv.slice(2), data = JSON.parse(readFileSync(dataFile, 'utf8'));
+const { store } = startCoordinator(state, { ...policyDependencies, clock: { now: () => data.now } });
+let result;
+if (mode === 'dispatch') result = store.beginWorkflowDispatch(data.operationId);
+else if (mode === 'authorize') result = store.authorizeWorkflowEffect(data.operationId, data.message, data.executor);
+else if (mode === 'receipt') result = store.acceptWorkflowReceipt(data.operationId, data.receipt, data.executor);
+else throw Error('invalid_mode');
+process.send({ committed: true, result });
+setInterval(() => {}, 10000);

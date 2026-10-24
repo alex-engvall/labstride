@@ -38,6 +38,8 @@ Persist intent before dispatch. Record the executor claim before permitting the 
 | Deploy result uncertain | Read workflow and target release identity; retain workspace |
 | Directory removed, receipt lost | Verify absence under owned target and finalize same operation |
 
+The [W04.1 broker](38-workflow-broker.md) persists separate dispatch and runner effect permissions. A consumed permission or lost dispatch reply is never replayed. Its reviewed adapter keeps observing uncertain workflows beyond transient read retry budgets; target locks and evidence conflicts survive restart.
+
 ## Parallel delivery
 
 CI attaches to a specific PR head. Before merge, refresh head/base, checks and protection state. Any source change invalidates earlier evidence. Serialize merge decisions per base branch or use a provider-supported queue after verifying its semantics. After each merge, revalidate the next PR against the changed base.

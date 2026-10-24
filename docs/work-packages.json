@@ -76,7 +76,8 @@
     "scope": [
       "Implement authenticated claims, receipt validation and dispatch reconciliation.",
       "Recheck exact-revision CI/merge permissions; invoke own test deploy workflow.",
-      "Bounded local issue-to-review implementation; deployment, complete restoration/upgrade and full acceptance remain open. See 37-local-self-build.md."
+      "Bounded local issue-to-review implementation; deployment, complete restoration/upgrade and full acceptance remain open. See 37-local-self-build.md.",
+      "Opt-in W04.1 workflow broker has local claim/effect/recovery coverage; live runner/credential acceptance and verified deployment remain open. See 38-workflow-broker.md."
     ],
     "first_verifiable_outcome": "A test deployment is tied to the correct source and workflow revisions and verified target.",
     "status": "in_progress",

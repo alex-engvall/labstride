@@ -20,13 +20,18 @@ import { configuredTargetAction } from '../../packages/connector-ssh/runtime.ts'
 import { reserveAction, reserveVersion } from '../../packages/target-helper/registry.ts';
 import { configuredRuntimeAction } from '../../packages/connector-ssh/runtimes.ts';
 import { runtimeAction, runtimeVersion } from '../../packages/target-helper/runtime-contracts.ts';
+import { configuredWorkflowAction } from '../../packages/workflow-broker/action.ts';
+import { createWorkflowBroker } from '../../packages/workflow-broker/server.ts';
+import { workflowAction, workflowVersion } from '../../packages/core/workflow-broker.ts';
+import type { WorkflowProvider } from '../../packages/core/workflow-broker.ts';
 
-// Trusted embedding API only. No listener, code loader, default adapters or background timer.
+// Trusted embedding API. A workflow listener requires explicit broker options; no background timer.
 export function startExecution(dataDir: string, options: {
   actions: WorkerOptions; observations: ObservationOptions; restore?: AuditContext; dependencies?: StoreDependencies;
   installedSessions?: { host: HostProfile; providerIds: string[] };
   github?: GitHubOptions;
   installedTargets?: { host: HostProfile };
+  workflowBroker?: { host: HostProfile; provider: WorkflowProvider; port: number };
   additionalActions?: (store: ReturnType<typeof startCoordinator>['store']) => ReadonlyMap<string, import('../../packages/core/execution.ts').ActionAdapter>;
   serialized?: boolean;
 }) {
@@ -39,6 +44,8 @@ export function startExecution(dataDir: string, options: {
     if (options.installedTargets) actionOptions.adapters.set(actionKey(reserveAction, reserveVersion), configuredTargetAction(runtime.store, options.installedTargets.host));
     if (options.installedTargets) actionOptions.adapters.set(actionKey(workspaceAction, workspaceVersion), configuredWorkspaceAction(runtime.store, options.installedTargets.host));
     if (options.installedTargets) actionOptions.adapters.set(actionKey(runtimeAction, runtimeVersion), configuredRuntimeAction(runtime.store, options.installedTargets.host));
+    if (options.workflowBroker) actionOptions.adapters.set(actionKey(workflowAction, workflowVersion),
+      configuredWorkflowAction(runtime.store, options.workflowBroker.host, options.workflowBroker.provider));
     const observationOptions = { ...options.observations, sessions: new Map(options.observations.sessions),projections:new Map(options.observations.projections) };
     if(options.github?.adapter.projection)observationOptions.projections.set(options.github.adapter.providerId,options.github.adapter.projection(runtime.store));
     if (resolver) {
@@ -49,12 +56,20 @@ export function startExecution(dataDir: string, options: {
     const controls = createControlWorker(runtime.store, actionOptions);
     const observations = createObservationWorker(runtime.store, observationOptions);
     const github = options.github && createGitHubWorker(runtime.store, options.github);
+    const broker = options.workflowBroker && createWorkflowBroker(runtime.store, options.workflowBroker.provider);
+    const ready = broker ? new Promise<void>((resolve, reject) => {
+      broker.once('error', reject);
+      broker.listen(options.workflowBroker!.port, '127.0.0.1', () => resolve());
+    }) : Promise.resolve();
+    // Startup failure is reported through ready/tick, without an unhandled rejection.
+    void ready.catch(() => {});
     let observationJob: Promise<void> | undefined;
     let observationError: unknown;
     let closed = false;
-    return { ...runtime,
+    return { ...runtime, ready,
       async tick(): Promise<void> {
         if (closed) return;
+        await ready;
         if (options.serialized) {
           await controls.tick(); await controls.drain();
           await actions.tick(); await actions.drain();
@@ -71,7 +86,11 @@ export function startExecution(dataDir: string, options: {
       },
       async close(): Promise<void> {
         closed = true;
-        try { await this.drain(); await controls.close(); await actions.close(); } finally { await resolver?.close(); runtime.store.close(); }
+        try {
+          await ready.catch(() => {});
+          if (broker?.listening) await new Promise<void>((resolve, reject) => broker.close(error => error ? reject(error) : resolve()));
+          await this.drain(); await controls.close(); await actions.close();
+        } finally { await resolver?.close(); runtime.store.close(); }
       },
     };
   } catch (error) { runtime.store.close(); throw error; }

@@ -16,7 +16,7 @@ The public core works without an agent, hooks, deployment credentials or a priva
 
 `get(kind, id)` reads a validated record. `snapshot()` reads independent records in one database snapshot, keeping original identifiers. `history(runId)` reads related records and append-only audit under one read transaction. `close()` closes the database; restart reopens the same file rather than rebuilding identities from provider history.
 
-The new [record](../schemas/lifecycle-record.schema.json) and [audit](../schemas/lifecycle-audit.schema.json) schemas version persisted data independently from the existing external v1 operation/session contracts. Generated TypeScript participates in the repository's type/drift checks. Ajv `8.20.0` and ajv-formats `3.0.1` are now pinned runtime dependencies (MIT); `@types/node` `24.19.2` and its locked undici-types dependency are development-only MIT dependencies. Packaging and clean-install qualification remain W07.
+The new [record](../schemas/lifecycle-record.schema.json) and [audit](../schemas/lifecycle-audit.schema.json) schemas version persisted data independently from the existing external v1 operation/session contracts. Generated TypeScript participates in the repository's type/drift checks. Ajv `8.20.0` and ajv-formats `3.0.1` are now pinned runtime dependencies (MIT); `@types/node` `24.19.2` and its locked undici-types dependency are development-only MIT dependencies. The [W04.1 broker](38-workflow-broker.md) also uses existing pinned MIT-licensed jose 6.2.13 as a runtime dependency. Packaging and clean-install qualification remain W07.
 
 ## Identity, transitions and recovery
 

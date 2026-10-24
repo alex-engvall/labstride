@@ -1,6 +1,6 @@
 # 19 — Deployment action and recipes
 
-The generic deployment action invokes an operator-selected GitHub Actions workflow. It does not know Laravel, Cloudflare, systemd, a hosting panel, a database engine or a production directory.
+The [W04.1 workflow action](38-workflow-broker.md) invokes an operator-selected GitHub Actions workflow. Authenticated workflow completion does not mark a deployment verified; W04.2 / #25 supplies target health/revision and recipe recovery integration. It does not know Laravel, Cloudflare, systemd, a hosting panel, a database engine or a production directory.
 
 Development runtime preparation is a separate [recipe-owned runtime action](36-recipe-owned-runtimes.md). Its database/service/URL resources do not attest a production deployment.
 

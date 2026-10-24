@@ -22,7 +22,7 @@ Fixed negative cases are `wrong-repository`, `wrong-workflow`, `wrong-run` and `
 
 ## Local preparation and explicit activation
 
-The supported development baseline is Node 24.22.0/npm 11.19.1 on Linux. Install the root lock with `npm ci --ignore-scripts --no-audit --no-fund`; these are discovery/development dependencies, so do not omit dev dependencies. `jose` 6.2.13 is MIT-licensed and pinned alongside Ajv. Preserve dependency notices when distributing a prepared bundle. This selection does not establish coordinator runtime dependency support.
+The supported development baseline is Node 24.22.0/npm 11.19.1 on Linux. Install the root lock with `npm ci --ignore-scripts --no-audit --no-fund`; these are discovery/development dependencies, so do not omit dev dependencies. `jose` 6.2.13 is MIT-licensed and pinned alongside Ajv. Preserve dependency notices when distributing a prepared bundle. The [W04.1 broker](38-workflow-broker.md) subsequently promotes the same pinned jose version to a runtime dependency, with separate broker tests; this discovery does not qualify that production integration.
 
 Run `node --test --test-isolation=none tests/oidc-probe.test.mjs tests/oidc-runner-client.test.mjs` for synthetic RSA verification, bounded HTTP behavior and runner-client fixtures. The HTTP tests bind ephemeral loopback ports and close them afterward. They use no live provider credentials. `npm test` includes these tests alongside the contract/generator suite.
 

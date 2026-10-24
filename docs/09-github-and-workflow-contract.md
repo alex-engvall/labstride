@@ -2,7 +2,7 @@
 
 ## Local issue-to-review slice
 
-The [opt-in local profile](37-local-self-build.md) implements ordered checkout/coding/publication and observes current-head CI before review readiness. It has no merge/deploy grant or broker dispatch. Missing required workflows/checks, a new head, skipped checks or stale session turns block readiness. The full delivery requirements below remain unchanged.
+The [opt-in local profile](37-local-self-build.md) implements ordered checkout/coding/publication and observes current-head CI before review readiness. It has no merge/deploy grant or broker dispatch by default. The separate [opt-in W04.1 broker](38-workflow-broker.md) adds authenticated repository workflow execution without enabling that installation profile. Missing required workflows/checks, a new head, skipped checks or stale session turns block readiness. The full delivery requirements below remain unchanged.
 
 ## Adapter
 
@@ -50,17 +50,17 @@ Persist validated run-to-PR/base associations with their observation provenance.
 
 Dispatch inputs are bounded structured strings containing operation ID, request digest and protocol version. The workflow obtains the authoritative execution request from the coordinator after authentication. A run name may carry the operation ID for discovery but is not authentication.
 
-## Authenticated claim protocol — adopted design
+## Authenticated claim protocol
 
-The pilot uses a small HTTPS execution broker on the coordinator. The runner obtains GitHub OIDC identity with the configured audience. The broker verifies signature, issuer, audience, validity and allowed repository/workflow/ref identity, plus run ID/attempt. It compares them with the pending operation and retrieves independent GitHub run metadata as needed. This is an application design using GitHub identity, not an existing Labstride service.
+The pilot uses a small HTTPS execution broker on the coordinator. The runner obtains GitHub OIDC identity with the configured audience. The broker verifies signature, issuer, audience, validity and allowed repository/workflow/ref identity, plus run ID/attempt. It compares them with the pending operation and retrieves independent GitHub run metadata as needed. The [W04.1 implementation](38-workflow-broker.md) supplies an opt-in loopback service behind separately managed HTTPS; its local evidence does not qualify a live installation.
 
 POST /v1/operations/{id}/claim atomically grants the first compatible executor a claim with its immutable request digest and fencing number. A duplicate claim by the same executor returns the existing claim. A different executor gets 409 while an effect may be active. An expired heartbeat never alone grants another executor permission to repeat.
 
-The workflow then validates target/source/inputs, executes only the permitted operation, and posts a result to /v1/operations/{id}/receipt. Repeat identical receipts are accepted idempotently; conflicting receipts return 409 and trigger reconciliation. Authentication never trusts request body run identity instead of verified token/run identity.
+The workflow then validates target/source/inputs and obtains one-time permission from `/v1/operations/{id}/authorize-effect`, which rechecks policy and consumes the effect grant before execution. A lost permission reply is uncertain and cannot be replayed. It executes only the permitted operation, and posts a result to /v1/operations/{id}/receipt. Repeat identical receipts are accepted idempotently; conflicting receipts return 409 and trigger reconciliation. Authentication never trusts request body run identity instead of verified token/run identity.
 
 Preflight must establish a secure route from GitHub runner to broker. No insecure HTTP fallback, open agent API or generic remote shell endpoint. W00 must verify this route before workflow execution is enabled.
 
-The [isolated W00.2 probe](27-oidc-discovery-probe.md) implements a narrower push-only, single-run/attempt identity test at `/v1/discovery/oidc-probe`. The [completed live discovery](evidence/W00.2-live-oidc-2026-10-21.md) verifies genuine signatures/claim bindings, independent attempt metadata, runner HTTPS, negative profiles and renewal after expiry in two real attempts. Its local fixtures alone are not that evidence. Health only means HTTP process availability. Keep private policy/read credentials and separately authorized HTTPS ingress outside public source. The temporary probe was stopped/token-revoked and has no operation claim/effect endpoint; production claims, receipts and authorization remain W04 implementation work.
+The [isolated W00.2 probe](27-oidc-discovery-probe.md) implements a narrower push-only, single-run/attempt identity test at `/v1/discovery/oidc-probe`. The [completed live discovery](evidence/W00.2-live-oidc-2026-10-21.md) verifies genuine signatures/claim bindings, independent attempt metadata, runner HTTPS, negative profiles and renewal after expiry in two real attempts. Its local fixtures alone are not that evidence. Health only means HTTP process availability. Keep private policy/read credentials and separately authorized HTTPS ingress outside public source. The temporary probe was stopped/token-revoked and has no operation claim/effect endpoint; production claim/receipt/effect endpoints now have separate [W04.1 local implementation evidence](evidence/W04.1-workflow-broker-2026-10-24.md); actual runner ingress, dedicated dispatch credentials and live delivery acceptance remain open.
 
 ## Receipt and completion
 

@@ -43,9 +43,12 @@ export function createWorker(store: ExecutionPort, options: WorkerOptions) {
         const result = await adapter.reconcile(structuredClone(op.request), store.operationHandle(id));
         if (result.operationId !== id || result.requestDigest !== op.request.requestDigest) throw new LifecycleError('identity_conflict');
         store.acceptResult(result, null, op.revision, options.projections?.(result), epoch, adapter.createsWorkspace);
-        if (result.result.status === 'accepted' && store.deferOperationObservation) store.deferOperationObservation(id, 15000);
+        if ((result.result.status === 'accepted' || adapter.continuousReconciliation && result.result.status === 'outcome_unknown') && store.deferOperationObservation) store.deferOperationObservation(id, 15000);
         else if (store.delivery(delivery.id).state === 'reconcile') store.retryRead(delivery.id, retry(), (options.random ?? Math.random)());
-      } catch { store.retryRead(delivery.id, retry(), (options.random ?? Math.random)()); }
+      } catch {
+        if (adapter.continuousReconciliation && store.deferOperationObservation) store.deferOperationObservation(id, 15000);
+        else store.retryRead(delivery.id, retry(), (options.random ?? Math.random)());
+      }
       return;
     }
     try { await adapter.validate(structuredClone(op.request)); }
@@ -68,7 +71,7 @@ export function createWorker(store: ExecutionPort, options: WorkerOptions) {
     try {
       const result = await adapter.start(structuredClone(store.get('operation', id).request), structuredClone(claim), store.sessionGuard(id));
       store.acceptResult(result, claim, op.revision, options.projections?.(result), 0, adapter.createsWorkspace);
-      if (result.result.status === 'accepted') store.deferOperationObservation?.(id, 15000);
+      if (result.result.status === 'accepted' || adapter.continuousReconciliation && result.result.status === 'outcome_unknown') store.deferOperationObservation?.(id, 15000);
     } catch { store.markUnknown(id); }
   }
   return {

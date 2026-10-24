@@ -29,6 +29,8 @@ Hooks execute within their provider's trust boundary and are not a complete enfo
 
 The [local self-build bootstrap](37-local-self-build.md) adds separate coordinator/helper/coding identities and a coding-user bridge to the existing Codex daemon. Protected installation credentials stay in the coordinator publication environment; source code is transferred as a bounded Git bundle and never executed there. [ADR-007](adr/0007-checked-codex-delivery.md) explicitly retains the race of checked delivery and does not advertise atomic ownership.
 
+The [workflow broker](38-workflow-broker.md) binds OIDC to an independent run attempt and consumes a separate policy-checked effect permission. Its Actions credential remains with the coordinator, while delivery-provider credentials belong only to the reviewed workflow step. Receipts and observation remain available after action revocation; hooks cannot claim or authorize workflow execution. Local boundary coverage does not verify a live deployment identity.
+
 ## Data minimization
 
 Store IDs, revisions, hashes, safe status and evidence references in the coordinator. Session transcripts remain with their session provider by default. Do not mirror whole issues, source files, prompts or secret values into audit logs. Logs may contain sensitive repo names/paths; document their access and retention.

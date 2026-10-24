@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "enrollments": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9_.:-]{1,256}$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "schemaVersion": {
+            "const": "1.0"
+          },
+          "repository": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+              },
+              "nodeId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 32,
+                "pattern": "^[1-9][0-9]*$"
+              },
+              "ownerId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 32,
+                "pattern": "^[1-9][0-9]*$"
+              }
+            },
+            "required": [
+              "name",
+              "nodeId",
+              "id",
+              "ownerId"
+            ]
+          },
+          "workflowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "pattern": "^[1-9][0-9]*$"
+          },
+          "workflowPath": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^\\.github/workflows/[A-Za-z0-9_.-]+\\.ya?ml$"
+          },
+          "ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^refs/(heads|tags)/[A-Za-z0-9_./-]+$"
+          },
+          "workflowSha": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[a-f0-9]{40}$"
+          },
+          "targetId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          },
+          "environment": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          },
+          "credentialRef": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^secret:[A-Za-z0-9_.:-]+$"
+          },
+          "inputs": {
+            "type": "object",
+            "maxProperties": 32,
+            "propertyNames": {
+              "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+            },
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 2048
+            }
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "repository",
+          "workflowId",
+          "workflowPath",
+          "ref",
+          "workflowSha",
+          "targetId",
+          "environment",
+          "credentialRef",
+          "inputs"
+        ]
+      }
+    }
+  },
+  "required": [
+    "enrollments"
+  ]
+}

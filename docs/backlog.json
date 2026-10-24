@@ -674,7 +674,7 @@
       "title": "Invoke repository-owned deployment workflows",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W04",
       "depends_on_work_packages": [
@@ -686,7 +686,9 @@
         "Replace the example workflow/target without core changes and record source SHA separately from workflow SHA."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04.1-workflow-broker-2026-10-24.md"
+      ],
       "github_issue": 24,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/24"
     },
@@ -695,7 +697,7 @@
       "title": "Authenticate and atomically claim execution",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W04",
       "depends_on_work_packages": [
@@ -709,7 +711,8 @@
       "implementation_pr": null,
       "verification_evidence": [
         "Historical W00.2 preparation: [fixture/preflight evidence](evidence/W00.2-oidc-probe-2026-10-21.md).",
-        "Completed bounded W00.2 discovery: [live OIDC/HTTPS matrix, two attempts and renewal after expiry](evidence/W00.2-live-oidc-2026-10-21.md). This supports identity verification only; atomic claims/fencing and effect authorization remain W04 implementation work. Status remains planned; AC10/AC11/AC12 remain not_run."
+        "Completed bounded W00.2 discovery: [live OIDC/HTTPS matrix, two attempts and renewal after expiry](evidence/W00.2-live-oidc-2026-10-21.md). This discovery supports identity verification only. At the discovery handoff status remained planned; subsequent W04.1 atomic claim/effect authorization and recovery evidence is recorded separately. Full AC10/AC11/AC12 remain not_run.",
+        "evidence/W04.1-workflow-broker-2026-10-24.md"
       ],
       "github_issue": 24,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/24"
@@ -740,7 +743,7 @@
       "title": "Reconcile dispatch and deploy uncertainty",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "implemented",
       "owner_role": "maintainer",
       "work_package": "W04",
       "depends_on_work_packages": [
@@ -752,7 +755,9 @@
         "Lost dispatch/reply does not produce a second effect; ambiguous runs remain unknown until verified."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04.1-workflow-broker-2026-10-24.md"
+      ],
       "github_issue": 24,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/24"
     },
@@ -1072,7 +1077,8 @@
       "implementation_pr": "https://github.com/engshort/labstride/pull/65",
       "verification_evidence": [
         "evidence/W04-W06-local-self-build-2026-10-24.md",
-        "evidence/W04-W06-native-history-2026-10-24.md"
+        "evidence/W04-W06-native-history-2026-10-24.md",
+        "evidence/W04.1-workflow-broker-2026-10-24.md"
       ],
       "github_issue": 24,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/24"

@@ -147,7 +147,9 @@
       "action": "Have two workflow runs claim one operation.",
       "expected": "One receives execution authority; the other exits before effects.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04.1-workflow-broker-2026-10-24.md"
+      ]
     },
     {
       "id": "AC11",
@@ -159,7 +161,9 @@
       "action": "Change repo, workflow, run attempt, operation digest or source SHA.",
       "expected": "Result is rejected and no verified deployment is recorded.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04.1-workflow-broker-2026-10-24.md"
+      ]
     },
     {
       "id": "AC12",
@@ -170,7 +174,9 @@
       "action": "Lose the dispatch HTTP response while the workflow starts.",
       "expected": "Observe existing run/claim; no blind redispatch.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04.1-workflow-broker-2026-10-24.md"
+      ]
     },
     {
       "id": "AC13",
@@ -316,7 +322,8 @@
       "status": "not_run",
       "evidence": [
         "evidence/W02.2-authorization-2026-10-23.md",
-        "evidence/W04-W06-local-self-build-2026-10-24.md"
+        "evidence/W04-W06-local-self-build-2026-10-24.md",
+        "evidence/W04.1-workflow-broker-2026-10-24.md"
       ]
     },
     {
@@ -463,7 +470,9 @@
       "action": "Select another enrolled workflow/target without changing core; dispatch distinct workflow and application SHAs.",
       "expected": "The replacement executes the application SHA and records both identities accurately.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04.1-workflow-broker-2026-10-24.md"
+      ]
     },
     {
       "id": "AC35",
@@ -492,7 +501,8 @@
         "evidence/W04-W06-native-history-2026-10-24.md",
         "evidence/W04-W06-report-journal-2026-10-24.md",
         "evidence/W04-W06-shallow-publication-2026-10-24.md",
-        "evidence/W04-W06-bounded-report-observation-2026-10-24.md"
+        "evidence/W04-W06-bounded-report-observation-2026-10-24.md",
+        "evidence/W04.1-workflow-broker-2026-10-24.md"
       ]
     },
     {
