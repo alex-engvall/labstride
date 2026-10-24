@@ -29,3 +29,5 @@ Running apps need separate ports/data/cache namespaces. A workspace root is a co
 ## Active users
 
 Register active agent/helper/interactive use before cleanup. The pilot cannot guarantee that arbitrary unmanaged shell users have no open handles. Owned-process checks plus explicit keep are required, and the operator must use keep for manual work outside managed session tracking. Document this limitation.
+
+The optional [W05.2 deletion profile](20-workspace-cleanup.md) adds an actual access fence and conservative privileged process checks. It blocks if any unprivileged process or incomplete visibility leaves possible writers. It does not upgrade the observation-only session backend to atomic human-turn guards.

@@ -8,3 +8,11 @@ const unsupported: CleanupPolicyV1['completion'] = 'session_stopped';
 const destructive: TrustedCleanupInspectionRequestV4['method'] = 'delete';
 const decision: Pick<CleanupDecisionV1,'eligible'|'blockers'> = {eligible:false,blockers:['local_keep']};
 void [policy,unsupported,destructive,decision];
+import type { TrustedCleanupDeletionRequestV5 } from '../../contracts/generated/ssh-cleanup-delete-request.ts';
+import type { CleanupTombstoneV1 } from '../../contracts/generated/cleanup-tombstone.ts';
+const deletionMethod: TrustedCleanupDeletionRequestV5['method'] = 'commit';
+// @ts-expect-error Deletion accepts operation identities, never an arbitrary path.
+const arbitraryDeletionPath: keyof TrustedCleanupDeletionRequestV5 = 'path';
+// @ts-expect-error A deletion tombstone binds its immutable operation digest.
+const incompleteTombstone: CleanupTombstoneV1 = {schemaVersion:'1.0',workspaceId:'workspace'};
+void [deletionMethod,arbitraryDeletionPath,incompleteTombstone];

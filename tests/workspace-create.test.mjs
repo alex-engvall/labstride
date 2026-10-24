@@ -78,7 +78,7 @@ test('additive registry migration retains legacy reservation and v1 registry rem
   const {targetFixture}=await import('./helpers/ssh-fixture.mjs');
   const legacy=new TargetRegistry(old);legacy.close();const registry=open(t,f);const reply=await registry.handle(f.request);assert.equal(reply.outcome,'ok');
   const reopened=new TargetRegistry(old);reopened.close();
-  const db=new DatabaseSync(join(f.policy.stateDir,'target.sqlite'),{readOnly:true});try{assert.equal(db.prepare('PRAGMA user_version').get().user_version,2);assert.equal(db.prepare('SELECT count(*) n FROM workspace_creations').get().n,1);}finally{db.close();}
+  const db=new DatabaseSync(join(f.policy.stateDir,'target.sqlite'),{readOnly:true});try{assert.equal(db.prepare('PRAGMA user_version').get().user_version,3);assert.equal(db.prepare('SELECT count(*) n FROM workspace_creations').get().n,1);}finally{db.close();}
 });
 test('private source credential stays out of the owned checkout and receipt',async t=>{
   const f=workspaceFixture(t),secret='synthetic-source-secret-only';const key=join(f.root,'source-secret');writeFileSync(key,secret,{mode:0o600});f.policy.sources[0].credentialFile=key;

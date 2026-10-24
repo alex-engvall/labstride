@@ -54,6 +54,7 @@ export class SchedulingStore extends SqliteStore {
   protected reserve(operationId: string): void {
     const op = this.get('operation', operationId), run = this.get('run', op.runId);
     this.assertWorkspaceExclusive(op.workspaceId);
+    if (['cleanup_pending','deleting','deleted'].includes(this.get('workspace',op.workspaceId).state)) throw new LifecycleError('effect_blocked');
     if (this.issuePeers(run).length) throw new LifecycleError('issue_busy');
     const policy = this.schedulingPolicy();
     const admission = this.db.prepare('SELECT admitted_at FROM run_admissions WHERE run_id=?').get(run.id);

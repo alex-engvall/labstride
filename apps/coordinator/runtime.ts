@@ -1,6 +1,6 @@
 import { createCleanupWorker } from '../../packages/core/cleanup-worker.ts';
 import type { CleanupOptions } from '../../packages/core/cleanup-worker.ts';
-import { configuredCleanupInspection } from '../../packages/connector-ssh/cleanup.ts';
+import { configuredCleanupInspection, configuredCleanupDeletion } from '../../packages/connector-ssh/cleanup.ts';
 import { installedSessionAction } from '../../packages/extensions/session-action.ts';
 import { configuredWorkspaceAction } from '../../packages/connector-ssh/workspaces.ts';
 import { workspaceAction, workspaceVersion } from '../../packages/target-helper/workspace-contracts.ts';
@@ -66,6 +66,7 @@ export function startExecution(dataDir: string, options: {
     const cleanup = options.cleanup && createCleanupWorker(runtime.store, { ...options.cleanup,
       mergeProvider: options.cleanup.mergeProvider ?? options.githubMerge?.provider, observers: options.cleanup.observers ?? options.workflowBroker?.observers,
       session: options.cleanup.session ?? (async session => { const observer=observationOptions.sessions.get(session.providerId); if(!observer)throw Error('unsupported_capability');return observer.observe(session); }),
+      deleteTarget: options.cleanup.deleteTarget ?? configuredCleanupDeletion(runtime.store, options.cleanup.host),
       inspect: options.cleanup.inspect ?? configuredCleanupInspection(runtime.store, options.cleanup.host) });
     const actions = createWorker(runtime.store, actionOptions);
     const controls = createControlWorker(runtime.store, actionOptions);

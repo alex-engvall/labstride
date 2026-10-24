@@ -49,12 +49,12 @@ export class TargetRegistry {
     const path = join(policy.stateDir, 'target.sqlite');
     this.db = new DatabaseSync(path, { timeout: 5000 });
     const version = this.db.prepare('PRAGMA user_version').get()!.user_version;
-    if (version !== 0 && version !== 1 && version !== 2) { this.db.close(); throw new TargetError('configuration_invalid'); }
+    if (version !== 0 && version !== 1 && version !== 2 && version !== 3) { this.db.close(); throw new TargetError('configuration_invalid'); }
     if (version === 0 && this.db.prepare("SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'").get()) {
       this.db.close(); throw new TargetError('configuration_invalid');
     }
-    if ((version === 1 || version === 2) && this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all()
-      .map(row => row.name).join(',') !== (version === 2 ? 'reservations,target_identity,workspace_creations' : 'reservations,target_identity')) { this.db.close(); throw new TargetError('configuration_invalid'); }
+    if ((version === 1 || version === 2 || version === 3) && this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all()
+      .map(row => row.name).join(',') !== (version === 3 ? 'cleanup_deletions,reservations,target_identity,workspace_creations,workspace_uses' : version === 2 ? 'reservations,target_identity,workspace_creations' : 'reservations,target_identity')) { this.db.close(); throw new TargetError('configuration_invalid'); }
     chmodSync(path, 0o600); this.db.exec('PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL');
     this.db.exec(`BEGIN IMMEDIATE;
       CREATE TABLE IF NOT EXISTS target_identity (id INTEGER PRIMARY KEY CHECK(id=1), payload TEXT NOT NULL);
@@ -62,7 +62,7 @@ export class TargetRegistry {
         request_digest TEXT NOT NULL, payload TEXT NOT NULL CHECK(json_valid(payload)));
       CREATE TRIGGER IF NOT EXISTS reservation_immutable BEFORE UPDATE ON reservations BEGIN SELECT RAISE(ABORT,'immutable'); END;
       CREATE TRIGGER IF NOT EXISTS reservation_retained BEFORE DELETE ON reservations BEGIN SELECT RAISE(ABORT,'immutable'); END;
-      PRAGMA user_version=${version === 2 ? 2 : 1}; COMMIT;`);
+      PRAGMA user_version=${version >= 2 ? version : 1}; COMMIT;`);
     const target = JSON.stringify([policy.installationId, policy.targetId]);
     this.db.prepare('INSERT OR IGNORE INTO target_identity VALUES (1,?)').run(target);
     if (this.db.prepare('SELECT payload FROM target_identity WHERE id=1').get()!.payload !== target) {

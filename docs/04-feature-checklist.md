@@ -532,13 +532,13 @@ Implementation issue: [#28](https://github.com/alex-engvall/labstride/issues/28)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W05 |
+| MVP | P0 | implemented | W05 |
 
 Specification: [20-workspace-cleanup.md](20-workspace-cleanup.md).
 
 - Root/parent/symlink/mount substitution and foreign paths are rejected before removal.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W05.2-deletion-2026-10-24.md
 
 Implementation issue: [#29](https://github.com/alex-engvall/labstride/issues/29).
 
@@ -546,13 +546,13 @@ Implementation issue: [#29](https://github.com/alex-engvall/labstride/issues/29)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W05 |
+| MVP | P0 | implemented | W05 |
 
 Specification: [20-workspace-cleanup.md](20-workspace-cleanup.md).
 
 - A durable target tombstone permits reconciliation without deleting another resource; duplicate requests return the original result.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W05.2-deletion-2026-10-24.md
 
 Implementation issue: [#29](https://github.com/alex-engvall/labstride/issues/29).
 

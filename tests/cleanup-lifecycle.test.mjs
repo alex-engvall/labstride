@@ -66,7 +66,7 @@ test('decision cannot be consumed after a hold or restore epoch change',async t=
 });
 test('lost action response reconciles the original operation without repeating start',async t=>{
  const x=await cleanupFixture(t,{configure(f,pin){const artifact=JSON.parse(readFileSync(pin.artifactPath)),marker=join(f.root,'assessment-starts');
- artifact.module="import {appendFileSync} from 'node:fs';\n"+artifact.module.replace('async start(operation){return result(operation);}',`async start(operation){appendFileSync(${JSON.stringify(marker)},'start\\n');throw Error('lost response');}`);
+ artifact.module="import {appendFileSync} from 'node:fs';\n"+artifact.module.replace("async start(operation){if(operation.inputs.schemaVersion==='2.0')return deletion(operation,'prepare');return result(operation);}",`async start(operation){appendFileSync(${JSON.stringify(marker)},'start\\n');throw Error('lost response');}`);
  writeFileSync(pin.artifactPath,JSON.stringify(artifact));pin.integrity=createHash('sha256').update(readFileSync(pin.artifactPath)).digest('hex');}});
  await x.worker().assess(x.id);const operation=x.store.cleanupRequests(x.runId)[0].operation;assert.equal(x.store.cleanupRequests(x.runId)[0].state,'outcome_unknown');
  x.reopen();await x.worker().assess(x.id);assert.equal(x.store.cleanupRequests(x.runId)[0].state,'pending_executor');assert.deepEqual(x.store.cleanupRequests(x.runId)[0].operation,operation);
@@ -80,7 +80,7 @@ test('local keep controls and cleanup requests require the enrolled operator cap
 for(const stage of ['before-assessment','after-assessment'])test(`actual coordinator SIGKILL ${stage} retains one assessment identity`,async t=>{
  const {fork}=await import('node:child_process'),{once}=await import('node:events');
  const x=await cleanupFixture(t,{configure(f,pin){const artifact=JSON.parse(readFileSync(pin.artifactPath)),marker=join(f.root,'assessment-starts');
-  artifact.module="import {appendFileSync} from 'node:fs';\n"+artifact.module.replace('async start(operation){return result(operation);}',`async start(operation){appendFileSync(${JSON.stringify(marker)},'start\\n');return result(operation);}`);
+  artifact.module="import {appendFileSync} from 'node:fs';\n"+artifact.module.replace("async start(operation){if(operation.inputs.schemaVersion==='2.0')return deletion(operation,'prepare');return result(operation);}",`async start(operation){appendFileSync(${JSON.stringify(marker)},'start\\n');return result(operation);}`);
   writeFileSync(pin.artifactPath,JSON.stringify(artifact));pin.integrity=createHash('sha256').update(readFileSync(pin.artifactPath)).digest('hex');}});
  const bytes=readFileSync(x.cleanupPin.artifactPath);writeFileSync(x.cleanupPin.artifactPath,'unavailable');await assert.rejects(x.worker().assess(x.id));writeFileSync(x.cleanupPin.artifactPath,bytes);
  const decision=x.store.cleanupDecision(x.id);assert.equal(decision.decision.eligible,true);

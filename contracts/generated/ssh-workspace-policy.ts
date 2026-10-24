@@ -1426,4 +1426,8 @@ export interface TrustedWorkspaceHelperPolicyV2 {
       credentialFile: string | null;
     }[]
   ];
+  cleanup?: QualifiedCleanupProfile;
+}
+export interface QualifiedCleanupProfile {
+  profile: "linux-exclusive-writers.v1";
 }

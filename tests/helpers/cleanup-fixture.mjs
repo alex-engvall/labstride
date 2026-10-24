@@ -16,7 +16,7 @@ import { digest } from '../../packages/configuration/json.ts';
 import { inspectCleanup } from '../../packages/target-helper/cleanup.ts';
 import { createCleanupWorker } from '../../packages/core/cleanup-worker.ts';
 
-export async function cleanupFixture(t,{trigger='operator_request',alternative=false,optionalRuntime=false,configure}={}) {
+export async function cleanupFixture(t,{trigger='operator_request',alternative=false,optionalRuntime=false,deletion=false,configure}={}) {
   const target=workspaceFixture(t),root=target.root,f=configurationFixture(root);
   Object.assign(f.source,target.operation.source); f.config.github.repositories=[f.source.repository];
   Object.assign(target.policy,{installationId:f.config.installationId,targetId:'target-a'});
@@ -35,7 +35,7 @@ export async function cleanupFixture(t,{trigger='operator_request',alternative=f
     checks:[{context:'build',appId:15368},{context:'DCO',appId:927}],workflows:[{id:201,path:'.github/workflows/ci.yml',blobSha:'f'.repeat(40),appId:15368}],
     downstream:{id:202,path:'.github/workflows/downstream.yml',blobSha:'f'.repeat(40),appId:15368},qualification:{mergeSha:'d'.repeat(40),pullRequest:10,runId:41}};
   pack('packages/action-github-merge','merge',{enrollments:{selected:e}});
-  const cleanupPin=pack('packages/action-workspace-cleanup','cleanup',{},undefined,alternative?artifact=>{
+  const cleanupPin=pack('packages/action-workspace-cleanup','cleanup',{},deletion?undefined:['cleanup.assess.v1'],alternative?artifact=>{
     artifact.manifest.id='test.retaining-cleanup';artifact.module=artifact.module.replace('async validate(){}',"async validate(operation){if(operation.actionId!=='test.retaining-cleanup')throw Error('identity_mismatch');}");artifact.module=artifact.module.replace("cleanupDisposition:'pending_executor'","cleanupDisposition:'retain'");
   }:undefined);
   f.config.cleanup={schemaVersion:'1.0',trigger,actionId:cleanupPin.id,actionVersion:cleanupPin.version,completion:'merge_only',regenerableIgnoredPaths:[]};

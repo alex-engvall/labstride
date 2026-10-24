@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "id": "labstride.connector.ssh",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "kind": "connector",
   "protocol": {
     "major": 1,
@@ -19,7 +19,8 @@
     "runtime.create.v1",
     "runtime.inspect.v1",
     "workspace.root-map.v1",
-    "cleanup.inspect.v1"
+    "cleanup.inspect.v1",
+    "cleanup.delete.v1"
   ],
   "requiredCapabilities": [],
   "permissions": [

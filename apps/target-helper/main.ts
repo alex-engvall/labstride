@@ -1,3 +1,4 @@
+import { CleanupDeletionRegistry } from '../../packages/target-helper/cleanup-delete.ts';
 import { inspectCleanup } from '../../packages/target-helper/cleanup.ts';
 import { WorkspaceRegistry } from '../../packages/target-helper/workspaces.ts';
 import { validateWorkspaceRequest } from '../../packages/target-helper/workspace-contracts.ts';
@@ -30,6 +31,13 @@ export async function serve(policyFile: string, input: AsyncIterable<Uint8Array>
     return;
   }
   if(runtimeInstallation)policyInput=runtimeInstallation.workspacePolicy;
+  if ((request as {schemaVersion?:string})?.schemaVersion === '5.0') {
+    const checked=validated('ssh-cleanup-delete-request',request as import('../../contracts/generated/ssh-cleanup-delete-request.ts').TrustedCleanupDeletionRequestV5);
+    validated('cleanup-delete-input',checked.operation.inputs);
+    const registry = new CleanupDeletionRegistry(validated<WorkspacePolicy>('ssh-workspace-policy',policyInput as WorkspacePolicy));
+    try { output(JSON.stringify(registry.handle(request))); } finally { registry.close(); }
+    return;
+  }
   if ((request as {schemaVersion?:string})?.schemaVersion === '4.0') {
     const policy=validated<WorkspacePolicy>('ssh-workspace-policy',policyInput as WorkspacePolicy);
     output(JSON.stringify(await inspectCleanup(policy,request)));
@@ -45,7 +53,7 @@ export async function serve(policyFile: string, input: AsyncIterable<Uint8Array>
     // A v2 installation retains the exact v1 wire response for frozen clients.
     let legacy=policyInput;
     if((policyInput as WorkspacePolicy)?.schemaVersion==='2.0') {
-      const {codingGid:_gid,sources:_sources,...base}=validated<WorkspacePolicy>('ssh-workspace-policy',policyInput as WorkspacePolicy);
+      const {codingGid:_gid,sources:_sources,cleanup:_cleanup,...base}=validated<WorkspacePolicy>('ssh-workspace-policy',policyInput as WorkspacePolicy);
       legacy={...base,schemaVersion:'1.0'};
     }
     const policy=validated<HelperPolicy>('ssh-helper-policy',legacy as HelperPolicy);

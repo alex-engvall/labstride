@@ -128,6 +128,8 @@ Tracker: [#8](https://github.com/alex-engvall/labstride/issues/8).
 
 **W05.1 progress:** LS-CLN-001/002/003 are implemented for the bounded local assessment profile. [Cleanup specification](20-workspace-cleanup.md) and [local evidence](evidence/W05.1-cleanup-2026-10-24.md) cover configurable triggers/pinned actions, independent completion/retention/session gates, read-only Git preservation and durable assessment recovery across actual coordinator death. This slice reports pending handoff or retention, never deletion. Full AC17/AC18/AC30 remain `not_run` for installed/removal integration; #29 owns filesystem fencing, deletion and tombstones. AC35/AC36 are unchanged.
 
+**W05.2 progress:** LS-CLN-004/005 add the optional qualified deletion action, protected target fencing/move/removal, immutable tombstones and independent coordinator reconciliation. [Local evidence](evidence/W05.2-deletion-2026-10-24.md) covers actual removal, substituted-path preservation, lost acknowledgements and actual helper/coordinator SIGKILL boundaries. Successful removal uses an injected quiescence seam; privileged process/mount/ownership and installed SSH qualification remain open. Requirements are `implemented`, full AC19/AC20 remain `not_run`, and W05 remains `in_progress`. Runtime disposal and broader AC17/AC18/AC30 plus AC35/AC36 gates retain their owners.
+
 ## W06 — CLI, installation and operations
 
 Tracker: [#9](https://github.com/alex-engvall/labstride/issues/9).

@@ -1431,6 +1431,10 @@ export interface TrustedWorkspaceHelperPolicyV2 {
       credentialFile: string | null;
     }[]
   ];
+  cleanup?: QualifiedCleanupProfile;
+}
+export interface QualifiedCleanupProfile {
+  profile: "linux-exclusive-writers.v1";
 }
 export interface TrustedRuntimeHelperPolicyV1 {
   schemaVersion: "1.0";

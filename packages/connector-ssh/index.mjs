@@ -56,6 +56,16 @@ function enrollment(configuration) {
 }
 function checkRequest(e, request) {
   const common = ['schemaVersion','requestId','installationId','targetId','targetRevision','method'];
+  if (request?.schemaVersion === '5.0') {
+    if (!keys(request,[...common,'operation','authorization']) || !['prepare','inspect','commit','release'].includes(request.method) ||
+      request.installationId!==e.installationId || request.targetId!==e.targetId || request.targetRevision!==e.revision ||
+      request.requestId!==request.operation?.operationId || request.operation.targetId!==e.targetId ||
+      request.operation.inputs?.schemaVersion!=='2.0' || request.operation.workspaceId!==request.operation.inputs.workspaceId ||
+      (request.method==='commit')!==(request.authorization!==null)) fail('validation_failed');
+    const {requestDigest,...contents}=request.operation;
+    if(hash(contents)!==requestDigest)fail('validation_failed');
+    const bytes=Buffer.from(JSON.stringify(request));if(bytes.length>262144)fail('validation_failed');return bytes;
+  }
   if (request?.schemaVersion === '4.0') {
     if (!keys(request,[...common,'workspaceId','creationOperationId','receiptDigest','policy']) || request.method!=='inspect' ||
       request.installationId!==e.installationId || request.targetId!==e.targetId || request.targetRevision!==e.revision ||
@@ -114,12 +124,12 @@ export function createExtension(configuration) {
             if (code === 0 && !exceeded) { resolve(Buffer.concat(output).toString('utf8')); return; }
             const stderr = Buffer.concat(errors).toString('utf8');
             reject(new Error(/Host key verification failed|REMOTE HOST IDENTIFICATION HAS CHANGED/.test(stderr) ? 'identity_mismatch' :
-              /Permission denied/.test(stderr) ? 'authentication_failed' : ['reserve','create'].includes(request.method) ? 'outcome_unknown' : 'transient_unavailable'));
+              /Permission denied/.test(stderr) ? 'authentication_failed' : ['reserve','create','prepare','commit','release'].includes(request.method) ? 'outcome_unknown' : 'transient_unavailable'));
           });
           child.stdin.end(bytes);
         });
         let reply;
-        try { reply = JSON.parse(raw); } catch { fail(['reserve','create'].includes(request.method) ? 'outcome_unknown' : 'validation_failed'); }
+        try { reply = JSON.parse(raw); } catch { fail(['reserve','create','prepare','commit','release'].includes(request.method) ? 'outcome_unknown' : 'validation_failed'); }
         for (const key of ['schemaVersion','requestId','installationId','targetId','targetRevision','method'])
           if (reply[key] !== request[key]) fail('identity_mismatch');
         return reply;

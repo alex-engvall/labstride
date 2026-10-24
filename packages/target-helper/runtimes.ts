@@ -95,6 +95,7 @@ export class RuntimeRegistry {
       const workspace=source.workspace;
       if(source.outcome!=='ok'||!workspace)throw new TargetError('outcome_unknown');
       if(workspace.runId!==op.runId||workspace.workspaceId!==op.workspaceId||workspace.rootId!==input.rootId||digest(workspace.source)!==digest(op.source))throw new TargetError('identity_mismatch');
+      this.workspaces.beginUse(op.operationId,op.workspaceId);
       const namespace=runtimeNamespace(request.installationId,request.targetId,op.workspaceId,input.recipe);
       const binding:RuntimeBinding={installationId:request.installationId,targetId:request.targetId,targetRevision:request.targetRevision,
         runId:op.runId,workspaceId:op.workspaceId,operationId:op.operationId,requestDigest:op.requestDigest,
@@ -123,7 +124,7 @@ export class RuntimeRegistry {
         if(receipt.handle!==op.operationId || receipt.bindingDigest!==digest(binding) || digest(receipt.cleanup)!==digest(recipe.cleanup) ||
           receipt.resources.length!==binding.resources.length || new Set(receipt.resources.map(r=>r.name)).size!==binding.resources.length ||
           binding.resources.some(e=>!receipt.resources.some(r=>r.name===e.name&&r.type===e.type)))throw new TargetError('identity_mismatch');
-        return reply(receipt);
+        this.workspaces.endUse(op.operationId);return reply(receipt);
       }
       if(!saved)this.barrier('intent');
       const root=this.installation.workspacePolicy.roots.find(root=>root.id===input.rootId)!;
@@ -150,7 +151,7 @@ export class RuntimeRegistry {
         this.db.prepare('UPDATE runtimes SET receipt=? WHERE operation_id=?').run(JSON.stringify(receipt),op.operationId);
         this.db.exec('COMMIT');
       }catch(error){if(this.db.isTransaction)this.db.exec('ROLLBACK');throw error;}
-      this.barrier('committed');return reply(receipt);
+      this.barrier('committed');this.workspaces.endUse(op.operationId);return reply(receipt);
     }catch(error){return reply(null,crossed?'outcome_unknown':error instanceof TargetError?error.code:'validation_failed');}
   }
   close(){this.db.close();this.workspaces.close();}
