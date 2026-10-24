@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0",
+  "runId": "run-example",
+  "workspaceId": "workspace-example",
+  "configDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "receiptDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "sourceSha": "cccccccccccccccccccccccccccccccccccccccc",
+  "path": "/srv/labstride/workspaces/ws-example/source",
+  "mode": "plan",
+  "model": "example-model",
+  "reasoning": "medium",
+  "choices": {
+    "aiMode": "mode-plan",
+    "model": "model-example",
+    "reasoning": "reasoning-medium"
+  }
+}

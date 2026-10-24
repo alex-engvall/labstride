@@ -1,5 +1,9 @@
 # 09 — GitHub and workflow execution
 
+## Local issue-to-review slice
+
+The [opt-in local profile](37-local-self-build.md) implements ordered checkout/coding/publication and observes current-head CI before review readiness. It has no merge/deploy grant or broker dispatch. Missing required workflows/checks, a new head, skipped checks or stale session turns block readiness. The full delivery requirements below remain unchanged.
+
 ## Adapter
 
 Use a GitHub App with selected repositories for repository operations where supported. Discover the exact permissions needed for issues, PRs, checks/statuses, Actions and contents. Project access is a separate capability: verify the owner type and credential support, including personal Projects. If the chosen App cannot access the personal Project, use an explicitly configured minimal supported user credential for that adapter only, or report unsupported. Do not request all-repository scope as a silent fallback.

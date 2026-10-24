@@ -27,6 +27,8 @@ An operator-approved rule grants bounded operations, not a generic terminal with
 
 Hooks execute within their provider's trust boundary and are not a complete enforcement or audit boundary. Agent-writable scripts cannot hold the coordinator's privileged Project/deployment credentials or become the authority for merge, approval, cleanup ownership or task completion. Use the trusted projection path and reject stale/foreign session observations. Keep agent authentication with its enrolled provider identity; do not distribute personal login caches to CI runners. Do not execute untrusted contributor code on a persistent runner carrying the agent's or deployment operator's credentials.
 
+The [local self-build bootstrap](37-local-self-build.md) adds separate coordinator/helper/coding identities and a coding-user bridge to the existing Codex daemon. Protected installation credentials stay in the coordinator publication environment; source code is transferred as a bounded Git bundle and never executed there. [ADR-007](adr/0007-checked-codex-delivery.md) explicitly retains the race of checked delivery and does not advertise atomic ownership.
+
 ## Data minimization
 
 Store IDs, revisions, hashes, safe status and evidence references in the coordinator. Session transcripts remain with their session provider by default. Do not mirror whole issues, source files, prompts or secret values into audit logs. Logs may contain sensitive repo names/paths; document their access and retention.

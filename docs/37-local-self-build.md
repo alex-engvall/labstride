@@ -1,0 +1,53 @@
+# 37 — Local issue-to-review installation
+
+This bounded W04/W06 implementation composes existing W01/W02/W03 components. It is an opt-in Linux/Node 24.22.0 pilot, not a complete W04/W06/W07 release. See [ADR-007](adr/0007-checked-codex-delivery.md) for the accepted weaker delivery model and [evidence](evidence/W04-W06-local-self-build-2026-10-24.md) for verification limits.
+
+## Observable workflow
+
+Bind six native organization issue fields by stable provider IDs: request/progress, AI mode, model, reasoning, registered session and source path. Option IDs are discovered and validated; names and catalogs are installation configuration. No Project membership is required. The [operational template](../examples/operational-installation.json) is disabled and uses synthetic identities. Startup defaults are explicit option-ID mappings; the selected local profile uses Plan mode, GPT-6.1 Sol and Medium. An unsupported explicit choice blocks without fallback. Fill a default only while the field remains absent, through the checked projection writer.
+
+Initial import is inert. A new independently attributed, authorized transition to Approved creates a run and isolated branch/checkout. Frozen configuration/policy and transactional workflow steps bind subsequent coding to that verified checkout. Path comes from its committed receipt and protected root mapping. The session field comes from the successfully created and registered main session, never issue text.
+
+Plan mode observes Planning and then Waiting for accept; the user approves implementation by continuing in the same session. Direct mode observes Working. No agent leaves the ready checkout available. The versioned startup selection is committed before any native creation intent and retained across recovery. Later AI field edits cannot replace an uncertain start with No agent or change its original model. AI fields are startup settings and do not override later app settings. The coordinator never answers app questions or approvals.
+
+A versioned native result report identifies the completed turn and exact commit. Publication verifies a clean registered branch, ancestry, nonempty changes, DCO and unchanged CI workflow definitions. Git transfer crosses the coding bridge as a bounded bundle; installation credentials are available only in the coordinator's publication process. Code hooks and source commands never execute with those credentials. The configured PR is reused for later work and human title/body edits are preserved.
+
+Missing, pending, failed or skipped checks in required workflow suites prevent readiness. Match every suite and check to the current head; optional deployment jobs in other suites do not become required when deployment is disabled. Only successful configured repository workflows, check runs and statuses on the current PR head permit Waiting for review. Keep observing the same session for follow-up commits. Merged requires an observed GitHub merge with the recorded head. Deploy and automatic merge are disabled. Repository-owned CI must already exist on the base branch before a real self-build can pass; merging the implementation PR is an operator prerequisite.
+
+## CLI and service
+
+The executable entry point is `node apps/cli/main.ts`; the administrative bootstrap installs a `labstride` launcher for root to run it as the coordinator identity. Commands currently return JSON with safe codes and exit status; human-formatted output is not yet implemented.
+
+| Command | Implemented behavior |
+| --- | --- |
+| `labstride init DESTINATION` | Create a new disabled template, refusing to overwrite an existing file |
+| `labstride config validate --config FILE` | Compile exact schemas, extension pins, field bindings and qualified history using the selected credential |
+| `labstride doctor --config FILE` | Check compiled profile, dedicated installation/repository scope, Codex catalog/defaults, SSH/helper root mapping and SQLite integrity/version |
+| `labstride serve --config FILE` | Run bounded polling and workers under a kernel process lock; drain on shutdown |
+| `labstride runs list` / `show RUN` | Show controls, operation outcomes, frozen startup selection, session and field/summary conflicts |
+| `labstride runs pause RUN` / `resume RUN` / `cancel RUN` | Submit local operator controls with revision checks; an interrupt acknowledgement is not confirmed cancellation |
+| `labstride runs reconcile RUN` | Resume blocked read observation; retain conflicts and unknown effects |
+| `labstride backup DESTINATION` | Create a consistent SQLite backup without replacing an existing destination |
+
+The outbound issue/PR chain explicitly permits `broker: {"enabled": false}`. Broker-dependent action/connector profiles remain rejected without their required configuration; workflow claims/deployment are not implemented by disabling the broker. The loop uses existing bounded provider retry/budget logic. A known accepted action waiting for a person/CI polls without exhausting a transient-failure retry budget.
+
+Native field writes are serialized per installed run, with a fresh issue observation between outputs. Summaries wait for pending field writes so their own comments do not invalidate those fingerprints. Remote/manual races remain possible. A conflict preserves the manual value and is visible in CLI and the managed issue summary; it creates no new progress option. A manually edited summary is not replaced. Unknown creates/updates are not blindly retried.
+
+## Reviewed administrative bootstrap
+
+1. Commit the reviewed source and run `python3 scripts/package_local.py NEW_BUNDLE_DIRECTORY`. It packages the exact source revision, existing locked dependencies, Node binary/license and hashed extension artifacts. It downloads nothing and refuses a dirty worktree. The administrative installer also supports `--stage-only` to verify/copy a release without changing service configuration; this is not an automatic upgrade command. Record the manifest SHA-256 from its JSON output.
+2. Prepare private installation configuration from the template. Independently verify a dedicated GitHub App installation on the organization with only the intended repository selected. Required grants: Contents/Issues/Pull requests write; Actions/Checks/Commit statuses read; organization Issue Fields read. No broad CLI credential is a substitute. An installation token has no human GraphQL repository role; the native adapter verifies `viewerCanSetFields` on the independently enrolled issue and rechecks it on every write.
+3. Review `scripts/install_local.py`; run its `--dry-run` first, then run it administratively with `--bundle`, `--manifest-sha256`, `--configuration`, `--coding-user` and `--backend-socket`. It preserves existing/mismatched paths, installs root-owned immutable release files, creates separate coordinator/helper identities, copies protected credentials, enrolls a forced-command SSH helper against the local trusted host key and writes disabled systemd units. For App keys it retains the original file but withdraws coding-user read access to the same privileged key. No temporary administrator key is a runtime dependency.
+4. The bootstrap layout is `/opt/labstride/releases/REVISION`, `/etc/labstride`, `/var/lib/labstride` and `/srv/labstride/workspaces`. Runtime field mappings, repository/target identities, roots and model catalogs stay in configuration. The bridge runs as the existing coding user against the existing daemon. Named UID ACLs grant checkout access to that already running daemon without restarting it; protected receipt wrappers and service state remain outside its write authority.
+5. Initialize SQLite with `labstride runs list`; start only the bridge for preflight. Run config validation and doctor. Perform actual negative reads/writes as the coding UID: coordinator state, configuration, credentials, helper policy/registry and release files must remain inaccessible for mutation, and credentials/state inaccessible for reading. The workspace probe requests the versioned `workspace.root-map.v1` proof over enrolled SSH. The helper verifies the full root identity including its target mount ID; the coordinator checks that proof against protected mapping and its own view of the same device/inode/UID. This preserves systemd mount sandboxing without treating its different local mount ID as a target mismatch. Verify two registered checkouts allow coding writes but protect their ownership markers and parent roots. Check duplicate service exclusion and orderly shutdown/restart.
+6. Take a consistent backup before activation. Administratively set only the reviewed installation's `configuration.enabled` to true, then enable/start the coordinator and bridge. Observe the inert first import before creating a new Approved transition. Keep historical pilot resources untouched.
+
+The installer leaves both services stopped and the listener disabled. Installation identity, private paths, account data, temporary keys and tokens belong in private operator records, not this repository.
+
+## Verification and recovery
+
+Require two independent issues/workspaces, duplicate Approved delivery, inert import, unauthorized actors, defaults, unsupported combinations and manual projection conflicts. Kill real processes/drop responses around checkout, thread start and publication; preserve unknowns. Complete native planning, the operator's actual approval, implementation, reconnect and a real PR with current-head CI. Exercise simultaneous manual turn start and retain uncertainty. A local fake provider is useful regression evidence but cannot pass those live gates.
+
+The self-build canary is a new issue requesting `labstride version --json` with installed revision and Node version. It must produce actual code in the same session, correct fields, green checks and a reviewable PR. The implementation deliberately does not pre-implement that canary command or fabricate its approval.
+
+Pause new effects before backup/upgrade/restore. Retain the previous release and every pin needed by active runs. SQLite backup is implemented; automated restore/upgrade commands are not. Recovery must use the existing restore fencing plus independent reconciliation of external results before resumption. Do not downgrade the database, reset it, remove unknown workspaces or self-upgrade. If live gates fail, keep the coordinator disabled/stopped and preserve state, checkouts and original outcomes for inspection.

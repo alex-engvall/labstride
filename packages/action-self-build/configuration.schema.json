@@ -1,0 +1,133 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bridgeSocket": {
+          "type": "string",
+          "pattern": "^/",
+          "maxLength": 4096
+        },
+        "backendIdentity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "backendVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "checkedDelivery": {
+          "const": true
+        },
+        "defaults": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "aiMode": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "reasoning": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "aiMode",
+            "model",
+            "reasoning"
+          ]
+        },
+        "runtimeValues": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "aiMode": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              }
+            },
+            "model": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              }
+            },
+            "reasoning": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              }
+            }
+          },
+          "required": [
+            "aiMode",
+            "model",
+            "reasoning"
+          ]
+        }
+      },
+      "required": [
+        "bridgeSocket",
+        "backendIdentity",
+        "backendVersion",
+        "checkedDelivery",
+        "defaults",
+        "runtimeValues"
+      ]
+    },
+    "sourceRoot": {
+      "type": "string",
+      "pattern": "^/",
+      "maxLength": 4096
+    },
+    "rootId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "baseBranch": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_./-]+$",
+      "maxLength": 256
+    },
+    "requiredWorkflows": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^\\.github/workflows/[A-Za-z0-9_.-]+\\.ya?ml$"
+      }
+    }
+  },
+  "required": [
+    "agent",
+    "sourceRoot",
+    "rootId",
+    "baseBranch",
+    "requiredWorkflows"
+  ]
+}

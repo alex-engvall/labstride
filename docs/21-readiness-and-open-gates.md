@@ -19,6 +19,8 @@ The specification is sufficient to begin implementation. [W00.1 / issue #11](evi
 | Health/rollback semantics | W04/pilot | Exact deployed revision, functional health and failure handling |
 | Release identity/reporting | W07 | Package namespace, reporting route and reproducible release metadata |
 
+The bounded [local issue-to-review implementation](37-local-self-build.md) has [scoped evidence](evidence/W04-W06-local-self-build-2026-10-24.md). It adds an explicitly weaker checked-delivery capability; the atomic guard requirement above still applies to profiles advertising atomic protection. Complete installed canary, native approval/reconnection, restoration and prerelease gates remain open.
+
 Installation-local values are deliberately unresolved: hostnames, keys, path roots, project/field/option IDs, credential references, workflow ref/SHA and cloud resource IDs. Templates use conspicuous placeholders and must fail live preflight until completed.
 
 The [W00.1 evidence index](evidence/README.md) records completed discovery and its W01/W02/W06 handoff. The later [W02.3 runtime evidence](evidence/W02.3-reconciliation-2026-10-23.md) passes AC04/AC05 for the tested profile and supplies scoped AC02/AC35/AC36 coverage. LS-GH-001 remains `in_progress`; full AC02/AC29/AC35 remain `not_run`; [W03.2](evidence/W03.2-continuity-2026-10-23.md) passes AC36 for its recorded Linux/GitHub/Codex profile. Those integrated cases do not keep discovery #11 open.

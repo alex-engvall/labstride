@@ -1,6 +1,6 @@
 # 25 — Dedicated GitHub App setup
 
-This is a candidate setup for **W00.1 / LS-GH-001**, not evidence that a dedicated App has been created or its permissions verified. Keep App identity, installation ID, repository IDs, Project IDs and credential references in installation-local configuration. The public runtime is not implemented yet.
+This is a candidate setup for **W00.1 / LS-GH-001**, not evidence that a dedicated App has been created or its permissions verified. Keep App identity, installation ID, repository IDs, Project IDs and credential references in installation-local configuration. The current [local issue-to-review profile](37-local-self-build.md) uses the same repository grants plus organization Issue Fields(read), with its own credential verification.
 
 ## Initial repository capability profile
 
@@ -23,6 +23,10 @@ All other repository, organization and account permissions remain **No access**.
 Actions **write** is a separate later grant for an explicitly chosen synthetic dispatch workflow. The initial read grant cannot dispatch, cancel or rerun workflows. Editing workflow definitions is another distinct capability; prepare the fixture workflow through the repository owner's normal contribution process rather than granting Workflows write by default. A successful App write must still be correlated with an independently observed downstream CI run before the token/event criterion passes.
 
 The [file/PR/CI probe](evidence/W00.1-app-file-pr-ci-2026-10-21.md) verified that this App profile created/updated a synthetic file and opened/updated/closed a PR, automatically triggering three successful PR workflows while Actions stayed read-only. No merge or deployment was performed. Treat that as evidence for the tested App/repository/event combination, not for workflow dispatch or every installation.
+
+## Native organization fields
+
+For the current native-field profile, also grant **Organization permissions → Issue Fields → Read-only**. Register the private App on the organization that owns the repository, or transfer its registration there before installation. A private App owned by a personal account cannot be installed on another organization. Install only on the intended organization with **Only select repositories**. Recheck grants on the actual installation, including acceptance of permission changes. Field values are written with repository Issues(write); defining/changing organization fields is outside this profile.
 
 ## Register and install
 

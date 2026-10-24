@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Managed coding result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "turnId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "commitSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "status": {
+      "enum": [
+        "ready",
+        "blocked"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "prTitle": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "prBody": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64000
+    },
+    "issueComplete": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "runId",
+    "sessionId",
+    "turnId",
+    "commitSha",
+    "status",
+    "summary",
+    "prTitle",
+    "prBody",
+    "issueComplete"
+  ]
+}

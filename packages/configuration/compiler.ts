@@ -101,7 +101,11 @@ export async function compileConfiguration(input: unknown, dependencies: Compile
     code: error instanceof ConfigurationError ? error.code : 'configuration_invalid', path,
     message: error instanceof ConfigurationError ? error.message : 'Verify the installed artifact, reference, schema, permission or capability.',
   });
-  try {
+  if (config.broker.enabled === false) {
+    if (Object.values(config.workflows).flat().some(step => step.action === 'labstride.github-workflow') ||
+      Object.values(config.targets).some(target => target.connector === 'labstride.github-workflow.connector'))
+      capture('/broker', new ConfigurationError('unsupported_capability', '/broker', 'Workflow dispatch requires an enabled broker.'));
+  } else try {
     const broker = new URL(config.broker.url);
     if (broker.protocol !== 'https:' || broker.username || broker.password || broker.hostname === 'example.invalid' || broker.hostname.endsWith('.example.invalid'))
       invalid('/broker/url', 'Configure a real credential-free HTTPS broker URL.');
@@ -218,7 +222,12 @@ export async function compileConfiguration(input: unknown, dependencies: Compile
         const source=projection.valueFrom;
         if(source.kind==='workspace-source-path'&&(!own(config.targets,source.targetId)||source.rootPath.split('/').some(part=>part==='.'||part==='..')||projection.fact!=='workspace.ready'))
           invalid(`/projections/${index}`,'Bind the ready workspace output to a configured target and exact protected root.');
-        if(source.kind==='session-id'&&projection.fact!=='session.ready')invalid(`/projections/${index}`,'Project session IDs only from an attached ready session.');
+        if(source.kind==='session-id'&&projection.fact!=='session.ready'){
+          const managed=pins.get('labstride.self-build');
+          if(projection.fact!=='self-build.session-ready'||!managed?.capabilities.includes('self-build.checked-delivery.v1')||
+            !Object.values(config.workflows).some(steps=>steps.some(step=>step.action==='labstride.self-build')))
+            invalid(`/projections/${index}`,'Project session IDs only from a registered ready session.');
+        }
       }else fieldValue(field,projection.value!,true);
       const key = canonical([projection.fact, binding.providerId, binding.source, binding.scopeId, binding.fieldId]);
       if (projected.has(key)) invalid(`/projections/${index}`, 'Use one mapping per fact and external projection field.');

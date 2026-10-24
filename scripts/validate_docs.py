@@ -19,7 +19,7 @@ from schema_validation import validators_for
 
 def repository_files():
     for directory, dirs, files in os.walk(ROOT):
-        dirs[:] = sorted(d for d in dirs if d not in ('.git', 'node_modules', '.venv', '__pycache__'))
+        dirs[:] = sorted(d for d in dirs if d not in ('.git', 'node_modules', '.venv', '__pycache__', '.labstride-local'))
         for name in sorted(files):
             path = Path(directory) / name
             require(path.resolve().is_relative_to(ROOT), f'File escapes repository: {path}')
@@ -59,6 +59,7 @@ def main():
 
     pairs = {
         'config': 'installation.template', 'extension': 'extension',
+        'operational-installation': 'operational-installation', 'self-build-input': 'self-build-input', 'managed-result': 'managed-result', 'managed-session-start': 'managed-session-start',
         'operation': 'operation', 'receipt': 'receipt', 'event': 'event',
         'session-request': 'session-request', 'session-observation': 'session-observation',
         'contract-request': 'contract-request', 'contract-result': 'contract-result',

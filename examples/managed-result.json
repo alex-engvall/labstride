@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "runId": "run-example",
+  "sessionId": "session-example",
+  "turnId": "turn-example",
+  "commitSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "status": "ready",
+  "summary": "Implemented the bounded task.",
+  "prTitle": "Implement the example task",
+  "prBody": "Validation evidence belongs here.",
+  "issueComplete": true
+}

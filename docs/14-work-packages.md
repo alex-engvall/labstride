@@ -103,6 +103,8 @@ Tracker: [#7](https://github.com/alex-engvall/labstride/issues/7).
 
 **Requirements:** LS-GH-006, LS-GH-007, LS-DEP-001, LS-DEP-002, LS-DEP-003, LS-DEP-004, LS-DEP-005, LS-DEP-006, LS-SEC-002
 
+**Bounded local delivery:** [The issue-to-review profile](37-local-self-build.md) adds ordered checkout/coding/publication and current-head CI observation. [Evidence](evidence/W04-W06-local-self-build-2026-10-24.md) distinguishes controlled local integration from live acceptance. Broker claims, automatic merge and deployment remain open. W04 stays `in_progress`.
+
 ## W05 — Directory cleanup action
 
 Tracker: [#8](https://github.com/alex-engvall/labstride/issues/8).
@@ -131,6 +133,8 @@ Tracker: [#9](https://github.com/alex-engvall/labstride/issues/9).
 **First verifiable outcome:** A fresh operator can diagnose and recover a run without editing database rows.
 
 **Requirements:** LS-OPS-001, LS-OPS-002, LS-OPS-003, LS-OPS-004, LS-OPS-005
+
+**Bounded local delivery:** [The operational CLI/bootstrap](37-local-self-build.md) implements disabled installation, a locked persistent loop, dedicated App preflight, controls, summaries and SQLite backup. Installed doctor, scoped credentials, negative access probes, idle process restart and two isolated No agent runs passed the bounded pilot. Full recovery/upgrade and clean-install acceptance remain open. W06 stays `in_progress`; W07 is not completed by this slice.
 
 ## W07 — Public examples and prerelease
 

@@ -8,6 +8,7 @@ export type TrustedWorkspaceHelperRequestV2 = {
   targetRevision: number;
   method: "probe" | "create" | "inspect";
   operation?: LabstrideOperationRequestV1;
+  includeRoots?: true;
 };
 
 export interface LabstrideOperationRequestV1 {

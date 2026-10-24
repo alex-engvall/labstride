@@ -222,7 +222,7 @@ export class GitHubStore extends ConfigurationStore {
       if(!changed.changes)throw new LifecycleError('revision_conflict');
     });
   }
-  private githubProgressValue(runId:string,mapping:ReturnType<typeof compiledSnapshot>['configuration']['projections'][number]):unknown{
+  protected githubProgressValue(runId:string,mapping:ReturnType<typeof compiledSnapshot>['configuration']['projections'][number]):unknown{
     if(!mapping.valueFrom)return mapping.value;
     const run=this.get('run',runId),source=mapping.valueFrom;
     if(source.kind==='session-id'){
@@ -261,8 +261,13 @@ export class GitHubStore extends ConfigurationStore {
       .get(request.installationId,request.providerId,request.issueId)!.generation);
     return{configuration:snapshot.configuration,logical:field[0],scopeId:field[1].scopeId,itemId:projection.providerTarget.resourceId,generation};
   }
-  enqueueGitHubProgress(runId:string,fact:string,item:GitHubItem):string[]{
+  protected serializeGitHubProgress(_runId:string):boolean{return false;}
+  pendingProgressWrite(runId:string):boolean{
+    return !!this.db.prepare("SELECT 1 FROM projections p JOIN deliveries d ON d.projection_id=p.id WHERE p.run_id=? AND d.state IN ('pending','reconcile') LIMIT 1").get(runId);
+  }
+  enqueueGitHubProgress(runId:string,fact:string,item:GitHubItem,occurrence?:string):string[]{
     item=validated('github-item',item);
+    if(occurrence!==undefined&&!/^[a-z0-9_.:-]{1,128}$/.test(occurrence))throw new LifecycleError('invalid_payload');
     return this.transaction(()=>{
       const run=this.get('run',runId),request=this.get('request',run.requestId),snapshot=this.runConfiguration(runId);
       if(!snapshot||request.issueId!==item.subjectId||run.repositoryId!==item.repositoryId)throw new LifecycleError('identity_conflict');
@@ -270,8 +275,13 @@ export class GitHubStore extends ConfigurationStore {
       for(const mapping of snapshot.configuration.projections.filter(mapping=>mapping.fact===fact)){
         const binding=snapshot.bindings[mapping.field],state=item.fields[mapping.field];
         if(!binding||!['project_v2','organization_issue_field'].includes(binding.source)||binding.scopeId!==item.scopeId||!state)throw new LifecycleError('effect_blocked');
-        const id=`github-progress:${digest([runId,fact,binding.fieldId,mapping.valueFrom??mapping.value])}`;
+        const identity=[runId,fact,binding.fieldId,mapping.valueFrom??mapping.value];
+        if(occurrence!==undefined)identity.push(occurrence);
+        const id=`github-progress:${digest(identity)}`;
         if(this.db.prepare('SELECT 1 FROM projections WHERE id=?').get(id)){ids.push(id);continue;}
+        // The installed native-field profile reads a fresh issue between its
+        // own writes, including different outputs of the same fact.
+        if(this.serializeGitHubProgress(runId)&&this.pendingProgressWrite(runId))return ids;
         const record:RecordOf<'projection'>={schemaVersion:'1.0',kind:'projection',id,revision:1,createdAt:this.clock.now(),updatedAt:this.clock.now(),
           runId,providerId:binding.providerId,subjectId:item.subjectId,fieldId:binding.fieldId,generation:request.generation,
           providerTarget:{schemaVersion:'1.0',scopeId:item.scopeId,resourceId:item.itemId},

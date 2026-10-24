@@ -1,0 +1,420 @@
+{
+  "schemaVersion": "1.0",
+  "configuration": {
+    "schemaVersion": "1.0",
+    "installationId": "example-local-installation",
+    "enabled": false,
+    "broker": {
+      "enabled": false
+    },
+    "github": {
+      "repositories": [
+        "example/source"
+      ],
+      "actorIds": [
+        "REPLACE_OPERATOR_ID"
+      ],
+      "credentialRef": "secret:github-app",
+      "projectCredentialRef": "secret:github-app",
+      "pollIntervalSeconds": 60
+    },
+    "fields": {
+      "request": {
+        "source": "organization_issue_field",
+        "scopeId": "repository-example",
+        "fieldId": "field-request",
+        "type": "single-select",
+        "options": {
+          "approved": "request-approved",
+          "provisioning": "request-provisioning",
+          "ready": "request-ready",
+          "planning": "request-planning",
+          "accept": "request-accept",
+          "working": "request-working",
+          "testing": "request-testing",
+          "review": "request-review",
+          "merged": "request-merged"
+        },
+        "allowManagedProgress": true
+      },
+      "aiMode": {
+        "source": "organization_issue_field",
+        "scopeId": "repository-example",
+        "fieldId": "field-aiMode",
+        "type": "single-select",
+        "options": {
+          "default": "aiMode-default"
+        }
+      },
+      "model": {
+        "source": "organization_issue_field",
+        "scopeId": "repository-example",
+        "fieldId": "field-model",
+        "type": "single-select",
+        "options": {
+          "default": "model-default"
+        }
+      },
+      "reasoning": {
+        "source": "organization_issue_field",
+        "scopeId": "repository-example",
+        "fieldId": "field-reasoning",
+        "type": "single-select",
+        "options": {
+          "default": "reasoning-default"
+        }
+      },
+      "session": {
+        "source": "organization_issue_field",
+        "scopeId": "repository-example",
+        "fieldId": "field-session",
+        "type": "string"
+      },
+      "path": {
+        "source": "organization_issue_field",
+        "scopeId": "repository-example",
+        "fieldId": "field-path",
+        "type": "string"
+      }
+    },
+    "targets": {
+      "local": {
+        "connector": "labstride.connector.ssh",
+        "configuration": {
+          "enrollmentDirectory": "/var/lib/labstride/coordinator/enrollment",
+          "targetId": "local",
+          "revision": 1,
+          "digest": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      }
+    },
+    "extensions": [
+      {
+        "id": "labstride.github.native",
+        "version": "0.1.0",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "id": "labstride.connector.ssh",
+        "version": "1.3.0",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "id": "labstride.workspace-create",
+        "version": "1.0.0",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      {
+        "id": "labstride.self-build",
+        "version": "0.1.0",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ],
+    "limits": {
+      "activeRuns": 2,
+      "perIssue": 1,
+      "perDeploymentTarget": 1,
+      "metadataRetentionDays": 90
+    },
+    "rules": [
+      {
+        "id": "workspace-request",
+        "event": "field.changed",
+        "condition": {
+          "field": "request",
+          "op": "changedTo",
+          "value": "approved"
+        },
+        "workflow": "prepare"
+      }
+    ],
+    "workflows": {
+      "prepare": [
+        {
+          "id": "checkout",
+          "action": "labstride.workspace-create",
+          "inputs": {
+            "target": "local",
+            "rootId": "source",
+            "source": "context.source"
+          }
+        },
+        {
+          "id": "coding",
+          "action": "labstride.self-build",
+          "inputs": {
+            "schemaVersion": "1.0",
+            "target": "local",
+            "workspaceId": "context.workspaceId"
+          }
+        }
+      ]
+    },
+    "projections": [
+      {
+        "fact": "run.preparing",
+        "field": "request",
+        "value": "provisioning"
+      },
+      {
+        "fact": "workspace.ready",
+        "field": "request",
+        "value": "ready"
+      },
+      {
+        "fact": "workspace.ready",
+        "field": "path",
+        "valueFrom": {
+          "kind": "workspace-source-path",
+          "targetId": "local",
+          "rootId": "source",
+          "rootPath": "/srv/labstride/workspaces"
+        }
+      },
+      {
+        "fact": "self-build.session-ready",
+        "field": "session",
+        "valueFrom": {
+          "kind": "session-id"
+        }
+      },
+      {
+        "fact": "self-build.planning",
+        "field": "request",
+        "value": "planning"
+      },
+      {
+        "fact": "self-build.waiting-accept",
+        "field": "request",
+        "value": "accept"
+      },
+      {
+        "fact": "self-build.working",
+        "field": "request",
+        "value": "working"
+      },
+      {
+        "fact": "self-build.testing",
+        "field": "request",
+        "value": "testing"
+      },
+      {
+        "fact": "self-build.review",
+        "field": "request",
+        "value": "review"
+      },
+      {
+        "fact": "self-build.merged",
+        "field": "request",
+        "value": "merged"
+      },
+      {
+        "fact": "self-build.default-aiMode",
+        "field": "aiMode",
+        "value": "default"
+      },
+      {
+        "fact": "self-build.default-model",
+        "field": "model",
+        "value": "default"
+      },
+      {
+        "fact": "self-build.default-reasoning",
+        "field": "reasoning",
+        "value": "default"
+      }
+    ],
+    "extensionConfiguration": {},
+    "controls": {}
+  },
+  "lock": {
+    "schemaVersion": "1.0",
+    "extensions": [
+      {
+        "id": "labstride.github.native",
+        "version": "0.1.0",
+        "kind": "provider",
+        "artifactPath": "/opt/labstride/releases/REPLACE_REVISION/artifacts/provider-github.json",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+        "configuration": {},
+        "permissions": [
+          "network.github"
+        ],
+        "capabilities": [
+          "github.organization-issue-fields.v1"
+        ]
+      },
+      {
+        "id": "labstride.connector.ssh",
+        "version": "1.3.0",
+        "kind": "connector",
+        "artifactPath": "/opt/labstride/releases/REPLACE_REVISION/artifacts/connector-ssh.json",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+        "configuration": {
+          "enrollmentDirectory": "/var/lib/labstride/coordinator/enrollment",
+          "targetId": "local",
+          "revision": 1,
+          "digest": "0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "permissions": [
+          "network.ssh"
+        ],
+        "capabilities": [
+          "target.probe.v1",
+          "target.reserve.v1",
+          "target.inspect.v1",
+          "workspace.probe.v1",
+          "workspace.create.v1",
+          "workspace.inspect.v1",
+          "runtime.probe.v1",
+          "runtime.create.v1",
+          "runtime.inspect.v1",
+          "workspace.root-map.v1"
+        ]
+      },
+      {
+        "id": "labstride.workspace-create",
+        "version": "1.0.0",
+        "kind": "action",
+        "artifactPath": "/opt/labstride/releases/REPLACE_REVISION/artifacts/action-workspace-create.json",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+        "configuration": {},
+        "permissions": [
+          "filesystem.workspace"
+        ],
+        "capabilities": [
+          "workspace.create.v1"
+        ]
+      },
+      {
+        "id": "labstride.self-build",
+        "version": "0.1.0",
+        "kind": "action",
+        "artifactPath": "/opt/labstride/releases/REPLACE_REVISION/artifacts/action-self-build.json",
+        "integrity": "0000000000000000000000000000000000000000000000000000000000000000",
+        "configuration": {
+          "agent": {
+            "bridgeSocket": "/run/labstride-bridge/control.sock",
+            "backendIdentity": "existing-operator-codex",
+            "backendVersion": "0.163.0",
+            "checkedDelivery": true,
+            "defaults": {
+              "aiMode": "aiMode-default",
+              "model": "model-default",
+              "reasoning": "reasoning-default"
+            },
+            "runtimeValues": {
+              "aiMode": {
+                "aiMode-default": "plan"
+              },
+              "model": {
+                "model-default": "example-model"
+              },
+              "reasoning": {
+                "reasoning-default": "medium"
+              }
+            }
+          },
+          "sourceRoot": "/srv/labstride/workspaces",
+          "rootId": "source",
+          "baseBranch": "main",
+          "requiredWorkflows": [
+            ".github/workflows/labstride.yml"
+          ]
+        },
+        "permissions": [
+          "network.github",
+          "session.manage",
+          "filesystem.workspace"
+        ],
+        "capabilities": [
+          "self-build.checked-delivery.v1"
+        ]
+      }
+    ]
+  },
+  "policy": {
+    "schemaVersion": "1.0",
+    "installationId": "example-local-installation",
+    "actorIds": [
+      "REPLACE_OPERATOR_ID"
+    ],
+    "repositories": [
+      {
+        "id": "repository-example",
+        "name": "example/source"
+      }
+    ],
+    "grants": [
+      {
+        "repositoryId": "repository-example",
+        "targetId": "local",
+        "actionId": "labstride.workspace-create",
+        "actionVersion": "1.0.0",
+        "effects": [
+          "execute",
+          "cancel"
+        ]
+      },
+      {
+        "repositoryId": "repository-example",
+        "targetId": "local",
+        "actionId": "labstride.self-build",
+        "actionVersion": "0.1.0",
+        "effects": [
+          "execute",
+          "cancel"
+        ]
+      }
+    ]
+  },
+  "historyQualifications": [],
+  "stateDirectory": "/var/lib/labstride/coordinator",
+  "targetId": "local",
+  "revision": "0000000000000000000000000000000000000000",
+  "credentials": {
+    "secret:github-app": "/var/lib/labstride/coordinator/secrets/github-token"
+  },
+  "host": {
+    "protocol": {
+      "major": 1,
+      "minor": 0
+    },
+    "capabilities": [],
+    "permissions": [
+      "network.github",
+      "network.ssh",
+      "filesystem.workspace",
+      "session.manage"
+    ]
+  },
+  "agent": {
+    "bridgeSocket": "/run/labstride-bridge/control.sock",
+    "backendIdentity": "existing-operator-codex",
+    "backendVersion": "0.163.0",
+    "checkedDelivery": true,
+    "defaults": {
+      "aiMode": "aiMode-default",
+      "model": "model-default",
+      "reasoning": "reasoning-default"
+    },
+    "runtimeValues": {
+      "aiMode": {
+        "aiMode-default": "plan"
+      },
+      "model": {
+        "model-default": "example-model"
+      },
+      "reasoning": {
+        "reasoning-default": "medium"
+      }
+    }
+  },
+  "sourceRoot": "/srv/labstride/workspaces",
+  "rootId": "source",
+  "baseBranch": "main",
+  "requiredWorkflows": [
+    ".github/workflows/labstride.yml"
+  ],
+  "rootMappingFile": "/etc/labstride/root-mapping.json"
+}
