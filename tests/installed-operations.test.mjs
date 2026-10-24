@@ -93,9 +93,12 @@ test('agent defaults apply only to absent fields and explicit unsupported values
 
 test('CI requires the expected workflow and exact revision; skipped and missing checks are not green', () => {
   const sha = 'a'.repeat(40), workflows = ['.github/workflows/labstride.yml'];
-  const runs = [{ path: workflows[0], head_sha: sha, event: 'pull_request', status: 'completed', conclusion: 'success', id: 10 }];
-  const checks = [{ id: 1, name: 'test', app: { id: 5 }, status: 'completed', conclusion: 'success' }];
+  const runs = [{ path: workflows[0], head_sha: sha, event: 'pull_request', status: 'completed', conclusion: 'success', id: 10, check_suite_id: 7 }];
+  const checks = [{ id: 1, head_sha: sha, check_suite: { id: 7 }, name: 'test', app: { id: 5 }, status: 'completed', conclusion: 'success' }];
   assert.equal(ciDecision(sha, workflows, runs, checks, []), 'passed');
+  assert.equal(ciDecision(sha, workflows, runs, [...checks, { ...checks[0], id: 2, name: 'Optional deploy', check_suite: { id: 8 }, conclusion: 'skipped' }], []), 'passed');
+  assert.equal(ciDecision(sha, workflows, runs, [{ ...checks[0], head_sha: 'b'.repeat(40) }], []), 'pending');
+  assert.equal(ciDecision(sha, workflows, [{ ...runs[0], check_suite_id: undefined }], checks, []), 'pending');
   assert.equal(ciDecision(sha, workflows, [], checks, []), 'pending');
   assert.equal(ciDecision('b'.repeat(40), workflows, runs, checks, []), 'pending');
   assert.equal(ciDecision(sha, workflows, runs, [], []), 'pending');
@@ -146,4 +149,19 @@ test('authenticated helper root proof preserves full target mount identity acros
   // the same physical object; the target proof remains the full authority.
   const otherNamespace = structuredClone(proof); otherNamespace.roots[0].identity.mountId++;
   verifyRootMapping(spec, { ...mapping, identity: otherNamespace.roots[0].identity }, otherNamespace);
+});
+
+test('first installed activation atomically creates installation before policy and rolls back a rejected policy', async t => {
+  const { policyFor, localAuthority, context } = await import('./helpers/configuration-fixture.mjs');
+  const root = mkdtempSync(join(tmpdir(), 'labstride-first-activation-')); t.after(() => rmSync(root, { recursive: true, force: true }));
+  const fixture = configurationFixture(root); fixture.config.enabled = false;
+  const compiled = (await fixture.compile()).configuration, policy = policyFor(fixture, compiled);
+  const runtime = startCoordinator(root, { policyAuthority: localAuthority }); t.after(() => runtime.store.close());
+  const id = fixture.config.installationId;
+  assert.throws(() => runtime.store.activateOperationalProfile(compiled, { ...policy, installationId: 'foreign' }, localAuthority, context), /identity_conflict/);
+  assert.throws(() => runtime.store.get('installation', id), /not_found/); assert.equal(runtime.store.policyHistory(id).length, 0);
+  runtime.store.activateOperationalProfile(compiled, policy, localAuthority, context);
+  assert.equal(runtime.store.get('installation', id).configRevision, compiled.snapshot.digest); assert.equal(runtime.store.policyStatus(id).policyRevision, 1);
+  runtime.store.activateOperationalProfile(compiled, policy, localAuthority, context);
+  assert.equal(runtime.store.get('installation', id).revision, 1); assert.equal(runtime.store.policyHistory(id).length, 1); assert.equal(runtime.store.runs().length, 0);
 });

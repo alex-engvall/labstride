@@ -88,8 +88,8 @@ async function setup(t, { losePrReply = false } = {}) {
       if (state.loss) { state.loss = false; throw Error('transport_unknown'); } return state.pr;
     }
     if (path.includes('/pulls')) { if (state.pr) state.pr.head.sha = branchSha(); return path.includes('?') ? state.pr ? [state.pr] : [] : state.pr; }
-    if (path.includes('/actions/runs')) return { workflow_runs: [{ id: 1, path: options.requiredWorkflows[0], head_sha: branchSha(), event: 'pull_request', status: 'completed', conclusion: 'success' }] };
-    if (path.includes('/check-runs')) return { check_runs: [{ id: 1, name: 'verify', app: { id: 1 }, status: 'completed', conclusion: 'success' }] };
+    if (path.includes('/actions/runs')) return { workflow_runs: [{ id: 1, check_suite_id: 7, path: options.requiredWorkflows[0], head_sha: branchSha(), event: 'pull_request', status: 'completed', conclusion: 'success' }] };
+    if (path.includes('/check-runs')) return { check_runs: [{ id: 1, head_sha: branchSha(), check_suite: { id: 7 }, name: 'verify', app: { id: 1 }, status: 'completed', conclusion: 'success' }] };
     if (path.includes('/statuses')) return [];
     throw Error('unexpected_rest_request');
   } };

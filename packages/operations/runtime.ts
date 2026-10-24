@@ -14,7 +14,7 @@ import { workspaceStart } from '../storage-sqlite/workflows.ts';
 import { validated } from '../storage-sqlite/validation.ts';
 import { readProtected, protectedPath, assertPrivateDatabase, rootIdentity, sameIdentity } from '../target-helper/filesystem.ts';
 import { assertSeparate } from '../storage-sqlite/paths.ts';
-import { digest, canonical } from '../configuration/json.ts';
+import { digest } from '../configuration/json.ts';
 import { actionKey } from '../core/worker.ts';
 import { workspaceTargetResolver } from '../connector-ssh/workspaces.ts';
 import { freezeProfile } from '../extensions/loader.ts';
@@ -96,15 +96,7 @@ export async function openOperationalRuntime(spec: OperationalInstallationV1) {
   const runtime = startExecution(spec.stateDirectory, { actions: { executorId: `service:${spec.configuration.installationId}`, nextAttempt: randomUUID, adapters: new Map() },
     observations: { sessions: new Map(), projections: new Map() }, installedTargets: { host: spec.host }, dependencies: { policyAuthority: authority, localWorkspaceRoots: [spec.sourceRoot] } });
   try {
-    const status = runtime.store.policyStatus(spec.configuration.installationId);
-    if (!status || canonical(runtime.store.policyRevision(spec.configuration.installationId, status.policyRevision)) !== canonical(spec.policy)) {
-      const revision = status?.revision ?? 0;
-      runtime.store.applyPolicyChange({ schemaVersion: '1.0', id: `installed:${digest(spec.policy)}:${revision}`, installationId: spec.configuration.installationId,
-        expectedRevision: revision, change: { kind: 'publish', policy: spec.policy } }, authority, audit);
-    }
-    let old: ReturnType<typeof runtime.store.get<'installation'>> | null = null;
-    try { old = runtime.store.get('installation', spec.configuration.installationId); } catch { /* No installation yet. */ }
-    if (old?.configRevision !== checked.compiled.snapshot.digest) runtime.store.activateConfiguration(checked.compiled, old?.revision ?? null, audit, authority);
+    runtime.store.activateOperationalProfile(checked.compiled, spec.policy, authority, audit);
     await runtime.close();
   } catch (error) { await runtime.close(); throw error; }
   // Adapters capture this exact store instance, so compose after activation and

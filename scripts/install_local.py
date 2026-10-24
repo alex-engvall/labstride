@@ -81,6 +81,7 @@ def main():
     parser.add_argument('--coding-user', required=True)
     parser.add_argument('--backend-socket', type=Path, required=True)
     parser.add_argument('--dry-run', action='store_true')
+    parser.add_argument('--stage-only', action='store_true', help='Verify and copy immutable release files without changing service configuration')
     args = parser.parse_args()
     if not re.fullmatch(r'[a-z_][a-z0-9_-]{0,31}', args.coding_user):
         raise RuntimeError('invalid_account')
@@ -128,6 +129,9 @@ def main():
             managed_directory(output.parent)
         managed_file(output, data, mode=0o755 if executable else 0o644)
     managed_file(release / 'release-manifest.json', raw)
+    if args.stage_only:
+        print(json.dumps({'schemaVersion': '1.0', 'code': 'release_staged', 'revision': manifest['revision'], 'servicesChanged': False}))
+        return
     for directory in [Path('/etc/labstride'), Path('/var/lib/labstride'), Path('/srv/labstride')]:
         managed_directory(directory)
     coordinator = ensure_user('labstride_coord', Path('/var/lib/labstride/coordinator'))

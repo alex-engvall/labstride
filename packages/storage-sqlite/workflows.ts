@@ -11,6 +11,7 @@ import { digest, requestDigest, canonical } from './execution.ts';
 import { prepareWorkspaceStart } from '../connector-ssh/workspaces.ts';
 import { validated } from './validation.ts';
 import type { ManagedCodingResultV1 } from '../../contracts/generated/managed-result.ts';
+import type { Policy, LocalPolicyAuthority } from '../core/policy.ts';
 
 const audit: AuditContext = { actorId: 'coordinator', reason: 'Advance original configured workflow', evidenceRefs: ['workflow:durable'] };
 export function workspaceStart(compiled: CompiledConfiguration, steps: BoundStep[], observation: RuleObservation): StartPlan {
@@ -39,6 +40,23 @@ export function workspaceStart(compiled: CompiledConfiguration, steps: BoundStep
 }
 
 export class WorkflowStore extends GitHubStore {
+  activateOperationalProfile(compiled: CompiledConfiguration, policy: Policy, authority: LocalPolicyAuthority, context: AuditContext): void {
+    this.assertOperator(authority);
+    this.transaction(() => {
+      const id = compiled.snapshot.configuration.installationId;
+      const row = this.db.prepare('SELECT id FROM installations WHERE id=?').get(id);
+      const previous = row ? this.get('installation', id) : null;
+      // A policy references an existing installation. Publish both atomically
+      // before any worker can observe an enabled configuration without policy.
+      if (previous?.configRevision !== compiled.snapshot.digest) this.activateConfiguration(compiled, previous?.revision ?? null, context, authority);
+      const status = this.policyStatus(id);
+      if (!status || canonical(this.policyRevision(id, status.policyRevision)) !== canonical(policy)) {
+        const revision = status?.revision ?? 0;
+        this.applyPolicyChange({ schemaVersion: '1.0', id: `installed:${digest(policy)}:${revision}`, installationId: id,
+          expectedRevision: revision, change: { kind: 'publish', policy } }, authority, context);
+      }
+    });
+  }
   protected override serializeGitHubProgress(runId: string): boolean {
     return Object.values(this.runConfiguration(runId)?.configuration.workflows ?? {})
       .some(steps => steps.some(step => step.action === 'labstride.self-build'));

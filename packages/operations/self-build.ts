@@ -33,18 +33,22 @@ export function selectAgent(options: Options, fields: Record<string, { present: 
   return selected as Record<'aiMode' | 'model' | 'reasoning', { optionId: string; value: string; missing: boolean }>;
 }
 export function ciDecision(sha: string, workflows: string[], runs: any[], checks: any[], statuses: any[]): 'pending' | 'failed' | 'passed' {
+  const suites = new Set<number>();
   for (const workflow of workflows) {
     const matching = runs.filter(run => run.path?.split('@')[0] === workflow && run.head_sha === sha && run.event === 'pull_request')
       .sort((a, b) => b.id - a.id || b.run_attempt - a.run_attempt);
     if (!matching.length || matching[0].status !== 'completed') return 'pending';
     if (matching[0].conclusion !== 'success') return 'failed';
+    if (!Number.isSafeInteger(matching[0].check_suite_id)) return 'pending';
+    suites.add(matching[0].check_suite_id);
   }
   const latest = new Map<string, any>();
   for (const check of checks) {
-    const key = `${check.app?.id}:${check.name}`;
+    if (check.head_sha !== sha || !suites.has(check.check_suite?.id)) continue;
+    const key = `${check.check_suite.id}:${check.app?.id}:${check.name}`;
     if (!latest.has(key) || check.id > latest.get(key).id) latest.set(key, check);
   }
-  if (!latest.size) return 'pending';
+  if (!latest.size || [...suites].some(id => ![...latest.values()].some(check => check.check_suite?.id === id))) return 'pending';
   for (const check of latest.values()) {
     if (check.status !== 'completed') return 'pending'; if (check.conclusion !== 'success') return 'failed';
   }
