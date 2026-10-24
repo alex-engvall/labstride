@@ -96,3 +96,17 @@ test('WebSocket rejects bad handshake and oversized frames, and bounds unknown R
   const client=new UnixRpc(f.path,100);t.after(()=>client.close());await assert.rejects(client.call('test/timeout',{}));await assert.rejects(client.call('test/oversize',{}));
   const bad=await socketServer(join(f.root,'bad.sock'),()=>({}),{badHandshake:true});t.after(()=>bad.close());const badClient=new UnixRpc(join(f.root,'bad.sock'),100);t.after(()=>badClient.close());await assert.rejects(badClient.open());
 });
+
+test('RPC rejections retain bounded native detail without changing the conservative error code', async t => {
+  const f = await fixture(t, { handler(request, { send }) {
+    if (request.method !== 'test/read-error') return null;
+    send({ id: request.id, error: { code: -32601, message: 'list_turns is not supported yet' } });
+    return undefined;
+  } });
+  const rpc = new UnixRpc(f.path, 300); t.after(() => rpc.close());
+  await assert.rejects(rpc.call('test/read-error', {}), error => {
+    assert.equal(error.message, 'rpc_rejected');
+    assert.deepEqual(error.rpcError, { code: -32601, message: 'list_turns is not supported yet' });
+    return true;
+  });
+});

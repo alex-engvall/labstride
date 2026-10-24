@@ -103,7 +103,7 @@ Tracker: [#7](https://github.com/alex-engvall/labstride/issues/7).
 
 **Requirements:** LS-GH-006, LS-GH-007, LS-DEP-001, LS-DEP-002, LS-DEP-003, LS-DEP-004, LS-DEP-005, LS-DEP-006, LS-SEC-002
 
-**Bounded local delivery:** [The issue-to-review profile](37-local-self-build.md) adds ordered checkout/coding/publication and current-head CI observation. [Evidence](evidence/W04-W06-local-self-build-2026-10-24.md) distinguishes controlled local integration from live acceptance. Broker claims, automatic merge and deployment remain open. W04 stays `in_progress`.
+**Bounded local delivery:** [The issue-to-review profile](37-local-self-build.md) adds ordered checkout/coding/publication and current-head CI observation. [Evidence](evidence/W04-W06-local-self-build-2026-10-24.md) distinguishes controlled local integration from live acceptance. The first live agent canary exposed a native history-profile mismatch; the [bounded correction](evidence/W04-W06-native-history-2026-10-24.md) preserves its unknown delivery and qualifies a separate legacy-history Plan probe. Broker claims, automatic merge and deployment remain open. W04 stays `in_progress`.
 
 ## W05 — Directory cleanup action
 
