@@ -8,7 +8,7 @@ Bind six native organization issue fields by stable provider IDs: request/progre
 
 Initial import is inert. A new independently attributed, authorized transition to Approved creates a run and isolated branch/checkout. Frozen configuration/policy and transactional workflow steps bind subsequent coding to that verified checkout. Path comes from its committed receipt and protected root mapping. The session field comes from the successfully created and registered main session, never issue text.
 
-Plan mode observes Planning and then Waiting for accept; the user approves implementation by continuing in the same session. Direct mode observes Working. No agent leaves the ready checkout available. AI fields are startup settings and do not override later app settings. The coordinator never answers app questions or approvals.
+Plan mode observes Planning and then Waiting for accept; the user approves implementation by continuing in the same session. Direct mode observes Working. No agent leaves the ready checkout available. The versioned startup selection is committed before any native creation intent and retained across recovery. Later AI field edits cannot replace an uncertain start with No agent or change its original model. AI fields are startup settings and do not override later app settings. The coordinator never answers app questions or approvals.
 
 A versioned native result report identifies the completed turn and exact commit. Publication verifies a clean registered branch, ancestry, nonempty changes, DCO and unchanged CI workflow definitions. Git transfer crosses the coding bridge as a bounded bundle; installation credentials are available only in the coordinator's publication process. Code hooks and source commands never execute with those credentials. The configured PR is reused for later work and human title/body edits are preserved.
 
@@ -24,7 +24,7 @@ The executable entry point is `node apps/cli/main.ts`; the administrative bootst
 | `labstride config validate --config FILE` | Compile exact schemas, extension pins, field bindings and qualified history using the selected credential |
 | `labstride doctor --config FILE` | Check compiled profile, dedicated installation/repository scope, Codex catalog/defaults, SSH/helper root mapping and SQLite integrity/version |
 | `labstride serve --config FILE` | Run bounded polling and workers under a kernel process lock; drain on shutdown |
-| `labstride runs list` / `show RUN` | Show controls, operation outcomes, session and field/summary conflicts |
+| `labstride runs list` / `show RUN` | Show controls, operation outcomes, frozen startup selection, session and field/summary conflicts |
 | `labstride runs pause RUN` / `resume RUN` / `cancel RUN` | Submit local operator controls with revision checks; an interrupt acknowledgement is not confirmed cancellation |
 | `labstride runs reconcile RUN` | Resume blocked read observation; retain conflicts and unknown effects |
 | `labstride backup DESTINATION` | Create a consistent SQLite backup without replacing an existing destination |

@@ -59,7 +59,7 @@ def main():
 
     pairs = {
         'config': 'installation.template', 'extension': 'extension',
-        'operational-installation': 'operational-installation', 'self-build-input': 'self-build-input', 'managed-result': 'managed-result',
+        'operational-installation': 'operational-installation', 'self-build-input': 'self-build-input', 'managed-result': 'managed-result', 'managed-session-start': 'managed-session-start',
         'operation': 'operation', 'receipt': 'receipt', 'event': 'event',
         'session-request': 'session-request', 'session-observation': 'session-observation',
         'contract-request': 'contract-request', 'contract-result': 'contract-result',

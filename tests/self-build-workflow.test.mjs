@@ -5,10 +5,11 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { workspaceFixture } from './helpers/workspace-fixture.mjs';
-import { githubFixture } from './helpers/github-fixture.mjs';
+import { githubFixture, localAuthority, context } from './helpers/github-fixture.mjs';
 import { WorkspaceRegistry } from '../packages/target-helper/workspaces.ts';
 import { workspaceStart } from '../packages/storage-sqlite/workflows.ts';
 import { createSelfBuildAction } from '../packages/operations/self-build.ts';
+import { createControlWorker } from '../packages/core/control-worker.ts';
 import { createWorker, actionKey } from '../packages/core/worker.ts';
 import { createObservationWorker } from '../packages/core/observation-worker.ts';
 import { createGitHubProjection } from '../packages/provider-github/projection.ts';
@@ -17,13 +18,13 @@ import { runGit } from '../packages/target-helper/workspace-git.ts';
 
 // Real checkout, bundle verification, local Git push and SQLite sequencing.
 // GitHub and Codex wire responses are controlled peers, not live qualification.
-async function setup(t, { losePrReply = false } = {}) {
+async function setup(t, { losePrReply = false, loseStartReply = false, supported = true } = {}) {
   const source = workspaceFixture(t); source.policy.installationId = 'installation-a'; source.policy.targetId = 'target-a';
   const registry = new WorkspaceRegistry(source.policy, source.dependencies); t.after(() => registry.close());
   const options = { sourceRoot: source.policy.roots[0].path, rootId: 'source', baseBranch: 'main', requiredWorkflows: ['.github/workflows/labstride.yml'],
     agent: { bridgeSocket: '/unused', backendIdentity: 'test', backendVersion: '0.163.0', checkedDelivery: true,
       defaults: { aiMode: 'mode-plan', model: 'model-test', reasoning: 'reason-medium' },
-      runtimeValues: { aiMode: { 'mode-plan': 'plan' }, model: { 'model-test': 'test-model' }, reasoning: { 'reason-medium': 'medium' } } } };
+      runtimeValues: { aiMode: { 'mode-plan': 'plan', 'mode-none': 'none' }, model: { 'model-test': 'test-model' }, reasoning: { 'reason-medium': 'medium' } } } };
   const pins = [];
   const f = await githubFixture(t, { native: true, configure(f) {
     f.source = source.operation.source; f.config.github.repositories = [f.source.repository]; f.config.controls = {};
@@ -32,6 +33,7 @@ async function setup(t, { losePrReply = false } = {}) {
       f.config.fields[name] = { source: 'organization_issue_field', scopeId: 'scope-a', fieldId: name, type: 'single-select', options: { default: value } };
       f.descriptors[name] = { ...f.descriptors['status-a'], fieldId: name, source: 'organization_issue_field', credentialRef: 'secret:repository', optionIds: [value] };
     }
+    f.config.fields.aiMode.options.none = 'mode-none'; f.descriptors.aiMode.optionIds.push('mode-none');
     f.config.fields.session = { source: 'organization_issue_field', scopeId: 'scope-a', fieldId: 'session', type: 'string' };
     f.descriptors.session = { ...f.descriptors['note-a'], fieldId: 'session', scopeId: 'scope-a', source: 'organization_issue_field' };
     f.config.projections = [
@@ -65,13 +67,13 @@ async function setup(t, { losePrReply = false } = {}) {
   await checkoutWorker.tick(); await checkoutWorker.drain();
   const workspace = f.store.workspace(run.id), cwd = join(options.sourceRoot, workspace.locator, 'source');
   f.store.advanceWorkflows(f.dependencies.host); assert.equal(f.store.operations(run.id).length, 2);
-  const op = f.store.operations(run.id)[1].request, state = { starts: 0, turns: 0, latest: { id: 'initial', status: 'completed' }, report: null, creates: 0, pr: null, loss: losePrReply };
+  const op = f.store.operations(run.id)[1].request, state = { starts: 0, turns: 0, latest: { id: 'initial', status: 'completed' }, report: null, creates: 0, pr: null, loss: losePrReply, startLoss: loseStartReply };
   const remote = join(source.root, 'published.git'); runGit(source.root, ['init', '--bare', '--template=', remote]);
   const branchSha = () => runGit(remote, ['rev-parse', `refs/heads/${workspace.branch}`]);
   const git = args => runGit(cwd, ['-c', `safe.directory=${cwd}`, ...args]);
   const bridge = { async call(request) {
-    if (request.method === 'catalog') return { models: [{ model: 'test-model', reasoning: ['medium'] }] };
-    if (request.method === 'start') { state.starts++; return { thread: { id: 'original-session', cwd } }; }
+    if (request.method === 'catalog') return { models: [{ model: 'test-model', reasoning: supported ? ['medium'] : [] }] };
+    if (request.method === 'start') { state.starts++; if (state.startLoss) throw Error('transport_unknown'); return { thread: { id: 'original-session', cwd } }; }
     if (request.method === 'turn') { state.turns++; assert.equal(request.parameters.mode, 'plan'); return { turn: state.latest }; }
     if (request.method === 'observe') return { sessionId: 'original-session', path: cwd, state: 'idle', turn: state.latest, report: state.report };
     if (request.method === 'bundle') {
@@ -136,4 +138,29 @@ test('a lost PR creation response remains unknown without creating a second PR',
   await f.tick(); await f.tick(); await f.tick();
   assert.equal(f.state.creates, 1, JSON.stringify({diagnostic:f.store.workflowDiagnostic(f.run.id),operations:f.store.controlStatus(f.run.id).operations})); assert.equal(f.store.workflowDiagnostic(f.run.id), 'outcome_unknown');
   assert.equal(f.store.get('operation', f.op.operationId).state, 'outcome_unknown');
+});
+
+
+test('a lost native start reply keeps its frozen Plan choice despite later No agent fields and never starts again', async t => {
+  const f = await setup(t, { loseStartReply: true });
+  for (let i = 0; i < 8 && !f.state.starts; i++) await f.tick();
+  assert.equal(f.state.starts, 1); assert.equal(f.store.managedSessionStart(f.op.operationId).mode, 'plan');
+  f.item.fields.aiMode = { present: true, value: 'mode-none' };
+  await f.tick(); await f.tick();
+  assert.equal(f.state.starts, 1); assert.equal(f.state.turns, 0); assert.equal(f.store.managedSession(f.run.id), null);
+  assert.equal(f.store.get('operation', f.op.operationId).state, 'outcome_unknown');
+  assert.equal((await f.action.cancel(f.op, null, 'cancel-unknown')).result.status, 'accepted');
+});
+
+test('unsupported startup choices create no native intent and operator cancellation releases the retained workspace', async t => {
+  const f = await setup(t, { supported: false });
+  for (let i = 0; i < 6; i++) await f.tick();
+  assert.equal(f.state.starts, 0); assert.equal(f.store.hasManagedEffect(f.op.operationId, 'thread-start'), false);
+  assert.equal(f.store.workflowDiagnostic(f.run.id), 'unsupported_agent_choice');
+  const run = f.store.get('run', f.run.id);
+  f.store.cancelRun({ schemaVersion: '1.0', id: 'cancel-unsupported-start', runId: run.id, expectedRevision: run.revision, command: 'cancel' }, context, localAuthority);
+  const controls = createControlWorker(f.store, { executorId: 'test-cancel', nextAttempt: () => crypto.randomUUID(), adapters: new Map([[actionKey(f.op.actionId, f.op.actionVersion), f.action]]) });
+  await controls.tick(); await controls.drain();
+  assert.equal(f.store.get('run', run.id).state, 'cancelled'); assert.equal(f.store.workspace(run.id).keep, true);
+  assert.equal(f.state.starts, 0);
 });

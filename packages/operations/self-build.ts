@@ -17,7 +17,7 @@ import { runGit } from '../target-helper/workspace-git.ts';
 
 type Operation = RecordOf<'operation'>['request'];
 type Options = Pick<OperationalInstallationV1, 'agent' | 'sourceRoot' | 'rootId' | 'baseBranch' | 'requiredWorkflows'>;
-const result = (op: Operation, status: 'accepted' | 'succeeded', outputs: Record<string, unknown> = {}): BoundResult => ({
+const result = (op: Operation, status: 'accepted' | 'succeeded' | 'cancelled', outputs: Record<string, unknown> = {}): BoundResult => ({
   schemaVersion: '1.0', kind: 'result', operationId: op.operationId, requestDigest: op.requestDigest,
   result: { status, handle: op.operationId, resources: [], outputs, evidenceRefs: [`self-build:${op.operationId}`], error: null },
 });
@@ -143,18 +143,28 @@ export function createSelfBuildAction(store: WorkflowStore, options: Options, gi
       const item = await github.item(request.issueId); if (!item) throw Error('issue_unavailable');
       store.enqueueGitHubProgress(op.runId, 'workspace.ready', item);
       if (store.pendingProgressWrite(op.runId)) return result(op, 'accepted');
-      const selected = selectAgent(options, item.fields);
-      for (const name of ['aiMode', 'model', 'reasoning'] as const) if (selected[name].missing) {
-        store.enqueueGitHubProgress(op.runId, `self-build.default-${name}`, item);
-        return result(op, 'accepted'); // One checked field write at a time; subsequent reads use its new version.
+      let start = store.managedSessionStart(op.operationId);
+      if (!start) {
+        const selected = selectAgent(options, item.fields);
+        for (const name of ['aiMode', 'model', 'reasoning'] as const) if (selected[name].missing) {
+          store.enqueueGitHubProgress(op.runId, `self-build.default-${name}`, item);
+          return result(op, 'accepted'); // One checked field write at a time; subsequent reads use its new version.
+        }
+        if (selected.aiMode.value !== 'none') {
+          const catalog = await bridge.call({ schemaVersion: '1.0', method: 'catalog' });
+          const model = catalog.models?.find((entry: any) => entry.model === selected.model.value);
+          if (!model?.reasoning?.includes(selected.reasoning.value)) throw Error('unsupported_agent_choice');
+        }
+        start = store.freezeSessionStart(op.operationId, { schemaVersion: '1.0', runId: op.runId, workspaceId: op.workspaceId,
+          configDigest: op.configDigest, receiptDigest: bind.receiptDigest, sourceSha: op.source.sha, path: bind.path,
+          mode: selected.aiMode.value as 'plan' | 'default' | 'none', model: selected.model.value, reasoning: selected.reasoning.value,
+          choices: { aiMode: selected.aiMode.optionId, model: selected.model.optionId, reasoning: selected.reasoning.optionId } });
       }
-      if (selected.aiMode.value === 'none') return result(op, 'succeeded', { noAgent: true });
-      const catalog = await bridge.call({ schemaVersion: '1.0', method: 'catalog' });
-      const model = catalog.models?.find((entry: any) => entry.model === selected.model.value);
-      if (!model?.reasoning?.includes(selected.reasoning.value)) throw Error('unsupported_agent_choice');
-      const command = { schemaVersion: '1.0' as const, method: 'start' as const, binding: bind, parameters: { model: selected.model.value } };
+      if (start.path !== bind.path || start.receiptDigest !== bind.receiptDigest) throw Error('identity_mismatch');
+      if (start.mode === 'none') return result(op, 'succeeded', { noAgent: true });
+      const command = { schemaVersion: '1.0' as const, method: 'start' as const, binding: bind, parameters: { model: start.model } };
       const created = await effect(op, 'thread-start', command, () => bridge.call(command));
-      store.registerManagedSession(op.operationId, created.thread.id, bind.path, selected.aiMode.value, selected.model.value, selected.reasoning.value);
+      store.registerManagedSession(op.operationId, created.thread.id, bind.path, start.mode, start.model, start.reasoning);
       session = store.managedSession(op.runId)!;
     }
     await phase(op, 'session-ready');
@@ -212,7 +222,8 @@ export function createSelfBuildAction(store: WorkflowStore, options: Options, gi
     async start(op) { try { return await step(op); } catch (error) { store.workflowError(op.runId, error instanceof Error ? error.message : 'workflow_blocked'); throw error; } },
     async reconcile(op) { try { return await step(op); } catch (error) { store.workflowError(op.runId, error instanceof Error ? error.message : 'workflow_blocked'); throw error; } },
     async cancel(op, _handle, controlId) {
-      const session = store.managedSession(op.runId); if (!session) return result(op, 'accepted');
+      const session = store.managedSession(op.runId);
+      if (!session) return result(op, store.hasManagedEffect(op.operationId, 'thread-start') ? 'accepted' : 'cancelled', { noRegisteredSession: true });
       const bind = binding(op), observation = await bridge.call({ schemaVersion: '1.0', method: 'observe', binding: bind, sessionId: session.sessionId });
       if (observation.turn?.status !== 'inProgress') return result(op, 'accepted');
       const command = { schemaVersion: '1.0' as const, method: 'interrupt' as const, binding: bind, sessionId: session.sessionId, parameters: { turnId: observation.turn.id } };

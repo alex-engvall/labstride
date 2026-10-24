@@ -16,6 +16,8 @@ Before automatic initial delivery, check the protected workspace receipt, checko
 
 A completed native `labstride_report` dynamic tool call is task data. Read it only from the latest completed main-thread turn and bind it to the registered run, checkout, session, turn and commit. Independently verify Git objects, ancestry, branch, clean checkout and nonempty changes. Reject CI workflow changes in this profile and require signed-off commits. Recheck the latest turn immediately before push, PR creation and review readiness. Observe checks on the current PR head, preserving an existing PR's human-edited title and description.
 
+Before native creation, commit the versioned startup selection with its original run, operation, configuration, receipt and source bindings. Recovery reuses those values; a later No agent field edit cannot resolve an unknown native start. Cancellation without a registered session can finish only if there is no native creation intent. An unknown creation remains unresolved.
+
 Every external mutation has a committed intent. A lost response is reconciled read-only where sufficient independent evidence exists, otherwise retained as `outcome_unknown`. An unknown thread start, initial turn or PR creation is never resent. Generic CLI reconciliation is not authority to clear contradictory evidence or manufacture a missing receipt.
 
 ## Limits and consequences

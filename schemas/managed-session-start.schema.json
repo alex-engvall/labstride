@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Managed session start v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "workspaceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "configDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "receiptDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "sourceSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "path": {
+      "type": "string",
+      "pattern": "^/",
+      "maxLength": 4096
+    },
+    "mode": {
+      "enum": [
+        "plan",
+        "default",
+        "none"
+      ]
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "reasoning": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "choices": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "aiMode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "reasoning": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      },
+      "required": [
+        "aiMode",
+        "model",
+        "reasoning"
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "runId",
+    "workspaceId",
+    "configDigest",
+    "receiptDigest",
+    "sourceSha",
+    "path",
+    "mode",
+    "model",
+    "reasoning",
+    "choices"
+  ]
+}

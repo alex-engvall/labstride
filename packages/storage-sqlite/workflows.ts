@@ -12,6 +12,7 @@ import { prepareWorkspaceStart } from '../connector-ssh/workspaces.ts';
 import { validated } from './validation.ts';
 import type { ManagedCodingResultV1 } from '../../contracts/generated/managed-result.ts';
 import type { Policy, LocalPolicyAuthority } from '../core/policy.ts';
+import type { ManagedSessionStartV1 } from '../../contracts/generated/managed-session-start.ts';
 
 const audit: AuditContext = { actorId: 'coordinator', reason: 'Advance original configured workflow', evidenceRefs: ['workflow:durable'] };
 export function workspaceStart(compiled: CompiledConfiguration, steps: BoundStep[], observation: RuleObservation): StartPlan {
@@ -40,6 +41,37 @@ export function workspaceStart(compiled: CompiledConfiguration, steps: BoundStep
 }
 
 export class WorkflowStore extends GitHubStore {
+  managedSessionStart(operationId: string): ManagedSessionStartV1 | null {
+    const row = this.db.prepare("SELECT digest,request,response FROM managed_effects WHERE operation_id=? AND name='session-start-input'").get(operationId);
+    if (!row) return null;
+    if (row.response === null) throw new LifecycleError('recovery_required');
+    const value = validated('managed-session-start', JSON.parse(String(row.response)) as ManagedSessionStartV1);
+    const op = this.get('operation', operationId).request;
+    if (row.digest !== digest(value) || row.request !== canonical(value) || value.runId !== op.runId || value.workspaceId !== op.workspaceId ||
+      value.configDigest !== op.configDigest || value.sourceSha !== op.source.sha || value.receiptDigest !== digest(this.workspaceReceipt(op.runId))) throw new LifecycleError('identity_conflict');
+    return value;
+  }
+  freezeSessionStart(operationId: string, input: ManagedSessionStartV1): ManagedSessionStartV1 {
+    const start = validated('managed-session-start', input);
+    return this.transaction(() => {
+      const operation = this.get('operation', operationId), op = operation.request;
+      this.assertConfigurationOperation(op.runId, op); this.assertPolicyOperation(op.runId, op, 'execute');
+      if (!this.forwardAllowed(op.runId) || operation.effectBoundary !== 'crossed' || op.actionId !== 'labstride.self-build' ||
+        start.runId !== op.runId || start.workspaceId !== op.workspaceId || start.configDigest !== op.configDigest || start.sourceSha !== op.source.sha ||
+        start.receiptDigest !== digest(this.workspaceReceipt(op.runId))) throw new LifecycleError('identity_conflict');
+      const previous = this.managedSessionStart(operationId), payload = canonical(start);
+      if (previous) { if (canonical(previous) !== payload) throw new LifecycleError('identity_conflict'); return previous; }
+      // This is local input selection, committed atomically with its value. It
+      // has no external dispatch window and is never reconstructed from later
+      // GitHub field edits after a possibly completed native session start.
+      this.db.prepare('INSERT INTO managed_effects VALUES (?,?,?,?,?)').run(operationId, 'session-start-input', digest(start), payload, payload);
+      this.log(operationId, 'session_start_selected', { digest: digest(start) });
+      return start;
+    });
+  }
+  hasManagedEffect(operationId: string, name: string): boolean {
+    return !!this.db.prepare('SELECT 1 FROM managed_effects WHERE operation_id=? AND name=?').get(operationId, name);
+  }
   activateOperationalProfile(compiled: CompiledConfiguration, policy: Policy, authority: LocalPolicyAuthority, context: AuditContext): void {
     this.assertOperator(authority);
     this.transaction(() => {

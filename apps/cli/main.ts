@@ -53,7 +53,7 @@ export async function cli(argv: string[], output: (value: unknown) => void = val
   if (args[0] === 'runs') {
     const authority = createLocalPolicyAuthority(), store = new WorkflowStore(spec.stateDirectory, { policyAuthority: authority, localWorkspaceRoots: [spec.sourceRoot] });
     try {
-      const view = (id: string) => ({ ...store.controlStatus(id), diagnostic: store.workflowDiagnostic(id), summaryDiagnostic: store.summaryDiagnostic(id), fieldConflicts: store.managedProjectionDiagnostics(id), session: store.managedSession(id) });
+      const view = (id: string) => ({ ...store.controlStatus(id), diagnostic: store.workflowDiagnostic(id), summaryDiagnostic: store.summaryDiagnostic(id), fieldConflicts: store.managedProjectionDiagnostics(id), session: store.managedSession(id), startup: store.operations(id).filter(op => op.request.actionId === 'labstride.self-build').map(op => store.managedSessionStart(op.id)).filter(Boolean) });
       if (args[1] === 'list' && args.length === 2) { output({ schemaVersion: '1.0', runs: store.runs().map(run => view(run.id)) }); return; }
       if (args[1] === 'show' && args.length === 3) { output(view(args[2])); return; }
       if (['pause', 'resume', 'cancel', 'reconcile'].includes(args[1]) && args.length === 3) {

@@ -425,7 +425,7 @@
       "acceptance_criteria": [
         "Missing/pending/failed required checks block merge; a new head invalidates earlier green evidence."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/engshort/labstride/pull/65",
       "verification_evidence": [
         "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
@@ -915,9 +915,10 @@
         "A fresh operator gets actionable errors for unresolved fields, permissions, SSH and broker routing.",
         "The intended distribution supplies one CLI/service installation with local SQLite and configurable paths/limits; diagnostics explain optional hook fallback and actual session compatibility."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/engshort/labstride/pull/65",
       "verification_evidence": [
-        "evidence/W04-W06-local-self-build-2026-10-24.md"
+        "evidence/W04-W06-local-self-build-2026-10-24.md",
+        "Bounded installed pilot: doctor, dedicated credential scope, negative access checks, idle process restart and two isolated No agent runs passed. Native approval/PR canary and full operational acceptance remain open."
       ],
       "github_issue": 30,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/30"
@@ -939,7 +940,7 @@
       "acceptance_criteria": [
         "Restored state reconciles live external effects before resuming; no stale outbox is blindly replayed."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/engshort/labstride/pull/65",
       "verification_evidence": [
         "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
@@ -986,7 +987,7 @@
         "Logs/metrics contain IDs and safe reasons but no credentials, issue bodies or transcripts by default.",
         "Publish bounded relevant progress summaries through the coordinator instead of mirroring every tool call or full session transcripts into GitHub."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/engshort/labstride/pull/65",
       "verification_evidence": [
         "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
@@ -1010,7 +1011,7 @@
       "acceptance_criteria": [
         "Configured budgets stop indefinite repairs; retention does not remove unresolved-resource records."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/engshort/labstride/pull/65",
       "verification_evidence": [
         "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
@@ -1056,7 +1057,7 @@
       "acceptance_criteria": [
         "Agent prompts/repos lack deployment credentials; the privileged executor rechecks permission before effects."
       ],
-      "implementation_pr": null,
+      "implementation_pr": "https://github.com/engshort/labstride/pull/65",
       "verification_evidence": [
         "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
