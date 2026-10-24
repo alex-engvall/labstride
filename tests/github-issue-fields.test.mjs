@@ -20,7 +20,7 @@ function provider(){
   else if(body.query.includes('LabstrideIssueFieldDefinitions'))data={node:{id:'org-a',issueFields:{nodes:[selection,text],pageInfo:page}}};
   else if(body.query.includes('LabstrideNativeHistory'))data={node:{repository:{id:'repo-a',nameWithOwner:'owner/repo'},timelineItems:{nodes:state.events,pageInfo:page}}};
   else if(body.query.includes('LabstrideNativeIssues'))data={node:{id:'repo-a',issues:{nodes:[issue()],pageInfo:page}}};
-  else if(body.query.includes('LabstrideNativeIssue')||body.query.includes('LabstrideNativeWritePreflight'))data={node:issue()};
+  else if(body.query.includes('LabstrideNativeIssue')||body.query.includes('LabstrideNativeWritePreflight')||body.query.includes('LabstrideNativeWriteCapability'))data={node:issue()};
   else if(body.query.includes('LabstrideNativeProjection'))data={setIssueFieldValue:{clientMutationId:body.variables.input.clientMutationId}};
   else throw Error('Unexpected query');return Response.json({data});
  }});
@@ -37,6 +37,14 @@ test('native writes use one stable field, repository credential and final issue 
  const write=state.requests.find(request=>request.query.includes('LabstrideNativeProjection'));assert.deepEqual(write.variables.input,{issueId:'issue-a',clientMutationId:'attempt-a',issueFields:[{fieldId:'path-a',textValue:'/owned/source'}]});
  state.canSet=false;await assert.rejects(adapter.setField('repo-a','issue-a','path-a','string','/other','attempt-b'),error=>error.code==='unsupported_binding');assert.equal(state.requests.filter(request=>request.query.includes('LabstrideNativeProjection')).length,1);
  await assert.rejects(adapter.setField('repo-a','issue-a','request-a','single-select','foreign-option','attempt-c'));state.permission='READ';adapter.beginTick();assert.equal((await adapter.describeField(config.fields.path,'secret:repository')).writable,false);
+});
+test('installation credentials use independently observed field capability when the human repository role is null',async()=>{
+ const {state,adapter}=provider();state.permission=null;
+ assert.equal((await adapter.describeField(config.fields.path,'secret:repository')).writable,true);
+ state.canSet=false;adapter.beginTick();
+ assert.equal((await adapter.describeField(config.fields.path,'secret:repository')).writable,false);
+ await assert.rejects(adapter.setField('repo-a','issue-a','path-a','string','/owned/source','attempt-denied'),error=>error.code==='unsupported_binding');
+ assert.equal(state.requests.some(request=>request.query.includes('mutation LabstrideNativeProjection')),false);
 });
 test('foreign repository owners, unknown values and unqualified actors cannot supply native authority',async()=>{
  const {state,adapter}=provider();state.owner='User';await assert.rejects(adapter.item('issue-a'),error=>error.code==='binding_invalid');state.owner='Organization';

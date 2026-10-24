@@ -10,7 +10,8 @@
     "generate:types": "node scripts/generate_types.mjs",
     "check:types": "node scripts/generate_types.mjs --check && tsc --noEmit",
     "test": "node --test --test-isolation=none tests/*.test.mjs",
-    "start:coordinator": "node apps/coordinator/main.ts"
+    "start:coordinator": "node apps/coordinator/main.ts",
+    "labstride": "node apps/cli/main.ts"
   },
   "devDependencies": {
     "@types/node": "24.19.2",

@@ -40,4 +40,6 @@ ADR-005: ownership-aware deletion remains in an action and target helper, with n
 
 [ADR-006](adr/0006-hybrid-coordination.md): retain the durable hybrid, with GitHub owning tasks and human intent, repository-owned Actions handling CI/delivery, optional agent hooks reporting through one coordinator projection path, and an early interactive continuity/recovery proof. One small service and CLI ship together; personal Project polling, public-only use and installation independence remain required. This refines ADR-001 through ADR-005 without claiming implementation evidence.
 
+[ADR-007](adr/0007-checked-codex-delivery.md): a separate opt-in checked Codex delivery capability supports the local issue-to-review profile. It preserves the conservative adapter, documents the remaining human-turn race and never claims atomic protection.
+
 These are technical design choices, not additional interview answers. Replace them only with an ADR stating evidence, compatibility and migration consequences.

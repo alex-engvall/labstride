@@ -67,3 +67,6 @@ Keep the current specification coherent. Do not append contradictory historical 
 - [Exact-revision workspaces and creation recovery](34-exact-revision-workspaces.md)
 
 - [Recipe-owned optional application runtimes](36-recipe-owned-runtimes.md)
+
+- [Local issue-to-review installation](37-local-self-build.md)
+- [ADR-007: explicitly checked Codex delivery](adr/0007-checked-codex-delivery.md)

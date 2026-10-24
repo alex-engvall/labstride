@@ -29,7 +29,8 @@
       "status": "not_run",
       "evidence": [
         "evidence/W01.2-observations-2026-10-21.md",
-        "evidence/W02.3-reconciliation-2026-10-23.md"
+        "evidence/W02.3-reconciliation-2026-10-23.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ]
     },
     {
@@ -42,7 +43,8 @@
       "expected": "Request is rejected with no execution intent.",
       "status": "not_run",
       "evidence": [
-        "evidence/W02.2-authorization-2026-10-23.md"
+        "evidence/W02.2-authorization-2026-10-23.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ]
     },
     {
@@ -180,7 +182,9 @@
       "action": "Push a commit after earlier checks pass and before merge.",
       "expected": "Merge is blocked until current evidence and protections pass.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ]
     },
     {
       "id": "AC14",
@@ -191,7 +195,9 @@
       "action": "Omit one configured required check, with others green.",
       "expected": "Delivery remains waiting/blocked, not successful.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ]
     },
     {
       "id": "AC15",
@@ -277,7 +283,8 @@
       "expected": "Reconcile actual state before any pending effects resume.",
       "status": "not_run",
       "evidence": [
-        "evidence/W01.2-effects-2026-10-21.md"
+        "evidence/W01.2-effects-2026-10-21.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ]
     },
     {
@@ -292,7 +299,8 @@
       "expected": "Loading fails before extension code runs.",
       "status": "not_run",
       "evidence": [
-        "evidence/W01.4-installed-sessions-2026-10-23.md"
+        "evidence/W01.4-installed-sessions-2026-10-23.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ]
     },
     {
@@ -306,7 +314,8 @@
       "expected": "Deploy is denied while observation and audit continue.",
       "status": "not_run",
       "evidence": [
-        "evidence/W02.2-authorization-2026-10-23.md"
+        "evidence/W02.2-authorization-2026-10-23.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ]
     },
     {
@@ -319,7 +328,9 @@
       "action": "Exhaust repair budget and cancel an in-flight effect.",
       "expected": "No new repairs start; actual or unknown result is retained.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ]
     },
     {
       "id": "AC25",
@@ -356,7 +367,9 @@
       "action": "Fail a schema migration with active operation handles.",
       "expected": "Recoverable DB/version state and handles remain available.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ]
     },
     {
       "id": "AC28",
@@ -367,7 +380,9 @@
       "action": "Inject fixture secrets into provider/SSH errors.",
       "expected": "Logs and receipts omit secret values.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ]
     },
     {
       "id": "AC29",
@@ -379,7 +394,9 @@
       "action": "Use incomplete personal Project/broker/host settings.",
       "expected": "Doctor identifies each missing capability and prevents enablement.",
       "status": "not_run",
-      "evidence": []
+      "evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ]
     },
     {
       "id": "AC30",
@@ -466,7 +483,8 @@
         "evidence/W01.4-client-continuity-2026-10-23.md",
         "evidence/W02.2-authorization-2026-10-23.md",
         "evidence/W02.3-reconciliation-2026-10-23.md",
-        "evidence/W03.1-ssh-boundary-2026-10-23.md"
+        "evidence/W03.1-ssh-boundary-2026-10-23.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ]
     },
     {

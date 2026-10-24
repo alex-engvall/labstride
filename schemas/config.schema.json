@@ -16,21 +16,40 @@
       "type": "boolean"
     },
     "broker": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "url": {
-          "type": "string",
-          "format": "uri"
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "const": false
+            }
+          },
+          "required": [
+            "enabled"
+          ]
         },
-        "oidcAudience": {
-          "type": "string",
-          "minLength": 1
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "oidcAudience": {
+              "type": "string",
+              "minLength": 1
+            },
+            "enabled": {
+              "const": true
+            }
+          },
+          "required": [
+            "url",
+            "oidcAudience"
+          ]
         }
-      },
-      "required": [
-        "url",
-        "oidcAudience"
       ]
     },
     "github": {

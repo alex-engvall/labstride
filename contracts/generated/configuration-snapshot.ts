@@ -73,10 +73,15 @@ export interface LabstrideInstallationConfigurationV1 {
   schemaVersion: "1.0";
   installationId: string;
   enabled: boolean;
-  broker: {
-    url: string;
-    oidcAudience: string;
-  };
+  broker:
+    | {
+        enabled: false;
+      }
+    | {
+        url: string;
+        oidcAudience: string;
+        enabled?: true;
+      };
   github: {
     /**
      * @minItems 1

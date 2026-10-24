@@ -275,6 +275,11 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
     return row ? (JSON.parse(String(row.payload)) as BoundResult).result.handle : null;
   }
   recoveryEpoch(): number { return Number(this.db.prepare('SELECT epoch FROM recovery_control WHERE id=1').get()!.epoch); }
+  deferOperationObservation(operationId: string, intervalMs: number): void {
+    if (!Number.isSafeInteger(intervalMs) || intervalMs < 1000 || intervalMs > 3600000) throw new LifecycleError('invalid_payload');
+    this.db.prepare("UPDATE deliveries SET state='reconcile',next_at=?,revision=revision+1 WHERE operation_id=? AND state IN ('pending','reconcile')")
+      .run(new Date(Date.parse(this.clock.now()) + intervalMs).toISOString(), operationId);
+  }
   private finishDelivery(operationId: string, observed: boolean): void {
     if (observed) this.db.prepare('UPDATE restore_checks SET resolved=1 WHERE operation_id=?').run(operationId);
     this.db.prepare(`UPDATE deliveries SET state=CASE WHEN EXISTS(SELECT 1 FROM restore_checks WHERE operation_id=? AND resolved=0)
@@ -312,7 +317,12 @@ export class ExecutionStore extends PolicyStore implements InboxStore {
       if (!claim && op.state !== 'outcome_unknown') throw new LifecycleError('recovery_required');
       if (bound.result.status === 'outcome_unknown') {
         if (op.state !== 'outcome_unknown') this.changeOperation(op.id, 'outcome_unknown', false, []);
-      } else if (bound.result.status !== 'accepted') {
+      } else if (bound.result.status === 'accepted') {
+        // A fresh, bound acknowledgement establishes that the original action
+        // is still running. Waiting for a person or CI is not an unknown effect.
+        if (op.state === 'outcome_unknown' && !this.db.prepare('SELECT 1 FROM run_controls WHERE run_id=? AND cancel_requested=1').get(op.runId))
+          this.changeOperation(op.id, 'running', true, bound.result.evidenceRefs);
+      } else {
         if (bound.result.evidenceRefs.length === 0) throw new LifecycleError('invalid_payload');
         this.changeOperation(op.id, bound.result.status, true, bound.result.evidenceRefs);
         if (createsWorkspace && bound.result.status === 'succeeded') this.workspaceReady(op, bound);

@@ -39,7 +39,20 @@ export class GitHubIssueFieldsAdapter implements GitHubReader {
       {id:scopeId},this.#options.configuration.github.credentialRef));
     const repo=object(metadata.node),owner=object(repo.owner);
     if(repo.id!==scopeId||!this.#options.configuration.github.repositories.includes(string(repo.nameWithOwner))||owner.__typename!=='Organization')throw new GitHubError('binding_invalid');
-    this.#writable.set(scopeId,['WRITE','MAINTAIN','ADMIN'].includes(String(repo.viewerPermission)));
+    let writable=['WRITE','MAINTAIN','ADMIN'].includes(String(repo.viewerPermission));
+    // Installation tokens have no human repository role: viewerPermission is
+    // null even when Issues(write) permits field writes. Verify GitHub's actual
+    // operation-specific capability on the independently enrolled issue.
+    if(repo.viewerPermission===null){
+      const enrolled=this.#options.historyQualifications.find(value=>value.scopeId===scopeId);
+      if(enrolled){
+        const probe=object(await this.#options.client.query('query LabstrideNativeWriteCapability($id:ID!){node(id:$id){... on Issue{id viewerCanSetFields repository{id}}}}',
+          {id:enrolled.subjectId},this.#options.configuration.github.credentialRef));
+        const issue=object(probe.node);
+        writable=issue.id===enrolled.subjectId&&object(issue.repository).id===scopeId&&issue.viewerCanSetFields===true;
+      }
+    }
+    this.#writable.set(scopeId,writable);
     const result:Record<string,unknown>[]=[];let after:string|null=null;
     for(let page=0;page<10;page++){
       const data=object(await this.#options.client.query(`query LabstrideIssueFieldDefinitions($id:ID!,$after:String){node(id:$id){... on Organization{id issueFields(first:100,after:$after){nodes{${definitions}} pageInfo{hasNextPage endCursor}}}}}`,

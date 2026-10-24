@@ -1,6 +1,10 @@
 # 16 — Operations and CLI
 
-## Intended commands — not implemented
+## CLI scope
+
+The bounded [local issue-to-review profile](37-local-self-build.md) implements the JSON CLI, disabled administrative bootstrap and locked service loop. The table below retains the full command targets; keep/release, extension inspection, automated restore/upgrade and complete broker diagnostics remain open.
+
+## Full command targets
 
 | Command | Intended outcome |
 | --- | --- |

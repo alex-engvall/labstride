@@ -27,12 +27,15 @@ export function startExecution(dataDir: string, options: {
   installedSessions?: { host: HostProfile; providerIds: string[] };
   github?: GitHubOptions;
   installedTargets?: { host: HostProfile };
+  additionalActions?: (store: ReturnType<typeof startCoordinator>['store']) => ReadonlyMap<string, import('../../packages/core/execution.ts').ActionAdapter>;
+  serialized?: boolean;
 }) {
   const runtime = startCoordinator(dataDir, options.dependencies);
   const resolver = options.installedSessions && sessionResolver(options.installedSessions.host);
   try {
     if (options.restore) runtime.store.enterRestore(options.restore);
     const actionOptions = { ...options.actions, adapters: new Map(options.actions.adapters) };
+    for (const [key, adapter] of options.additionalActions?.(runtime.store) ?? []) actionOptions.adapters.set(key, adapter);
     if (options.installedTargets) actionOptions.adapters.set(actionKey(reserveAction, reserveVersion), configuredTargetAction(runtime.store, options.installedTargets.host));
     if (options.installedTargets) actionOptions.adapters.set(actionKey(workspaceAction, workspaceVersion), configuredWorkspaceAction(runtime.store, options.installedTargets.host));
     if (options.installedTargets) actionOptions.adapters.set(actionKey(runtimeAction, runtimeVersion), configuredRuntimeAction(runtime.store, options.installedTargets.host));
@@ -43,7 +46,7 @@ export function startExecution(dataDir: string, options: {
       for (const id of options.installedSessions!.providerIds) observationOptions.sessions.set(id, pinnedSessionObserver(runtime.store, resolver.resolve));
     }
     const actions = createWorker(runtime.store, actionOptions);
-    const controls = createControlWorker(runtime.store, options.actions);
+    const controls = createControlWorker(runtime.store, actionOptions);
     const observations = createObservationWorker(runtime.store, observationOptions);
     const github = options.github && createGitHubWorker(runtime.store, options.github);
     let observationJob: Promise<void> | undefined;
@@ -52,6 +55,12 @@ export function startExecution(dataDir: string, options: {
     return { ...runtime,
       async tick(): Promise<void> {
         if (closed) return;
+        if (options.serialized) {
+          await controls.tick(); await controls.drain();
+          await actions.tick(); await actions.drain();
+          await github?.tick(); await observations.tick();
+          return;
+        }
         if (!observationJob) observationJob = (async () => { await github?.tick(); await observations.tick(); })().catch(error => { observationError = error; })
           .finally(() => { observationJob = undefined; });
         await controls.tick(); await actions.tick();

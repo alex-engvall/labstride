@@ -207,6 +207,21 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
   ALTER TABLE projection_attempts ADD COLUMN observed_version TEXT;
   CREATE TABLE projection_holds (provider_id TEXT NOT NULL,subject_id TEXT NOT NULL,field_id TEXT NOT NULL,reason TEXT NOT NULL,
     PRIMARY KEY(provider_id,subject_id,field_id));
+` }, { version: 13, sql: `
+  CREATE TABLE workflow_steps (run_id TEXT NOT NULL REFERENCES runs(id), position INTEGER NOT NULL,
+    operation_id TEXT NOT NULL UNIQUE REFERENCES operations(id), PRIMARY KEY(run_id,position));
+  CREATE TABLE workflow_diagnostics (run_id TEXT PRIMARY KEY REFERENCES runs(id), code TEXT NOT NULL);
+  CREATE TABLE managed_effects (operation_id TEXT NOT NULL REFERENCES operations(id), name TEXT NOT NULL,
+    digest TEXT NOT NULL, request TEXT NOT NULL CHECK(json_valid(request)), response TEXT CHECK(response IS NULL OR json_valid(response)),
+    PRIMARY KEY(operation_id,name));
+  CREATE TABLE managed_sessions (run_id TEXT PRIMARY KEY REFERENCES runs(id), operation_id TEXT NOT NULL REFERENCES operations(id),
+    session_id TEXT NOT NULL UNIQUE, workspace_path TEXT NOT NULL, mode TEXT NOT NULL, model TEXT NOT NULL, reasoning TEXT NOT NULL);
+  CREATE TABLE managed_summaries (run_id TEXT PRIMARY KEY REFERENCES runs(id), comment_id INTEGER, body TEXT NOT NULL, previous_body TEXT, pending INTEGER NOT NULL, next_at TEXT NOT NULL);
+  CREATE TABLE managed_pull_requests (run_id TEXT PRIMARY KEY REFERENCES runs(id), number INTEGER NOT NULL, sha TEXT NOT NULL, next_at TEXT NOT NULL);
+  CREATE TABLE managed_reports (run_id TEXT PRIMARY KEY REFERENCES runs(id), session_id TEXT NOT NULL, turn_id TEXT NOT NULL,
+    payload TEXT NOT NULL CHECK(json_valid(payload)));
+  CREATE TABLE managed_phases (run_id TEXT PRIMARY KEY REFERENCES runs(id), name TEXT NOT NULL, revision INTEGER NOT NULL);
+  CREATE TABLE managed_summary_errors (run_id TEXT PRIMARY KEY REFERENCES runs(id), code TEXT NOT NULL);
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

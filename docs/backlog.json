@@ -46,7 +46,8 @@
       "verification_evidence": [
         "evidence/W01.2-inbox-2026-10-21.md",
         "evidence/W01.2-effects-2026-10-21.md",
-        "evidence/W01.2-observations-2026-10-21.md"
+        "evidence/W01.2-observations-2026-10-21.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
       "github_issue": 15,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/15"
@@ -95,7 +96,8 @@
       "verification_evidence": [
         "evidence/W01.2-inbox-2026-10-21.md",
         "evidence/W01.2-effects-2026-10-21.md",
-        "evidence/W01.2-observations-2026-10-21.md"
+        "evidence/W01.2-observations-2026-10-21.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
       "github_issue": 15,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/15"
@@ -208,7 +210,8 @@
       ],
       "implementation_pr": "https://github.com/alex-engvall/labstride/pull/53",
       "verification_evidence": [
-        "evidence/W02.1-configuration-2026-10-23.md"
+        "evidence/W02.1-configuration-2026-10-23.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
       "github_issue": 18,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/18"
@@ -350,7 +353,8 @@
       "verification_evidence": [
         "evidence/W02.3-reconciliation-2026-10-23.md",
         "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json",
-        "evidence/W03.2-native-fields-2026-10-24.md"
+        "evidence/W03.2-native-fields-2026-10-24.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
       "github_issue": 20,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/20"
@@ -374,7 +378,8 @@
       "implementation_pr": "https://github.com/alex-engvall/labstride/pull/56",
       "verification_evidence": [
         "evidence/W02.3-reconciliation-2026-10-23.md",
-        "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json"
+        "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
       "github_issue": 20,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/20"
@@ -398,7 +403,8 @@
       "implementation_pr": "https://github.com/alex-engvall/labstride/pull/56",
       "verification_evidence": [
         "evidence/W02.3-reconciliation-2026-10-23.md",
-        "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json"
+        "evidence/W02.3-live-reconciliation-receipt-2026-10-23.json",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
       "github_issue": 20,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/20"
@@ -408,7 +414,7 @@
       "title": "Gate delivery on current-revision CI",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W04",
       "depends_on_work_packages": [
@@ -420,7 +426,9 @@
         "Missing/pending/failed required checks block merge; a new head invalidates earlier green evidence."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ],
       "github_issue": 26,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/26"
     },
@@ -507,7 +515,8 @@
       "implementation_pr": "https://github.com/alex-engvall/labstride/pull/52",
       "verification_evidence": [
         "evidence/W01.4-installed-sessions-2026-10-23.md",
-        "evidence/W01.4-client-continuity-2026-10-23.md"
+        "evidence/W01.4-client-continuity-2026-10-23.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
       "github_issue": 17,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/17"
@@ -893,7 +902,7 @@
       "title": "Provide installation and diagnostics CLI",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W06",
       "depends_on_work_packages": [
@@ -907,7 +916,9 @@
         "The intended distribution supplies one CLI/service installation with local SQLite and configurable paths/limits; diagnostics explain optional hook fallback and actual session compatibility."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ],
       "github_issue": 30,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/30"
     },
@@ -916,7 +927,7 @@
       "title": "Back up and restore consistently",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W06",
       "depends_on_work_packages": [
@@ -929,7 +940,9 @@
         "Restored state reconciles live external effects before resuming; no stale outbox is blindly replayed."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ],
       "github_issue": 31,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/31"
     },
@@ -960,7 +973,7 @@
       "title": "Provide redacted operational evidence",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W06",
       "depends_on_work_packages": [
@@ -974,7 +987,9 @@
         "Publish bounded relevant progress summaries through the coordinator instead of mirroring every tool call or full session transcripts into GitHub."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ],
       "github_issue": 32,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/32"
     },
@@ -983,7 +998,7 @@
       "title": "Apply bounded retention and budgets",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W06",
       "depends_on_work_packages": [
@@ -996,7 +1011,9 @@
         "Configured budgets stop indefinite repairs; retention does not remove unresolved-resource records."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ],
       "github_issue": 32,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/32"
     },
@@ -1028,7 +1045,7 @@
       "title": "Separate deploy credentials from coding sessions",
       "phase": "MVP",
       "priority": "P0",
-      "status": "planned",
+      "status": "in_progress",
       "owner_role": "maintainer",
       "work_package": "W04",
       "depends_on_work_packages": [
@@ -1040,7 +1057,9 @@
         "Agent prompts/repos lack deployment credentials; the privileged executor rechecks permission before effects."
       ],
       "implementation_pr": null,
-      "verification_evidence": [],
+      "verification_evidence": [
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
+      ],
       "github_issue": 24,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/24"
     },
@@ -1170,7 +1189,8 @@
       "verification_evidence": [
         "evidence/W01.4-installed-sessions-2026-10-23.md",
         "evidence/W01.4-backend-upgrade-2026-10-23.md",
-        "evidence/W01.4-client-continuity-2026-10-23.md"
+        "evidence/W01.4-client-continuity-2026-10-23.md",
+        "evidence/W04-W06-local-self-build-2026-10-24.md"
       ],
       "github_issue": 17,
       "github_issue_url": "https://github.com/alex-engvall/labstride/issues/17"

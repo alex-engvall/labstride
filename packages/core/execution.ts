@@ -55,4 +55,5 @@ export interface ExecutionPort extends InboxStore {
   retryRead(id: string, policy: RetryPolicy, random: number): void;
   block(id: string, code: string): void;
   operationHandle(operationId: string): string | null;
+  deferOperationObservation?(operationId: string, intervalMs: number): void;
 }

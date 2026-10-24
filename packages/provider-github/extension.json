@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0",
+  "id": "labstride.github.native",
+  "version": "0.1.0",
+  "kind": "provider",
+  "protocol": {
+    "major": 1,
+    "minor": 0
+  },
+  "entrypoint": "module",
+  "capabilities": [
+    "github.organization-issue-fields.v1"
+  ],
+  "requiredCapabilities": [],
+  "permissions": [
+    "network.github"
+  ],
+  "inputSchema": "input",
+  "outputSchema": "output"
+}

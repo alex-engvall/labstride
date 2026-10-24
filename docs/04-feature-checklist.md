@@ -27,7 +27,7 @@ Specification: [06-architecture.md](06-architecture.md).
 
 - Crash tests prove effects are never initiated before their intent is durable.
 
-Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md, evidence/W01.2-observations-2026-10-21.md
+Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md, evidence/W01.2-observations-2026-10-21.md, evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15).
 
@@ -56,7 +56,7 @@ Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 - A lost effect response blocks blind repetition and retains enough identity for reconciliation.
 
-Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md, evidence/W01.2-observations-2026-10-21.md
+Verification evidence: evidence/W01.2-inbox-2026-10-21.md, evidence/W01.2-effects-2026-10-21.md, evidence/W01.2-observations-2026-10-21.md, evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#15](https://github.com/alex-engvall/labstride/issues/15).
 
@@ -127,7 +127,7 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 
 - Two installations use different field/option names and IDs without core edits; type mismatches are rejected.
 
-Verification evidence: evidence/W02.1-configuration-2026-10-23.md
+Verification evidence: evidence/W02.1-configuration-2026-10-23.md, evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#18](https://github.com/alex-engvall/labstride/issues/18).
 
@@ -213,7 +213,7 @@ Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contr
 - The same current request is recovered after a missed event and produces no duplicate run.
 - Missing hooks and failed GitHub progress writes recover through provider observation and the durable projection outbox after coordinator restart.
 
-Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json, evidence/W03.2-native-fields-2026-10-24.md
+Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json, evidence/W03.2-native-fields-2026-10-24.md, evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20).
 
@@ -228,7 +228,7 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 - Projection updates only its mapped field; a concurrent human change creates a visible conflict.
 - Only the coordinator projection adapter writes managed technical fields/summaries; hook/workflow observations preserve human-owned fields and decisions.
 
-Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json
+Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json, evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20).
 
@@ -243,7 +243,7 @@ Specification: [08-configuration-and-rules.md](08-configuration-and-rules.md).
 - Coordinator status writes and stale events cannot retrigger work.
 - Agent turn-stop/session-end reports cannot imply task completion, human approval or a new start request.
 
-Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json
+Verification evidence: evidence/W02.3-reconciliation-2026-10-23.md, evidence/W02.3-live-reconciliation-receipt-2026-10-23.json, evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20).
 
@@ -251,13 +251,13 @@ Implementation issue: [#20](https://github.com/alex-engvall/labstride/issues/20)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W04 |
+| MVP | P0 | in_progress | W04 |
 
 Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contract.md).
 
 - Missing/pending/failed required checks block merge; a new head invalidates earlier green evidence.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#26](https://github.com/alex-engvall/labstride/issues/26).
 
@@ -314,7 +314,7 @@ Specification: [10-extensions.md](10-extensions.md).
 
 - Issue content cannot install/upgrade an extension; an integrity mismatch prevents loading.
 
-Verification evidence: evidence/W01.4-installed-sessions-2026-10-23.md, evidence/W01.4-client-continuity-2026-10-23.md
+Verification evidence: evidence/W01.4-installed-sessions-2026-10-23.md, evidence/W01.4-client-continuity-2026-10-23.md, evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#17](https://github.com/alex-engvall/labstride/issues/17).
 
@@ -560,14 +560,14 @@ Implementation issue: [#29](https://github.com/alex-engvall/labstride/issues/29)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W06 |
+| MVP | P0 | in_progress | W06 |
 
 Specification: [16-operations-and-cli.md](16-operations-and-cli.md).
 
 - A fresh operator gets actionable errors for unresolved fields, permissions, SSH and broker routing.
 - The intended distribution supplies one CLI/service installation with local SQLite and configurable paths/limits; diagnostics explain optional hook fallback and actual session compatibility.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#30](https://github.com/alex-engvall/labstride/issues/30).
 
@@ -575,13 +575,13 @@ Implementation issue: [#30](https://github.com/alex-engvall/labstride/issues/30)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W06 |
+| MVP | P0 | in_progress | W06 |
 
 Specification: [16-operations-and-cli.md](16-operations-and-cli.md).
 
 - Restored state reconciles live external effects before resuming; no stale outbox is blindly replayed.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#31](https://github.com/alex-engvall/labstride/issues/31).
 
@@ -603,14 +603,14 @@ Implementation issue: [#31](https://github.com/alex-engvall/labstride/issues/31)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W06 |
+| MVP | P0 | in_progress | W06 |
 
 Specification: [11-security-and-trust.md](11-security-and-trust.md).
 
 - Logs/metrics contain IDs and safe reasons but no credentials, issue bodies or transcripts by default.
 - Publish bounded relevant progress summaries through the coordinator instead of mirroring every tool call or full session transcripts into GitHub.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#32](https://github.com/alex-engvall/labstride/issues/32).
 
@@ -618,13 +618,13 @@ Implementation issue: [#32](https://github.com/alex-engvall/labstride/issues/32)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W06 |
+| MVP | P0 | in_progress | W06 |
 
 Specification: [16-operations-and-cli.md](16-operations-and-cli.md).
 
 - Configured budgets stop indefinite repairs; retention does not remove unresolved-resource records.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#32](https://github.com/alex-engvall/labstride/issues/32).
 
@@ -647,13 +647,13 @@ Implementation issue: [#21](https://github.com/alex-engvall/labstride/issues/21)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W04 |
+| MVP | P0 | in_progress | W04 |
 
 Specification: [11-security-and-trust.md](11-security-and-trust.md).
 
 - Agent prompts/repos lack deployment credentials; the privileged executor rechecks permission before effects.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24).
 
@@ -739,6 +739,6 @@ Specification: [22-api-and-schema-reference.md](22-api-and-schema-reference.md).
 - Start/resume/observe/send/interrupt/close preserve provider identity, reject stale human/turn revisions and explicitly report missing atomic backend guards.
 - Optional hooks are correlated, deduplicated observations with backend reconciliation when missing; the existing interactive client resumes the same enrolled session, not a substituted daemon.
 
-Verification evidence: evidence/W01.4-installed-sessions-2026-10-23.md, evidence/W01.4-backend-upgrade-2026-10-23.md, evidence/W01.4-client-continuity-2026-10-23.md
+Verification evidence: evidence/W01.4-installed-sessions-2026-10-23.md, evidence/W01.4-backend-upgrade-2026-10-23.md, evidence/W01.4-client-continuity-2026-10-23.md, evidence/W04-W06-local-self-build-2026-10-24.md
 
 Implementation issue: [#17](https://github.com/alex-engvall/labstride/issues/17).

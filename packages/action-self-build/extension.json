@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0",
+  "id": "labstride.self-build",
+  "version": "0.1.0",
+  "kind": "action",
+  "protocol": {
+    "major": 1,
+    "minor": 0
+  },
+  "entrypoint": "module",
+  "capabilities": [
+    "self-build.checked-delivery.v1"
+  ],
+  "requiredCapabilities": [],
+  "permissions": [
+    "network.github",
+    "session.manage",
+    "filesystem.workspace"
+  ],
+  "inputSchema": "input",
+  "outputSchema": "output"
+}
