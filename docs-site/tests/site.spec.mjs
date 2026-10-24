@@ -36,7 +36,9 @@ test('local search finds and opens indexed documentation', async ({ page }) => {
 test('theme selector changes the active theme', async ({ page }) => {
   await page.goto('/');
   await openMobileMenu(page);
-  const theme = page.getByLabel('Select theme');
+  // Starlight renders both responsive variants; role queries exclude the hidden one.
+  const theme = page.getByRole('combobox', { name: /Select theme/ });
+  await expect(theme).toBeVisible();
   await theme.selectOption('dark');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await theme.selectOption('light');
