@@ -5,7 +5,8 @@ export type Kind = LifecycleRecord['kind'];
 export type RecordOf<K extends Kind> = Extract<LifecycleRecord, { kind: K }>;
 export type ErrorCode = 'invalid_payload' | 'not_found' | 'identity_conflict' | 'revision_conflict' |
   'invalid_transition' | 'recovery_required' | 'storage_busy' | 'storage_failure' |
-  'migration_failed' | 'unsupported_schema' | 'unsafe_state_path' | 'resource_busy' | 'effect_consumed' | 'effect_blocked' | 'capacity_wait' | 'issue_busy' | 'unsupported_capability' | 'stale_revision';
+  'migration_failed' | 'unsupported_schema' | 'unsafe_state_path' | 'resource_busy' | 'effect_consumed' | 'effect_blocked' | 'capacity_wait' | 'issue_busy' | 'unsupported_capability' | 'stale_revision' |
+  'identity_rejected' | 'provider_unavailable' | 'claim_conflict' | 'receipt_conflict' | 'broker_unavailable';
 
 export class LifecycleError extends Error {
   readonly code: ErrorCode;

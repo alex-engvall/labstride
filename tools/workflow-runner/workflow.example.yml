@@ -1,0 +1,67 @@
+# Copy the reviewed client and a repository-owned delivery.mjs with this recipe.
+# This example is outside .github/workflows and enables no installed workflow.
+name: Bound repository delivery
+run-name: 'labstride:${{ inputs.operation_id }}:${{ inputs.request_digest }}'
+on:
+  workflow_dispatch:
+    inputs:
+      operation_id:
+        required: true
+        type: string
+      request_digest:
+        required: true
+        type: string
+      schema_version:
+        required: true
+        type: string
+permissions: {}
+concurrency:
+  group: repository-delivery-production
+  cancel-in-progress: false
+jobs:
+  deliver:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    # Enroll this environment name, workflow path, trusted ref and exact SHA.
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      LABSTRIDE_BROKER_URL: ${{ vars.LABSTRIDE_BROKER_URL }}
+      LABSTRIDE_OIDC_AUDIENCE: ${{ vars.LABSTRIDE_OIDC_AUDIENCE }}
+      LABSTRIDE_OPERATION_ID: ${{ inputs.operation_id }}
+      LABSTRIDE_REQUEST_DIGEST: ${{ inputs.request_digest }}
+      LABSTRIDE_CLAIM_FILE: ${{ runner.temp }}/labstride-claim.json
+      LABSTRIDE_RECEIPT_FILE: ${{ runner.temp }}/labstride-receipt.json
+    steps:
+      - name: Require protocol version
+        env:
+          SCHEMA_VERSION: ${{ inputs.schema_version }}
+        run: test "$SCHEMA_VERSION" = '1.0'
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: trusted-workflow
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.22.0
+      - name: Claim authoritative operation
+        id: claim
+        run: node trusted-workflow/tools/workflow-runner/client.mjs claim
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: ${{ steps.claim.outputs.source_repository }}
+          ref: ${{ steps.claim.outputs.source_sha }}
+          path: application
+          persist-credentials: false
+      # Build/test application code in a separate job/runner without production
+      # credentials. Do not let an earlier build mutate this trusted delivery code.
+      # Bind any transferred artifact to its exact source SHA and content digest.
+      - name: Recheck permission and execute repository-owned delivery
+        env:
+          LABSTRIDE_SOURCE_DIRECTORY: ${{ github.workspace }}/application
+          LABSTRIDE_EFFECT_MODULE: ${{ github.workspace }}/trusted-workflow/delivery.mjs
+          DEPLOYMENT_CREDENTIAL: ${{ secrets.DEPLOYMENT_CREDENTIAL }}
+        run: node trusted-workflow/tools/workflow-runner/client.mjs execute

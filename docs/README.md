@@ -70,3 +70,5 @@ Keep the current specification coherent. Do not append contradictory historical 
 
 - [Local issue-to-review installation](37-local-self-build.md)
 - [ADR-007: explicitly checked Codex delivery](adr/0007-checked-codex-delivery.md)
+
+- [Authenticated repository workflow execution](38-workflow-broker.md)

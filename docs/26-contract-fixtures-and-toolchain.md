@@ -57,7 +57,7 @@ Original fixture dependencies:
 | ajv-formats | 3.0.1 | MIT | Enforce declared formats in the Node fixture; keep aligned with Ajv |
 | jose | 6.2.13 | MIT | Verify signatures/registered claims in the separate [W00.2 discovery probe](27-oidc-discovery-probe.md); revalidate identity and failure behavior on upgrades |
 
-The npm lock includes transitive licenses MIT, Apache-2.0, BSD-3-Clause, PSF-2.0 and Python-2.0. Retain upstream notices when redistributing tooling. These are development packages, not selected coordinator runtime dependencies.
+The npm lock includes transitive licenses MIT, Apache-2.0, BSD-3-Clause, PSF-2.0 and Python-2.0. Retain upstream notices when redistributing tooling. This inventory records the original development fixture. Ajv/ajv-formats subsequently became store runtime dependencies, and [W04.1](38-workflow-broker.md) promotes existing pinned jose to runtime JWT/JWKS verification.
 
 [requirements-docs.txt](../requirements-docs.txt) now pins jsonschema `4.26.0`, attrs `26.1.0`, jsonschema-specifications `2025.9.1`, referencing `0.37.0`, rpds-py `2026.9.1`, rfc3339-validator `0.1.4`, rfc3986-validator `0.1.1` and six `1.17.0` (MIT). The two RFC validators are the minimal additional checkers for the formats used here. Dependency changes go through reviewed pins and a fresh environment check; a top-level version alone is not proof of format support.
 

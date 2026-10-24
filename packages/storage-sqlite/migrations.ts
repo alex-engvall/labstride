@@ -222,6 +222,15 @@ export const migrations: readonly Migration[] = [{ version: 1, sql: `
     payload TEXT NOT NULL CHECK(json_valid(payload)));
   CREATE TABLE managed_phases (run_id TEXT PRIMARY KEY REFERENCES runs(id), name TEXT NOT NULL, revision INTEGER NOT NULL);
   CREATE TABLE managed_summary_errors (run_id TEXT PRIMARY KEY REFERENCES runs(id), code TEXT NOT NULL);
+` }, { version: 14, sql: `
+  CREATE TABLE workflow_dispatches (operation_id TEXT PRIMARY KEY REFERENCES operations(id),
+    payload TEXT NOT NULL CHECK(json_valid(payload)), resource_key TEXT NOT NULL,
+    active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0,1)), conflict INTEGER NOT NULL DEFAULT 0 CHECK(conflict IN (0,1)));
+  CREATE UNIQUE INDEX workflow_target_active ON workflow_dispatches(resource_key) WHERE active=1;
+  CREATE TABLE workflow_claims (operation_id TEXT PRIMARY KEY REFERENCES workflow_dispatches(operation_id),
+    payload TEXT NOT NULL CHECK(json_valid(payload)), consumed INTEGER NOT NULL DEFAULT 0 CHECK(consumed IN (0,1)));
+  CREATE TABLE workflow_receipts (operation_id TEXT PRIMARY KEY REFERENCES workflow_claims(operation_id),
+    payload TEXT NOT NULL CHECK(json_valid(payload)));
 ` }];
 
 export function migrate(db: DatabaseSync, steps: readonly Migration[] = migrations): void {

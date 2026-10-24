@@ -33,13 +33,14 @@ const workspace = manifest.kind === 'action' && manifest.id === 'labstride.works
 const runtime = manifest.kind === 'action' && manifest.id === 'labstride.runtime-create';
 const githubProvider = manifest.kind === 'provider' && manifest.id === 'labstride.github.native';
 const selfBuild = manifest.kind === 'action' && manifest.id === 'labstride.self-build';
+const githubWorkflow = manifest.kind === 'action' && manifest.id === 'labstride.github-workflow';
 const runtimeConnector = connector && manifest.capabilities.includes('runtime.create.v1');
 const artifact = validate('extension-artifact', { schemaVersion: '1.0',
   manifest,
   module: readFileSync(join(directory, 'index.mjs'), 'utf8'), schemas: {
     configuration: JSON.parse(readFileSync(join(directory, 'configuration.schema.json'), 'utf8')),
-    input: githubProvider ? {type:'object'} : connector ? { anyOf: [bundled('ssh-helper-request'),bundled('ssh-workspace-request'),...(runtimeConnector?[bundled('ssh-runtime-request')]:[])] } : selfBuild ? bundled('self-build-input') : runtime ? bundled('runtime-create-input') : workspace ? bundled('workspace-create-input') : sessionCommand ? {type:'object',additionalProperties:false,properties:{sessionCommand:bundled('session-command')},required:['sessionCommand']} : JSON.parse(readFileSync(new URL('../schemas/session-request.schema.json', import.meta.url), 'utf8')),
-    output: githubProvider ? {type:'object'} : connector ? { anyOf: [bundled('ssh-helper-response'),bundled('ssh-workspace-response'),...(runtimeConnector?[bundled('ssh-runtime-response')]:[])] } : runtime || workspace || sessionCommand || selfBuild ? bundled('execution-record') : JSON.parse(readFileSync(new URL('../schemas/session-observation.schema.json', import.meta.url), 'utf8')),
+    input: githubProvider ? {type:'object'} : connector ? { anyOf: [bundled('ssh-helper-request'),bundled('ssh-workspace-request'),...(runtimeConnector?[bundled('ssh-runtime-request')]:[])] } : githubWorkflow ? bundled('workflow-input') : selfBuild ? bundled('self-build-input') : runtime ? bundled('runtime-create-input') : workspace ? bundled('workspace-create-input') : sessionCommand ? {type:'object',additionalProperties:false,properties:{sessionCommand:bundled('session-command')},required:['sessionCommand']} : JSON.parse(readFileSync(new URL('../schemas/session-request.schema.json', import.meta.url), 'utf8')),
+    output: githubProvider ? {type:'object'} : connector ? { anyOf: [bundled('ssh-helper-response'),bundled('ssh-workspace-response'),...(runtimeConnector?[bundled('ssh-runtime-response')]:[])] } : runtime || workspace || sessionCommand || selfBuild || githubWorkflow ? bundled('execution-record') : JSON.parse(readFileSync(new URL('../schemas/session-observation.schema.json', import.meta.url), 'utf8')),
   } });
 const bytes = Buffer.from(JSON.stringify(artifact));
 if (bytes.length > 262144) throw new Error('Artifact exceeds 256 KiB');

@@ -282,6 +282,9 @@ export interface OperationalInstallationV1 {
    */
   requiredWorkflows: [string, ...string[]];
   rootMappingFile: string;
+  brokerListener?: {
+    port: number;
+  };
 }
 export interface LabstrideInstallationConfigurationV1 {
   schemaVersion: "1.0";

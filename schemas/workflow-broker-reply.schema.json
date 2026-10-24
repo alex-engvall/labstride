@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Workflow broker reply v1",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "operation": {
+          "$ref": "operation.schema.json"
+        },
+        "enrollment": {
+          "$ref": "workflow-enrollment.schema.json"
+        },
+        "claim": {
+          "$ref": "workflow-claim.schema.json"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "operation",
+        "enrollment",
+        "claim"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "authorized": {
+          "const": true
+        },
+        "claimId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "authorized",
+        "claimId"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "received": {
+          "const": true
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "received"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "error": {
+          "enum": [
+            "invalid_payload",
+            "identity_rejected",
+            "provider_unavailable",
+            "not_found",
+            "claim_conflict",
+            "effect_consumed",
+            "effect_blocked",
+            "receipt_conflict",
+            "broker_unavailable"
+          ]
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "error"
+      ]
+    }
+  ]
+}

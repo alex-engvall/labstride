@@ -406,13 +406,13 @@ Implementation issue: [#23](https://github.com/alex-engvall/labstride/issues/23)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W04 |
+| MVP | P0 | implemented | W04 |
 
 Specification: [19-deploy-and-recipes.md](19-deploy-and-recipes.md).
 
 - Replace the example workflow/target without core changes and record source SHA separately from workflow SHA.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04.1-workflow-broker-2026-10-24.md
 
 Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24).
 
@@ -420,13 +420,13 @@ Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W04 |
+| MVP | P0 | implemented | W04 |
 
 Specification: [09-github-and-workflow-contract.md](09-github-and-workflow-contract.md).
 
 - Wrong audience/repository/workflow/run identity is denied; only one claim may cross the effect boundary.
 
-Verification evidence: Historical W00.2 preparation: [fixture/preflight evidence](evidence/W00.2-oidc-probe-2026-10-21.md)., Completed bounded W00.2 discovery: [live OIDC/HTTPS matrix, two attempts and renewal after expiry](evidence/W00.2-live-oidc-2026-10-21.md). This supports identity verification only; atomic claims/fencing and effect authorization remain W04 implementation work. Status remains planned; AC10/AC11/AC12 remain not_run.
+Verification evidence: Historical W00.2 preparation: [fixture/preflight evidence](evidence/W00.2-oidc-probe-2026-10-21.md)., Completed bounded W00.2 discovery: [live OIDC/HTTPS matrix, two attempts and renewal after expiry](evidence/W00.2-live-oidc-2026-10-21.md). This discovery supports identity verification only. At the discovery handoff status remained planned; subsequent W04.1 atomic claim/effect authorization and recovery evidence is recorded separately. Full AC10/AC11/AC12 remain not_run., evidence/W04.1-workflow-broker-2026-10-24.md
 
 Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24).
 
@@ -448,13 +448,13 @@ Implementation issue: [#25](https://github.com/alex-engvall/labstride/issues/25)
 
 | Phase | Priority | Status | Work package |
 | --- | --- | --- | --- |
-| MVP | P0 | planned | W04 |
+| MVP | P0 | implemented | W04 |
 
 Specification: [07-lifecycle-and-recovery.md](07-lifecycle-and-recovery.md).
 
 - Lost dispatch/reply does not produce a second effect; ambiguous runs remain unknown until verified.
 
-Verification evidence: None; not implemented.
+Verification evidence: evidence/W04.1-workflow-broker-2026-10-24.md
 
 Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24).
 
@@ -654,7 +654,7 @@ Specification: [11-security-and-trust.md](11-security-and-trust.md).
 
 - Agent prompts/repos lack deployment credentials; the privileged executor rechecks permission before effects.
 
-Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-native-history-2026-10-24.md
+Verification evidence: evidence/W04-W06-local-self-build-2026-10-24.md, evidence/W04-W06-native-history-2026-10-24.md, evidence/W04.1-workflow-broker-2026-10-24.md
 
 Implementation issue: [#24](https://github.com/alex-engvall/labstride/issues/24).
 

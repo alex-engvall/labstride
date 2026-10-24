@@ -23,6 +23,7 @@ import type { OperationalInstallationV1 } from '../../contracts/generated/operat
 import type { WorkflowStore } from '../storage-sqlite/workflows.ts';
 import { publishRunSummary } from './summary.ts';
 import { loadExtension } from '../extensions/loader.ts';
+import { GitHubWorkflowProvider } from '../provider-github/workflows.ts';
 
 export function loadInstallation(path: string): OperationalInstallationV1 {
   return validated('operational-installation', JSON.parse(readProtected(path).toString('utf8')) as OperationalInstallationV1);
@@ -30,6 +31,8 @@ export function loadInstallation(path: string): OperationalInstallationV1 {
 export function installationShape(spec: OperationalInstallationV1) {
   validated('operational-installation', spec); assertSeparate(spec.stateDirectory, spec.sourceRoot);
   const config = spec.configuration, selfBuild = spec.lock.extensions.find(pin => pin.id === 'labstride.self-build');
+  const workflows = Object.values(config.workflows).flat().some(step => step.action === 'labstride.github-workflow');
+  if ((spec.brokerListener && config.broker.enabled === false) || (workflows && !spec.brokerListener)) throw Error('broker_configuration_invalid');
   const expected = { agent: spec.agent, sourceRoot: spec.sourceRoot, rootId: spec.rootId, baseBranch: spec.baseBranch, requiredWorkflows: spec.requiredWorkflows };
   if (!selfBuild || digest(selfBuild.configuration) !== digest(expected) || config.installationId !== spec.policy.installationId ||
     !config.github.repositories.every(repository => spec.policy.repositories.some(entry => entry.name === repository))) throw Error('installation_binding_invalid');
@@ -106,7 +109,9 @@ export async function openOperationalRuntime(spec: OperationalInstallationV1) {
     additionalActions: store => new Map([[actionKey('labstride.self-build', '0.1.0'), configuredSelfBuildAction(store, spec, checked.adapter, checked.client, checked.rest)]]),
     observations: { sessions: new Map(), projections: new Map() },
     installedTargets: { host: spec.host }, github: { compiled: checked.compiled, adapter: checked.adapter, buildPlan: (steps, observed) => workspaceStart(checked.compiled, steps, observed) },
+    workflowBroker: spec.brokerListener ? { host: spec.host, port: spec.brokerListener.port, provider: new GitHubWorkflowProvider(checked.credential) } : undefined,
     dependencies: { policyAuthority: authority, localWorkspaceRoots: [spec.sourceRoot] } });
+  try { await execution.ready; } catch (error) { await execution.close(); throw error; }
   const store = execution.store;
   return { ...execution, authority,
     async tick() {

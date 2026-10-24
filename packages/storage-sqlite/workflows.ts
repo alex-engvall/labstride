@@ -1,4 +1,6 @@
-import { GitHubStore } from './github.ts';
+import { enrolledWorkflow } from '../workflow-broker/bindings.ts';
+import { WorkflowBrokerStore } from './workflow-broker.ts';
+import { workflowAction, workflowResource } from '../core/workflow-broker.ts';
 import { LifecycleError } from '../core/lifecycle.ts';
 import type { RecordOf, AuditContext } from '../core/lifecycle.ts';
 import type { CompiledConfiguration } from '../configuration/compiler.ts';
@@ -40,7 +42,7 @@ export function workspaceStart(compiled: CompiledConfiguration, steps: BoundStep
   }, config.installationId);
 }
 
-export class WorkflowStore extends GitHubStore {
+export class WorkflowStore extends WorkflowBrokerStore {
   managedSessionStart(operationId: string): ManagedSessionStartV1 | null {
     const row = this.db.prepare("SELECT digest,request,response FROM managed_effects WHERE operation_id=? AND name='session-start-input'").get(operationId);
     if (!row) return null;
@@ -252,7 +254,7 @@ export class WorkflowStore extends GitHubStore {
           this.scheduleOperation({
             operation: { ...base, kind: 'operation', id, runId: run.id, workspaceId: first.workspaceId, request: descriptor, state: 'prepared', effectBoundary: 'not_crossed' },
             outbox: { ...base, kind: 'outbox', id: `intent-${id}`, runId: run.id, operationId: id, intentKey: id, payload: { schemaVersion: '1.0', operationId: id } },
-            resourceKey: `workspace:${first.workspaceId}`, capacityClass: 'development',
+            resourceKey: descriptor.actionId === workflowAction ? workflowResource(enrolledWorkflow(snapshot, descriptor)) : `workspace:${first.workspaceId}`, capacityClass: 'development',
           }, audit);
           this.db.prepare('INSERT INTO workflow_steps VALUES (?,?,?)').run(run.id, position, id);
           this.db.prepare('DELETE FROM workflow_diagnostics WHERE run_id=?').run(run.id);

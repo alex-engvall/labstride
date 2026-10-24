@@ -32,6 +32,9 @@ export interface RetryPolicy { maxAttempts: number; baseMs: number; capMs: numbe
 export const defaultRetryPolicy: RetryPolicy = { maxAttempts: 5, baseMs: 1000, capMs: 60000 };
 export type SessionGuard = NonNullable<AutomationContext['sessionGuard']>;
 export interface ActionAdapter {
+  // Reviewed asynchronous executors may require observation beyond a transient
+  // read retry budget. This never permits another start/effect invocation.
+  continuousReconciliation?: boolean;
   createsWorkspace?: boolean;
   requiresSessionGuard?: boolean;
   atomicSessionGuards?: boolean;
