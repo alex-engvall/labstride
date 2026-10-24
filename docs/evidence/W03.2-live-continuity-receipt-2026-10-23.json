@@ -16,7 +16,8 @@
   "source": {
     "repository": "engshort/labstride",
     "sha": "20cfde76dd458fbd7f4a201cf61f8af31496d5ca",
-    "privateGitHubQualification": "not_run"
+    "privateGitHubQualification": "passed_in_separate_private_source_profile",
+    "privateGitHubEvidence": "W03.2-private-source-receipt-2026-10-24.json"
   },
   "githubAdmission": {
     "ownedIssueNumbers": [
@@ -110,7 +111,7 @@
   "limits": [
     "Process death is not power-loss qualification.",
     "Optional runtime namespaces remain W03.3.",
-    "Private GitHub source authorization remains unqualified.",
+    "Private-source qualification is separate; this original continuity profile used a public source.",
     "GitHub has no field CAS or durable write receipt; uncertainty is retained."
   ],
   "finalCleanup": {
