@@ -28,6 +28,7 @@ for (const route of routes) {
   assert(html?.includes(`rel="canonical" href="${origin}${route}"`) || html?.includes(`href="${origin}${route}" rel="canonical"`), `Incorrect canonical URL: ${route}`);
 }
 assert.equal((await readFile(join(root, 'CNAME'), 'utf8')).trim(), 'docs.labstride.dev');
+await destination('/404.html');
 await destination('/pagefind/pagefind.js');
 await destination('/sitemap-index.xml');
 
@@ -35,7 +36,10 @@ let checked = 0;
 for (const [file, html] of pages) {
   const relative = file.slice(root.length).split(sep).join('/');
   const base = new URL(relative.endsWith('/index.html') ? relative.slice(0, -10) : relative, origin);
-  for (const match of html.matchAll(/\b(?:href|src)="([^"<>]+)"/g)) {
+  // Canonicals are verified separately above. Astro's error document is 404.html,
+  // while its canonical metadata can say /404/; that is not a navigation link.
+  const linkedHtml = html.replace(/<link\b(?=[^>]*\brel="canonical")[^>]*>/gi, '');
+  for (const match of linkedHtml.matchAll(/\b(?:href|src)="([^"<>]+)"/g)) {
     const target = new URL(match[1].replaceAll('&amp;', '&'), base);
     if (target.origin !== origin) continue;
     const path = await destination(target.pathname);
